@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import queue
 import threading
 import datetime
 import time
@@ -318,8 +319,10 @@ class ScriptManagerApp(ctk.CTk):
         self._extrair_scripts_temp()
         atexit.register(self._limpar_temp)
 
+        self._log_queue = queue.Queue()
         self._build_ui()
         self._atualizar_cards()
+        self._poll_log_queue()
 
     def _build_ui(self):
         self.grid_columnconfigure(0, weight=1)
@@ -552,11 +555,23 @@ class ScriptManagerApp(ctk.CTk):
     def _log(self, msg):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
         line = f"[{timestamp}] {msg}"
-        self.after(0, self._log_ui, line)
+        self._log_queue.put(line)
+
+    def _poll_log_queue(self):
+        try:
+            while True:
+                line = self._log_queue.get_nowait()
+                self._log_ui(line)
+        except queue.Empty:
+            pass
+        self.after(100, self._poll_log_queue)
 
     def _log_ui(self, line):
-        self.log_text.insert("end", line + "\n")
-        self.log_text.see("end")
+        try:
+            self.log_text.insert("end", line + "\n")
+            self.log_text.see("end")
+        except Exception:
+            pass
         if self.full_log_window is not None:
             self.full_log_window.log(line)
 
