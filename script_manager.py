@@ -358,13 +358,11 @@ class FMOptimizationApp:
         self.page.update()
 
     def _update_search_context(self):
-        is_specific = self.categoria_atual not in ("Todas",)
-        self.search_box.visible = is_specific
-        if is_specific:
-            self.search_field.hint_text = f"Buscar em {self.categoria_atual}"
+        self.search_box.visible = True
+        if self.categoria_atual == "Todas":
+            self.search_field.hint_text = "Buscar em todos os scripts"
         else:
-            self.search_field.value = ""
-            self.search_field.hint_text = "Buscar..."
+            self.search_field.hint_text = f"Buscar em {self.categoria_atual}"
 
     def _render_sidebar(self):
         self._sidebar_refs.clear()
