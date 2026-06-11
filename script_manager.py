@@ -67,54 +67,6 @@ def salvar_dados(dados):
         json.dump(dados, f, indent=2, ensure_ascii=False)
 
 
-class FullLogWindow(ctk.CTkToplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self._alive = True
-        self._parent = parent
-        self.title("Log Completo")
-        self.geometry("700x500")
-        self.configure(fg_color=BG_PRIMARY)
-        self.textbox = ctk.CTkTextbox(self, wrap="word", fg_color=TERMINAL_BG, text_color=GREEN,
-                                       font=ctk.CTkFont(family="Consolas", size=12))
-        self.textbox.pack(fill="both", expand=True, padx=10, pady=(10, 5))
-
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=10, pady=(0, 10))
-        ctk.CTkButton(btn_frame, text="Limpar", width=80, fg_color=BG_CARD, text_color=TEXT_PRIMARY,
-                       hover_color=BG_CARD_HOVER, border_width=1, border_color=BORDER_CARD,
-                       command=self.limpar).pack(side="right", padx=5)
-        ctk.CTkButton(btn_frame, text="Fechar", width=80, fg_color=CYAN, text_color=BG_PRIMARY,
-                       hover_color="#00c4d9", command=self._fechar).pack(side="right", padx=5)
-
-        self.protocol("WM_DELETE_WINDOW", self._fechar)
-
-    def _fechar(self):
-        self._alive = False
-        self._parent.full_log_window = None
-        try:
-            self.destroy()
-        except Exception:
-            pass
-
-    def log(self, msg):
-        if not self._alive:
-            return
-        self.after(0, self._log_ui, msg)
-
-    def _log_ui(self, msg):
-        if not self._alive:
-            return
-        try:
-            self.textbox.insert("end", msg + "\n")
-            self.textbox.see("end")
-        except Exception:
-            pass
-
-    def limpar(self):
-        self.textbox.delete("1.0", "end")
-
-
 class ScriptDetailsDialog(ctk.CTkToplevel):
     def __init__(self, parent, script):
         super().__init__(parent)
@@ -364,7 +316,6 @@ class ScriptManagerApp(ctk.CTk):
         self.grid_rowconfigure(3, weight=1)
 
         self.log_expanded = True
-        self.full_log_window = None
 
         log_outer = ctk.CTkFrame(self, fg_color=BG_SIDEBAR, corner_radius=0)
         log_outer.grid(row=4, column=0, sticky="ew")
@@ -383,10 +334,6 @@ class ScriptManagerApp(ctk.CTk):
                                              command=self._toggle_log)
         self.log_toggle_btn.pack(side="left", padx=2)
 
-        ctk.CTkButton(toggle_bar, text="Full", width=40, height=18,
-                       fg_color="transparent", text_color=CYAN, hover_color=CYAN_BG,
-                       font=ctk.CTkFont(size=9),
-                       command=self._abrir_full_log).pack(side="right", padx=4)
         ctk.CTkButton(toggle_bar, text="Copiar", width=50, height=18,
                        fg_color="transparent", text_color=CYAN, hover_color=CYAN_BG,
                        font=ctk.CTkFont(size=9),
@@ -572,9 +519,6 @@ class ScriptManagerApp(ctk.CTk):
             self.log_text.see("end")
         except Exception:
             pass
-        if self.full_log_window is not None:
-            self.full_log_window.log(line)
-
     def _toggle_log(self):
         if self.log_expanded:
             self.log_content.pack_forget()
@@ -596,18 +540,6 @@ class ScriptManagerApp(ctk.CTk):
 
     def _limpar_log_rapido(self):
         self.log_text.delete("1.0", "end")
-
-    def _abrir_full_log(self):
-        if self.full_log_window is not None:
-            try:
-                self.full_log_window.focus()
-                return
-            except Exception:
-                self.full_log_window = None
-        self.full_log_window = FullLogWindow(self)
-        for line in self.log_text.get("1.0", "end-1c").split("\n"):
-            if line.strip():
-                self.full_log_window.log(line)
 
     def _abrir_adicionar_script(self):
         AddEditScriptDialog(self, self.dados["categorias"], callback=self._adicionar_script_callback)
