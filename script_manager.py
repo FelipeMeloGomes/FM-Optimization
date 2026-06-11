@@ -163,21 +163,19 @@ class FMOptimizationApp:
         font = "JetBrains Mono" if self.page.fonts and "JetBrains Mono" in self.page.fonts else None
 
         search_container = ft.Container(
-            content=ft.Row([
-                ft.Icon(ICONS.SEARCH, size=14, color=TEXT_MUTED),
-                ft.TextField(
-                    hint_text="Buscar...",
-                    border=ft.InputBorder.NONE,
-                    text_size=12,
-                    text_style=ft.TextStyle(color=TEXT_PRIMARY, font_family=font),
-                    hint_style=ft.TextStyle(color=TEXT_MUTED),
-                    fill_color=None,
-                    expand=True,
-                    height=30,
-                    content_padding=ft.Padding(4, 0, 0, 0),
-                    on_change=self._on_busca_change,
-                ),
-            ], spacing=6, alignment=ft.MainAxisAlignment.CENTER),
+            content=ft.TextField(
+                hint_text="Buscar...",
+                border=ft.InputBorder.NONE,
+                text_size=12,
+                text_align=ft.TextAlign.CENTER,
+                text_style=ft.TextStyle(color=TEXT_PRIMARY, font_family=font),
+                hint_style=ft.TextStyle(color=TEXT_MUTED),
+                fill_color=None,
+                expand=True,
+                height=30,
+                content_padding=ft.Padding(8, 0, 8, 0),
+                on_change=self._on_busca_change,
+            ),
             bgcolor=BG_CARD,
             border_radius=6,
             border=border_all(1, BORDER_DEFAULT),
@@ -186,7 +184,7 @@ class FMOptimizationApp:
         )
 
         self.sidebar_menu = ft.Column(scroll=ft.ScrollMode.ALWAYS, expand=True, spacing=0)
-        self.search_field = search_container.content.controls[1]
+        self.search_field = search_container.content
 
         gear_btn = ft.Container(
             content=ft.Row([
