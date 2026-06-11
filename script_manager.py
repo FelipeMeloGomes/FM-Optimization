@@ -36,6 +36,7 @@ def carregar_dados():
             print(f"Erro ao carregar dados: {e}")
     dados.pop("agendamento", None)
     dados["categorias"] = [c for c in dados.get("categorias", []) if c != "Geral"]
+    dados["favoritos"] = dados.get("favoritos", [])
     if "scripts" not in dados:
         dados["scripts"] = []
     return dados
@@ -377,7 +378,7 @@ class FMOptimizationApp:
         self._sidebar_item(self.sidebar_menu, "Personalizados",
                            CATEGORY_ICONS.get("Personalizados", ICONS.PERSON), user_count)
         self._sidebar_item(self.sidebar_menu, "Favoritos",
-                           CATEGORY_ICONS.get("Favoritos", ICONS.STAR), 0)
+                           CATEGORY_ICONS.get("Favoritos", ICONS.STAR), self._favoritos_count)
         self._update_sidebar_active()
         self.sidebar_menu.update()
 
@@ -458,7 +459,18 @@ class FMOptimizationApp:
             padding=ft.Padding(5, 1, 5, 1),
         )
 
+        is_fav = nome in self.dados.get("favoritos", [])
+        star_icon = ft.Icon(
+            ICONS.STAR if is_fav else ICONS.STAR_OUTLINE,
+            size=13, color=AMBER_PRIMARY if is_fav else TEXT_MUTED,
+        )
+        star_btn = ft.Container(
+            content=star_icon,
+            on_click=lambda e: self._toggle_favorito(nome),
+        )
+
         meta_row = ft.Row(spacing=6)
+        meta_row.controls.append(star_btn)
         if admin:
             meta_row.controls.append(
                 ft.Text("ADMIN", size=8, weight=ft.FontWeight.BOLD, color=AMBER_PRIMARY,
@@ -569,6 +581,7 @@ class FMOptimizationApp:
             "descricao_lower": descricao.lower(),
             "run_btn": run_btn,
             "run_ring": run_ring,
+            "star_icon": star_icon,
         }
 
     def _create_all_cards(self):
@@ -592,7 +605,7 @@ class FMOptimizationApp:
             if self.categoria_atual == "Personalizados":
                 show = not script.get("embedded")
             elif self.categoria_atual == "Favoritos":
-                show = False
+                show = script["nome"] in self.dados.get("favoritos", [])
             elif self.categoria_atual != "Todas":
                 show = script.get("categoria") == self.categoria_atual
 
@@ -609,7 +622,7 @@ class FMOptimizationApp:
 
         if visible_count == 0:
             if self.categoria_atual == "Favoritos":
-                self.empty_sub.value = "Em breve — favoritar scripts"
+                self.empty_sub.value = "Clique na estrela ★ em um script para favorita-lo"
             elif not self.dados["scripts"] and not busca:
                 self.empty_sub.value = "Use '+ Adicionar Script' para incluir seus próprios scripts"
             else:
@@ -991,6 +1004,38 @@ class FMOptimizationApp:
             actions_alignment=ft.MainAxisAlignment.END,
         )
         self.page.show_dialog(dialog)
+
+    def _toggle_favorito(self, nome):
+        favs = self.dados.setdefault("favoritos", [])
+        if nome in favs:
+            favs.remove(nome)
+        else:
+            favs.append(nome)
+        salvar_dados(self.dados)
+
+        for entry in self._card_entries:
+            if entry["script"]["nome"] == nome:
+                is_fav = nome in favs
+                entry["star_icon"].name = ICONS.STAR if is_fav else ICONS.STAR_OUTLINE
+                entry["star_icon"].color = AMBER_PRIMARY if is_fav else TEXT_MUTED
+                entry["star_icon"].update()
+                break
+
+        fav_refs = self._sidebar_refs.get("Favoritos")
+        if fav_refs:
+            count = self._favoritos_count
+            fav_refs["count"].content.value = str(count)
+            fav_refs["count"].update()
+
+        if self.categoria_atual == "Favoritos":
+            self._filter_cards()
+            self.cards_grid.update()
+            self.empty_state.update()
+
+    @property
+    def _favoritos_count(self):
+        favs = self.dados.get("favoritos", [])
+        return sum(1 for s in self._todos_scripts() if s["nome"] in favs)
 
     def _set_running(self, nome, estado):
         self._running[nome] = estado
