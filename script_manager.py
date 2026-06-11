@@ -69,6 +69,8 @@ def salvar_dados(dados):
 class FullLogWindow(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self._alive = True
+        self._parent = parent
         self.title("Log Completo")
         self.geometry("700x500")
         self.configure(fg_color=BG_PRIMARY)
@@ -82,12 +84,26 @@ class FullLogWindow(ctk.CTkToplevel):
                        hover_color=BG_CARD_HOVER, border_width=1, border_color=BORDER_CARD,
                        command=self.limpar).pack(side="right", padx=5)
         ctk.CTkButton(btn_frame, text="Fechar", width=80, fg_color=CYAN, text_color=BG_PRIMARY,
-                       hover_color="#00c4d9", command=self.destroy).pack(side="right", padx=5)
+                       hover_color="#00c4d9", command=self._fechar).pack(side="right", padx=5)
+
+        self.protocol("WM_DELETE_WINDOW", self._fechar)
+
+    def _fechar(self):
+        self._alive = False
+        self._parent.full_log_window = None
+        try:
+            self.destroy()
+        except Exception:
+            pass
 
     def log(self, msg):
+        if not self._alive:
+            return
         self.after(0, self._log_ui, msg)
 
     def _log_ui(self, msg):
+        if not self._alive:
+            return
         try:
             self.textbox.insert("end", msg + "\n")
             self.textbox.see("end")
@@ -541,11 +557,8 @@ class ScriptManagerApp(ctk.CTk):
     def _log_ui(self, line):
         self.log_text.insert("end", line + "\n")
         self.log_text.see("end")
-        try:
-            if self.full_log_window and self.full_log_window.winfo_exists():
-                self.full_log_window._log_ui(line)
-        except Exception:
-            pass
+        if self.full_log_window is not None:
+            self.full_log_window.log(line)
 
     def _toggle_log(self):
         if self.log_expanded:
@@ -570,9 +583,12 @@ class ScriptManagerApp(ctk.CTk):
         self.log_text.delete("1.0", "end")
 
     def _abrir_full_log(self):
-        if self.full_log_window and self.full_log_window.winfo_exists():
-            self.full_log_window.focus()
-            return
+        if self.full_log_window is not None:
+            try:
+                self.full_log_window.focus()
+                return
+            except Exception:
+                self.full_log_window = None
         self.full_log_window = FullLogWindow(self)
         for line in self.log_text.get("1.0", "end-1c").split("\n"):
             if line.strip():
