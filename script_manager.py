@@ -44,9 +44,32 @@ class Theme:
     terminal_bg: str = "#111111"
     header_divider: str = "#333333"
     sidebar_divider: str = "#333333"
+    log_muted: str = "#444444"
+    log_bg: str = "#111111"
 
 
 T = Theme()
+SIDEBAR_WIDTH = 200
+
+ACCENT_COLORS = {
+    ".bat": T.green,
+    ".cmd": T.green,
+    ".ps1": T.cyan,
+    ".exe": T.amber,
+    ".reg": T.amber,
+    ".txt": T.text_muted,
+}
+
+CATEGORY_ICONS = {
+    "Todas": "▦",
+    "Limpeza": "◫",
+    "Script Babbo": "◈",
+    "GPU - AMD": "◈",
+    "GPU - NVIDIA": "◈",
+    "Windows 11": "◆",
+    "Personalizados": "◉",
+    "Favoritos": "★",
+}
 
 
 def get_app_dir():
@@ -295,79 +318,167 @@ class ScriptManagerApp(ctk.CTk):
         self._poll_log_queue()
 
     def _build_ui(self):
-        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=0)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        header = ctk.CTkFrame(self, fg_color=T.bg_sidebar, corner_radius=0)
-        header.grid(row=0, column=0, sticky="ew")
-        header.grid_columnconfigure(1, weight=1)
+        sidebar = ctk.CTkFrame(self, width=SIDEBAR_WIDTH, fg_color=T.bg_sidebar, corner_radius=0)
+        sidebar.grid(row=0, column=0, sticky="nsew")
+        sidebar.grid_propagate(False)
 
-        ctk.CTkLabel(header, text="FM Optimization",
-                      font=ctk.CTkFont(size=14, weight="bold"),
-                      text_color=T.text_primary).grid(row=0, column=0, padx=(16, 10), pady=10, sticky="w")
+        search_frame = ctk.CTkFrame(sidebar, fg_color=T.bg_card, corner_radius=6,
+                                     border_width=1, border_color=T.border_card)
+        search_frame.pack(fill="x", padx=12, pady=(12, 8))
 
-        self.entry_busca = ctk.CTkEntry(header, placeholder_text="Buscar scripts...",
-                                         border_width=0, height=32,
-                                         fg_color=T.bg_primary, text_color=T.text_primary,
-                                         placeholder_text_color=T.text_muted)
-        self.entry_busca.grid(row=0, column=1, padx=8, pady=10, sticky="ew")
+        ctk.CTkLabel(search_frame, text=chr(9745), text_color=T.text_muted,
+                      font=ctk.CTkFont(size=14)).pack(side="left", padx=(8, 4))
+        self.entry_busca = ctk.CTkEntry(search_frame, border_width=0,
+                                         fg_color="transparent", text_color=T.text_primary,
+                                         placeholder_text="Buscar...",
+                                         placeholder_text_color=T.text_muted,
+                                         font=ctk.CTkFont(size=12))
+        self.entry_busca.pack(side="left", fill="x", expand=True, pady=5, padx=(0, 8))
         self.entry_busca.bind("<KeyRelease>", self._on_busca_keyrelease)
 
-        ctk.CTkButton(header, text="+ Adicionar Script", width=130, height=32,
-                       fg_color=T.cyan, text_color="#ffffff",
+        self.sidebar_menu = ctk.CTkScrollableFrame(sidebar, fg_color="transparent",
+                                                     corner_radius=0)
+        self.sidebar_menu.pack(fill="both", expand=True)
+
+        content = ctk.CTkFrame(self, fg_color=T.bg_primary, corner_radius=0)
+        content.grid(row=0, column=1, sticky="nsew")
+
+        topbar = ctk.CTkFrame(content, fg_color=T.bg_sidebar, corner_radius=0, height=44)
+        topbar.pack(fill="x")
+        topbar.pack_propagate(False)
+
+        self.lbl_categoria = ctk.CTkLabel(topbar, text="Todas",
+                                            font=ctk.CTkFont(size=14, weight="bold"),
+                                            text_color=T.text_primary)
+        self.lbl_categoria.pack(side="left", padx=16)
+
+        self.lbl_count = ctk.CTkLabel(topbar, text="0 scripts",
+                                        font=ctk.CTkFont(size=11),
+                                        fg_color="#252525", text_color="#666666",
+                                        corner_radius=10)
+        self.lbl_count.pack(side="left", padx=4, ipadx=8, ipady=2)
+
+        ctk.CTkButton(topbar, text="+ Adicionar Script", width=130, height=30,
+                       fg_color=T.cyan, text_color=T.bg_primary,
                        hover_color=T.cyan_dim, font=ctk.CTkFont(size=12),
-                       command=self._abrir_adicionar_script).grid(row=0, column=2, padx=(8, 16), pady=10)
+                       command=self._abrir_adicionar_script).pack(side="right", padx=16)
 
-        tab_bar = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0, height=36)
-        tab_bar.grid(row=1, column=0, sticky="ew")
-        tab_bar.grid_propagate(False)
+        self.cards_frame = ctk.CTkScrollableFrame(content, fg_color="transparent",
+                                                    corner_radius=0)
+        self.cards_frame.pack(fill="both", expand=True)
 
-        self.cat_frame = ctk.CTkScrollableFrame(tab_bar, orientation="horizontal",
-                                                  fg_color="transparent", height=28)
-        self.cat_frame.pack(fill="x", padx=16, pady=2)
+        resizer = ctk.CTkFrame(content, height=6, fg_color=T.bg_sidebar,
+                                cursor="sb_v_double_arrow")
+        resizer.pack(fill="x")
+        ctk.CTkFrame(resizer, height=2, width=36,
+                      fg_color=T.border_card).place(relx=0.5, rely=0.5, anchor="center")
 
-        divider = ctk.CTkFrame(self, height=1, fg_color=T.border_card)
-        divider.grid(row=2, column=0, sticky="ew")
+        self.log_panel = ctk.CTkFrame(content, fg_color=T.log_bg, corner_radius=0, height=120)
+        self.log_panel.pack(fill="x")
+        self.log_panel.pack_propagate(False)
 
-        self.cards_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        self.cards_frame.grid(row=3, column=0, sticky="nsew", padx=18, pady=(12, 0))
-
-        self.grid_rowconfigure(3, weight=1)
+        log_header = ctk.CTkFrame(self.log_panel, fg_color="transparent", height=26)
+        log_header.pack(fill="x")
+        log_header.pack_propagate(False)
 
         self.log_expanded = True
+        self.log_dot = ctk.CTkFrame(log_header, width=6, height=6,
+                                      fg_color="#333333", corner_radius=3)
+        self.log_dot.pack(side="left", padx=(14, 6), pady=10)
 
-        log_outer = ctk.CTkFrame(self, fg_color=T.bg_sidebar, corner_radius=0)
-        log_outer.grid(row=4, column=0, sticky="ew")
-
-        toggle_bar = ctk.CTkFrame(log_outer, fg_color="transparent", height=24)
-        toggle_bar.pack(fill="x")
-        toggle_bar.pack_propagate(False)
-
-        ctk.CTkLabel(toggle_bar, text="LOG",
+        ctk.CTkLabel(log_header, text="LOG",
                       font=ctk.CTkFont(size=9, weight="bold"),
-                      text_color=T.text_muted).pack(side="left", padx=14)
+                      text_color=T.log_muted).pack(side="left")
 
-        self.log_toggle_btn = ctk.CTkButton(toggle_bar, text=chr(9660), width=22, height=18,
-                                             fg_color="transparent", text_color=T.text_muted,
-                                             hover_color=T.bg_card_hover,
-                                             command=self._toggle_log)
-        self.log_toggle_btn.pack(side="left", padx=2)
+        for txt, color, cmd in [
+            ("Copiar", T.cyan, self._copiar_log),
+            ("Limpar", T.text_muted, self._limpar_log_rapido),
+            (chr(9660), T.text_muted, self._toggle_log),
+        ]:
+            ctk.CTkButton(log_header, text=txt, width=44, height=18,
+                           fg_color="transparent", text_color=color,
+                           hover_color=T.bg_card, font=ctk.CTkFont(size=9),
+                           command=cmd).pack(side="right", padx=2)
 
-        ctk.CTkButton(toggle_bar, text="Copiar", width=50, height=18,
-                       fg_color="transparent", text_color=T.cyan, hover_color=T.cyan_bg,
-                       font=ctk.CTkFont(size=9),
-                       command=self._copiar_log).pack(side="right", padx=4)
-        ctk.CTkButton(toggle_bar, text="Limpar", width=50, height=18,
-                       fg_color="transparent", text_color=T.text_muted, hover_color=T.bg_card_hover,
-                       font=ctk.CTkFont(size=9),
-                       command=self._limpar_log_rapido).pack(side="right", padx=4)
+        self.log_text = ctk.CTkTextbox(self.log_panel, fg_color=T.log_bg,
+                                        text_color=T.green,
+                                        font=ctk.CTkFont(family="Consolas", size=11),
+                                        wrap="word")
+        self.log_text.pack(fill="both", expand=True, padx=4, pady=(0, 4))
 
-        self.log_content = ctk.CTkFrame(log_outer, fg_color=T.terminal_bg, corner_radius=6)
-        self.log_content.pack(fill="x", padx=12, pady=(0, 10))
+    def _sidebar_section(self, parent, texto):
+        ctk.CTkLabel(parent, text=texto,
+                      font=ctk.CTkFont(size=10, weight="bold"),
+                      text_color="#444444").pack(anchor="w", padx=16, pady=(8, 4))
 
-        self.log_text = ctk.CTkTextbox(self.log_content, height=80, wrap="word",
-                                        fg_color=T.terminal_bg, text_color=T.green,
-                                        font=ctk.CTkFont(family="Consolas", size=11))
-        self.log_text.pack(fill="both", expand=True, padx=4, pady=4)
+    def _sidebar_item(self, parent, nome, icone, count, active=False):
+        fg = T.bg_card if active else "transparent"
+        text = T.cyan if active else T.text_muted
+        bg = T.cyan_bg if active else "#252525"
+        fg_count = T.cyan if active else "#555555"
+
+        frame = ctk.CTkFrame(parent, fg_color=fg, corner_radius=0, height=32)
+        frame.pack(fill="x")
+        frame.pack_propagate(False)
+
+        accent = ctk.CTkFrame(frame, width=2, fg_color=T.cyan if active else "transparent",
+                               corner_radius=0)
+        accent.pack(side="left", fill="y")
+
+        ctk.CTkLabel(frame, text=icone, font=ctk.CTkFont(size=13),
+                      text_color=text).pack(side="left", padx=(10, 6))
+        ctk.CTkLabel(frame, text=nome, font=ctk.CTkFont(size=12),
+                      text_color=text).pack(side="left")
+
+        ctk.CTkLabel(frame, text=str(count), font=ctk.CTkFont(size=10),
+                      fg_color=bg, text_color=fg_count,
+                      corner_radius=10).pack(side="right", padx=12, ipadx=5, ipady=1)
+
+        frame.bind("<Button-1>", lambda e: self._selecionar_categoria(nome))
+        for widget in frame.winfo_children():
+            widget.bind("<Button-1>", lambda e: self._selecionar_categoria(nome))
+
+    def _selecionar_categoria(self, nome):
+        self.categoria_atual = nome
+        self._atualizar_cards()
+
+    def _render_sidebar(self):
+        for w in self.sidebar_menu.winfo_children():
+            w.destroy()
+
+        todos = self._todos_scripts()
+        total_count = len(todos)
+
+        def cat_count(cat):
+            return len([s for s in todos if s.get("categoria") == cat])
+
+        self._sidebar_section(self.sidebar_menu, "CATEGORIAS")
+
+        self._sidebar_item(self.sidebar_menu, "Todas",
+                           CATEGORY_ICONS.get("Todas", "▦"),
+                           total_count, self.categoria_atual == "Todas")
+
+        for cat in self.dados["categorias"]:
+            icone = CATEGORY_ICONS.get(cat, "◈")
+            self._sidebar_item(self.sidebar_menu, cat, icone, cat_count(cat),
+                               self.categoria_atual == cat)
+
+        ctk.CTkFrame(self.sidebar_menu, height=1, fg_color=T.border_card).pack(
+            fill="x", padx=12, pady=6)
+
+        self._sidebar_section(self.sidebar_menu, "MEUS")
+
+        user_count = len(self.dados["scripts"])
+        self._sidebar_item(self.sidebar_menu, "Personalizados",
+                           CATEGORY_ICONS.get("Personalizados", "◉"),
+                           user_count, self.categoria_atual == "Personalizados")
+        self._sidebar_item(self.sidebar_menu, "Favoritos",
+                           CATEGORY_ICONS.get("Favoritos", "★"),
+                           0, self.categoria_atual == "Favoritos")
 
     def _extrair_unico(self, script):
         dst = os.path.join(self._temp_scripts_dir, script["caminho_relativo"])
@@ -398,43 +509,32 @@ class ScriptManagerApp(ctk.CTk):
     def _todos_scripts(self):
         return self.dados["scripts"] + self._embedded_scripts
 
-    def _render_categorias(self):
-        for w in self.cat_frame.winfo_children():
-            w.destroy()
-
-        def selecionar(cat):
-            self.categoria_atual = cat
-            self._atualizar_cards()
-
-        self._tab_pill("Todas", selecionar, self.categoria_atual == "Todas")
-        for cat in self.dados["categorias"]:
-            self._tab_pill(cat, selecionar, self.categoria_atual == cat)
-
-    def _tab_pill(self, nome, callback, active):
-        btn = ctk.CTkButton(self.cat_frame, text=nome,
-                             fg_color=T.cyan_bg if active else T.bg_primary,
-                             text_color=T.cyan if active else T.text_muted,
-                             hover_color=T.bg_card_hover,
-                             border_width=0,
-                             corner_radius=14, height=24,
-                             font=ctk.CTkFont(size=11),
-                             command=lambda n=nome: callback(n))
-        btn.pack(side="left", padx=3, pady=2)
-
     def _atualizar_cards(self):
         if self._categorias_dirty:
-            self._render_categorias()
+            self._render_sidebar()
             self._categorias_dirty = False
-        for w in self.cards_frame.winfo_children():
-            w.destroy()
+
         self._run_buttons.clear()
 
         busca = self.entry_busca.get().strip().lower()
         scripts = self._todos_scripts()
-        if self.categoria_atual != "Todas":
+
+        if self.categoria_atual == "Personalizados":
+            scripts = [s for s in scripts if not s.get("embedded")]
+        elif self.categoria_atual == "Favoritos":
+            scripts = []
+        elif self.categoria_atual != "Todas":
             scripts = [s for s in scripts if s.get("categoria") == self.categoria_atual]
+
         if busca:
             scripts = [s for s in scripts if busca in s["nome"].lower() or busca in s.get("descricao", "").lower()]
+
+        self.lbl_categoria.configure(text=self.categoria_atual)
+        total_count = len(scripts)
+        self.lbl_count.configure(text=f"{total_count} {'script' if total_count == 1 else 'scripts'}")
+
+        for w in self.cards_frame.winfo_children():
+            w.destroy()
 
         if not scripts:
             frame_vazio = ctk.CTkFrame(self.cards_frame, fg_color="transparent")
@@ -445,7 +545,14 @@ class ScriptManagerApp(ctk.CTk):
                 font=ctk.CTkFont(size=15, weight="bold"),
                 text_color=T.text_muted
             ).pack()
-            if not self.dados["scripts"] and not self.entry_busca.get().strip():
+            if self.categoria_atual == "Favoritos":
+                ctk.CTkLabel(
+                    frame_vazio,
+                    text="Em breve — favoritar scripts",
+                    font=ctk.CTkFont(size=11),
+                    text_color=T.text_muted
+                ).pack(pady=(6, 0))
+            elif not self.dados["scripts"] and not self.entry_busca.get().strip():
                 ctk.CTkLabel(
                     frame_vazio,
                     text="Use '+ Adicionar Script' para incluir seus próprios scripts",
@@ -466,13 +573,23 @@ class ScriptManagerApp(ctk.CTk):
                           T.text_muted)
             _icon_bg = {T.green: T.green_bg, T.cyan: T.bg_card_hover,
                         T.amber: T.amber_hover}.get(icon_color, T.bg_card)
+            accent_color = ACCENT_COLORS.get(script.get("tipo", ""), T.text_muted)
 
             card = ctk.CTkFrame(self.cards_frame, fg_color=T.bg_card, corner_radius=8,
                                  border_width=1, border_color=T.border_card)
-            card.pack(fill="x", pady=4)
+            card.pack(fill="x", pady=3)
 
-            row = ctk.CTkFrame(card, fg_color="transparent")
-            row.pack(fill="x", padx=16, pady=12)
+            inner = ctk.CTkFrame(card, fg_color="transparent")
+            inner.pack(fill="both", expand=True)
+
+            ctk.CTkFrame(inner, width=3, fg_color=accent_color,
+                          corner_radius=0).pack(side="left", fill="y")
+
+            body = ctk.CTkFrame(inner, fg_color="transparent")
+            body.pack(side="left", fill="both", expand=True, padx=14, pady=10)
+
+            row = ctk.CTkFrame(body, fg_color="transparent")
+            row.pack(fill="x")
 
             left = ctk.CTkFrame(row, fg_color="transparent")
             left.pack(side="left", fill="x", expand=True)
@@ -517,7 +634,9 @@ class ScriptManagerApp(ctk.CTk):
             btn.pack(side="top", pady=(0, 4))
             self._run_buttons[script["nome"]] = btn
             if self._running.get(script["nome"]):
-                btn.configure(text="Executando...", state="disabled")
+                btn.configure(text="Executando...", state="disabled",
+                               fg_color=T.green_bg, text_color=T.green,
+                               border_width=1, border_color="#2a4a2a")
 
             if is_embedded:
                 ctk.CTkButton(right, text="Detalhes", width=80, height=28,
@@ -540,20 +659,39 @@ class ScriptManagerApp(ctk.CTk):
     def _log(self, msg):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
         line = f"[{timestamp}] {msg}"
-        self._log_queue.put(line)
+        msg_lower = msg.lower()
+        if any(w in msg_lower for w in ["erro", "error", "falha", "failed", "acesso negado"]):
+            nivel = "error"
+        elif any(w in msg_lower for w in ["aviso", "warning", "cancelado", "negado"]):
+            nivel = "warn"
+        elif any(w in msg_lower for w in ["finalizado", "concluído", "iniciado"]):
+            nivel = "info"
+        else:
+            nivel = "muted"
+        self._log_queue.put((line, nivel))
 
     def _poll_log_queue(self):
         try:
             while True:
-                line = self._log_queue.get_nowait()
-                self._log_ui(line)
+                item = self._log_queue.get_nowait()
+                if isinstance(item, tuple):
+                    line, nivel = item
+                else:
+                    line, nivel = item, "muted"
+                self._log_ui(line, nivel)
         except queue.Empty:
             pass
         self.after(100, self._poll_log_queue)
 
-    def _log_ui(self, line):
+    def _log_ui(self, line, nivel="muted"):
         try:
-            self.log_text.insert("end", line + "\n")
+            if nivel == "error":
+                prefix = "[ERRO] "
+            elif nivel == "warn":
+                prefix = "[AVISO] "
+            else:
+                prefix = ""
+            self.log_text.insert("end", prefix + line + "\n")
             line_count = int(self.log_text.index("end-1c").split(".")[0])
             if line_count > 500:
                 self.log_text.delete("1.0", f"{line_count - 500}.0")
@@ -563,11 +701,11 @@ class ScriptManagerApp(ctk.CTk):
 
     def _toggle_log(self):
         if self.log_expanded:
-            self.log_content.pack_forget()
-            self.log_toggle_btn.configure(text=chr(9650))
+            self.log_text.pack_forget()
+            self.log_panel.configure(height=26)
         else:
-            self.log_content.pack(fill="x", padx=12, pady=(0, 10))
-            self.log_toggle_btn.configure(text=chr(9660))
+            self.log_text.pack(fill="both", expand=True, padx=4, pady=(0, 4))
+            self.log_panel.configure(height=120)
         self.log_expanded = not self.log_expanded
 
     def _mostrar_detalhes(self, script):
@@ -625,22 +763,34 @@ class ScriptManagerApp(ctk.CTk):
             self.dados["categorias"] = categorias
             if not self.dados["categorias"]:
                 self.dados["categorias"] = []
-            if self.categoria_atual not in categorias and self.categoria_atual != "Todas":
-                self.categoria_atual = categorias[0]
+            if self.categoria_atual not in categorias and self.categoria_atual not in ("Todas", "Personalizados", "Favoritos"):
+                self.categoria_atual = categorias[0] if categorias else "Todas"
             salvar_dados(self.dados)
             self._categorias_dirty = True
             self._atualizar_cards()
         CategoryDialog(self, self.dados["categorias"], callback)
 
-    def _set_script_running(self, nome, running):
-        self._running[nome] = running
+    def _set_running(self, nome, estado):
+        self._running[nome] = estado
+        any_running = any(self._running.values())
+        self.log_dot.configure(fg_color=T.green if any_running else "#333333")
+
         def update():
             btn = self._run_buttons.get(nome)
             if btn:
-                if running:
-                    btn.configure(text="Executando...", state="disabled")
+                if estado:
+                    btn.configure(text="Executando...",
+                                   fg_color=T.green_bg,
+                                   text_color=T.green,
+                                   border_width=1,
+                                   border_color="#2a4a2a",
+                                   state="disabled")
                 else:
-                    btn.configure(text="Executar", state="normal")
+                    btn.configure(text="Executar",
+                                   fg_color=T.green,
+                                   text_color="#ffffff",
+                                   border_width=0,
+                                   state="normal")
         self.after(0, update)
 
     def _executar_script(self, script):
@@ -648,7 +798,7 @@ class ScriptManagerApp(ctk.CTk):
         if self._running.get(nome):
             return
 
-        self._set_script_running(nome, True)
+        self._set_running(nome, True)
 
         tipo = script.get("tipo", "")
         caminho = script["caminho"]
@@ -659,7 +809,7 @@ class ScriptManagerApp(ctk.CTk):
 
         if not os.path.exists(caminho):
             self._log(f"Erro: Arquivo nao encontrado: {caminho}")
-            self._set_script_running(nome, False)
+            self._set_running(nome, False)
             return
 
         if tipo == ".txt":
@@ -667,7 +817,7 @@ class ScriptManagerApp(ctk.CTk):
                 os.startfile(caminho)
             except Exception as e:
                 self._log(f"Erro ao abrir {nome}: {e}")
-            self._set_script_running(nome, False)
+            self._set_running(nome, False)
             return
 
         if script.get("admin") and not ctypes.windll.shell32.IsUserAnAdmin():
@@ -678,7 +828,7 @@ class ScriptManagerApp(ctk.CTk):
             )
             if not resposta:
                 self._log(f"Execucao cancelada: {nome} (requer admin)")
-                self._set_script_running(nome, False)
+                self._set_running(nome, False)
                 return
 
         def run():
@@ -722,7 +872,7 @@ class ScriptManagerApp(ctk.CTk):
             except Exception as e:
                 self._log(f"Erro ao executar {nome}: {e}")
             finally:
-                self._set_script_running(nome, False)
+                self._set_running(nome, False)
 
         threading.Thread(target=run, daemon=True).start()
 
