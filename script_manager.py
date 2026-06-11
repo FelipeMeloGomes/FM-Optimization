@@ -117,9 +117,6 @@ class FMOptimizationApp:
         self.log_expanded = True
 
         self._file_picker = ft.FilePicker()
-        self._file_picker.on_result = self._on_file_picked
-        page.overlay.append(self._file_picker)
-        self._pending_path_field = None
         self._search_debounce_task = None
 
         self._build_ui()
@@ -697,12 +694,6 @@ class FMOptimizationApp:
     def _close_dialog(self):
         self.page.pop_dialog()
 
-    def _on_file_picked(self, e):
-        if e.files and len(e.files) > 0 and self._pending_path_field is not None:
-            self._pending_path_field.value = e.files[0].path
-            self._pending_path_field.update()
-            self._pending_path_field = None
-
     def _abrir_adicionar_script(self):
         self._abrir_edit_dialog()
 
@@ -741,13 +732,16 @@ class FMOptimizationApp:
             label_style=ft.TextStyle(color=C.GREY_500),
         )
 
-        def browse_click(e):
-            self._pending_path_field = entry_path
-            self._file_picker.pick_files(
+        async def browse_click(e):
+            result = await self._file_picker.pick_files(
                 dialog_title="Selecionar Script",
+                file_type=ft.FilePickerFileType.CUSTOM,
                 allowed_extensions=["bat", "cmd", "ps1", "exe"],
                 allow_multiple=False,
             )
+            if result:
+                entry_path.value = result[0].path
+                entry_path.update()
 
         browse_btn = ft.OutlinedButton(
             "...",
