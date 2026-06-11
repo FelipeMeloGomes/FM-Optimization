@@ -69,6 +69,11 @@ RED_ERROR = "#ff1744"
 CATEGORY_ICONS = {
     "Todas": ICONS.APPS,
     "Limpeza": ICONS.AUTO_FIX_HIGH,
+    "Desempenho": ICONS.SPEED,
+    "Energia": ICONS.ELECTRIC_BOLT,
+    "Privacidade": ICONS.SHIELD,
+    "Rede": ICONS.LAN,
+    "Sistema": ICONS.COMPUTER,
     "Script Babbo": ICONS.CODE,
     "GPU - AMD": ICONS.MEMORY,
     "GPU - NVIDIA": ICONS.MEMORY,
