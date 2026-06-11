@@ -1,16 +1,18 @@
 # FM Optimization
 
-Gerenciador de scripts de otimização para Windows (.bat, .cmd, .ps1, .exe, .reg, .txt) com interface gráfica moderna em customtkinter.
+Gerenciador de scripts de otimização para Windows (.bat, .cmd, .ps1) com interface gráfica moderna em Flet.
 
 ## Funcionalidades
 
-- Interface escura minimalista com tema Windows 11
-- Scripts embutidos diretamente no executável (não precisa de pastas externas)
-- Cards com Executar, Detalhes e badge ADMIN para scripts que requerem administrador
-- Categorias como pills horizontais
-- Log rápido + janela de log completo
-- Busca por nome/descrição
-- Suporte a .bat, .cmd, .ps1, .exe, .reg, .txt
+- Interface escura com design moderno (Flet + Material Design)
+- **39 scripts embutidos** em 8 categorias (Sistema, Desempenho, Rede, Limpeza, Privacidade, Energia, GPU - AMD, GPU - NVIDIA)
+- Scripts embutidos diretamente no executável em base64 (não precisa de pastas externas)
+- Cards em grid responsivo com nome, descrição, badge ADMIN e badge de tipo
+- **Favoritos**: marque scripts com estrela e filtre por favoritos
+- Categorias como pills no sidebar com contagem ao vivo
+- Execução com log em tempo real (ícones coloridos: ✓, ✗, !)
+- Busca contextual por nome/descrição na topbar (por categoria)
+- Suporte a .bat, .cmd, .ps1
 
 ## Pré-requisitos
 
@@ -20,7 +22,7 @@ Gerenciador de scripts de otimização para Windows (.bat, .cmd, .ps1, .exe, .re
 ## Instalação
 
 ```bash
-pip install customtkinter pyinstaller
+pip install flet flet-cli
 ```
 
 ## Executar Localmente
@@ -32,7 +34,7 @@ python script_manager.py
 ## Gerar .exe
 
 ```bash
-pyinstaller --onefile --windowed --name "FM Optimization" script_manager.py
+python build.py
 ```
 
 O executável será gerado em `dist\FM Optimization.exe`.
@@ -41,7 +43,10 @@ O executável será gerado em `dist\FM Optimization.exe`.
 
 ```
 FM-Scripts/
-  script_manager.py      - Código principal
-  scripts_registry.py    - Scripts embutidos em base64
+  script_manager.py      - Código principal (Flet UI)
+  scripts_registry.py    - 39 scripts embutidos em base64
+  scripts/               - Scripts individuais (.bat, .cmd)
+  fonts/                 - Fonte JetBrains Mono Nerd Font
+  build.py               - Script de build (flet pack)
   README.md
 ```

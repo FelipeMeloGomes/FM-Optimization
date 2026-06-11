@@ -226,17 +226,6 @@ class FMOptimizationApp:
             content=ft.Row([
                 ft.Row([self.lbl_categoria, self.lbl_count], spacing=8),
                 self.search_box,
-                ft.Row([
-                    ft.FilledButton(
-                        "+ Adicionar Script",
-                        style=ft.ButtonStyle(
-                            color="#0d0d1a",
-                            bgcolor=AMBER_PRIMARY,
-                            overlay_color=C.WHITE10,
-                        ),
-                        on_click=lambda e: self._abrir_adicionar_script(),
-                    ),
-                ], spacing=8),
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             height=44,
             bgcolor=BG_SIDEBAR,
@@ -782,16 +771,12 @@ class FMOptimizationApp:
     def _close_dialog(self):
         self.page.pop_dialog()
 
-    def _abrir_adicionar_script(self):
-        self._abrir_edit_dialog()
-
     def _abrir_edit_dialog(self, script=None):
         categorias = self.dados["categorias"]
         nome_val = script["nome"] if script else ""
         desc_val = script.get("descricao", "") if script else ""
         cat_val = script.get("categoria", categorias[0] if categorias else "") if script else (categorias[0] if categorias else "")
         path_val = script.get("caminho", "") if script else ""
-        is_edit = script is not None
 
         field_style = {
             "border_color": BORDER_DEFAULT,
@@ -846,22 +831,14 @@ class FMOptimizationApp:
                 "nome": nome, "descricao": desc, "categoria": cat,
                 "caminho": path, "tipo": ext,
             }
-            if is_edit:
-                idx = self._find_script_index(script)
-                if idx >= 0:
-                    self.dados["scripts"][idx] = data
-                    salvar_dados(self.dados)
-                    self._script_indices.clear()
-                    self._categorias_dirty = True
-                    self._atualizar_cards()
-                    self._log(f"Script editado: {data['nome']}")
-            else:
-                self.dados["scripts"].append(data)
+            idx = self._find_script_index(script)
+            if idx >= 0:
+                self.dados["scripts"][idx] = data
                 salvar_dados(self.dados)
                 self._script_indices.clear()
                 self._categorias_dirty = True
                 self._atualizar_cards()
-                self._log(f"Script adicionado: {data['nome']}")
+                self._log(f"Script editado: {data['nome']}")
             self._close_dialog()
 
         path_row = ft.Row([entry_path, browse_btn], spacing=6)
@@ -871,7 +848,7 @@ class FMOptimizationApp:
         ], spacing=10, scroll=ft.ScrollMode.ALWAYS)
 
         dialog = ft.AlertDialog(
-            title=ft.Text("Editar Script" if is_edit else "Adicionar Script", size=16, weight=ft.FontWeight.BOLD),
+            title=ft.Text("Editar Script", size=16, weight=ft.FontWeight.BOLD),
             content=ft.Container(content=content, width=480, height=320),
             actions=[
                 ft.TextButton("Cancelar", on_click=lambda e: self._close_dialog()),
