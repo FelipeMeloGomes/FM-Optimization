@@ -160,31 +160,7 @@ class FMOptimizationApp:
         ], expand=True, spacing=0))
 
     def _build_sidebar(self):
-        font = "JetBrains Mono" if self.page.fonts and "JetBrains Mono" in self.page.fonts else None
-
-        search_container = ft.Container(
-            content=ft.TextField(
-                hint_text="Buscar...",
-                border=ft.InputBorder.NONE,
-                text_size=12,
-                text_align=ft.TextAlign.CENTER,
-                text_style=ft.TextStyle(color=TEXT_PRIMARY, font_family=font),
-                hint_style=ft.TextStyle(color=TEXT_MUTED),
-                fill_color=None,
-                expand=True,
-                height=30,
-                content_padding=ft.Padding(8, 0, 8, 0),
-                on_change=self._on_busca_change,
-            ),
-            bgcolor=BG_CARD,
-            border_radius=6,
-            border=border_all(1, BORDER_DEFAULT),
-            padding=ft.Padding(8, 4, 8, 4),
-            margin=ft.Margin(12, 12, 12, 8),
-        )
-
         self.sidebar_menu = ft.Column(scroll=ft.ScrollMode.ALWAYS, expand=True, spacing=0)
-        self.search_field = search_container.content
 
         gear_btn = ft.Container(
             content=ft.Row([
@@ -198,7 +174,6 @@ class FMOptimizationApp:
 
         return ft.Container(
             content=ft.Column([
-                search_container,
                 self.sidebar_menu,
                 gear_btn,
             ], spacing=0, expand=True),
@@ -208,6 +183,7 @@ class FMOptimizationApp:
 
     def _build_content(self):
         font = "JetBrains Mono Bold" if self.page.fonts and "JetBrains Mono Bold" in self.page.fonts else None
+        font_reg = "JetBrains Mono" if self.page.fonts and "JetBrains Mono" in self.page.fonts else None
 
         self.lbl_categoria = ft.Text(
             "Todas", size=14, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY,
@@ -221,9 +197,35 @@ class FMOptimizationApp:
             padding=ft.Padding(8, 1, 8, 1),
         )
 
+        self.search_field = ft.TextField(
+            hint_text="Buscar...",
+            border=ft.InputBorder.NONE,
+            text_size=12,
+            text_align=ft.TextAlign.CENTER,
+            text_style=ft.TextStyle(color=TEXT_PRIMARY, font_family=font_reg),
+            hint_style=ft.TextStyle(color=TEXT_MUTED),
+            fill_color=None,
+            expand=True,
+            height=30,
+            content_padding=ft.Padding(8, 0, 8, 0),
+            on_change=self._on_busca_change,
+        )
+        search_box = ft.Container(
+            content=self.search_field,
+            bgcolor=BG_CARD,
+            border_radius=6,
+            border=border_all(1, BORDER_DEFAULT),
+            padding=ft.Padding(8, 4, 8, 4),
+            width=200,
+            visible=False,
+        )
+
+        self.search_box = search_box
+
         topbar = ft.Container(
             content=ft.Row([
                 ft.Row([self.lbl_categoria, self.lbl_count], spacing=8),
+                self.search_box,
                 ft.Row([
                     ft.FilledButton(
                         "+ Adicionar Script",
@@ -350,9 +352,19 @@ class FMOptimizationApp:
         if self.categoria_atual == nome:
             return
         self.categoria_atual = nome
+        self._update_search_context()
         self._update_sidebar_active()
         self._filter_cards()
         self.page.update()
+
+    def _update_search_context(self):
+        is_specific = self.categoria_atual not in ("Todas",)
+        self.search_box.visible = is_specific
+        if is_specific:
+            self.search_field.hint_text = f"Buscar em {self.categoria_atual}"
+        else:
+            self.search_field.value = ""
+            self.search_field.hint_text = "Buscar..."
 
     def _render_sidebar(self):
         self._sidebar_refs.clear()
@@ -634,11 +646,13 @@ class FMOptimizationApp:
             self._render_sidebar()
             self._create_all_cards()
             self._categorias_dirty = False
+        self._update_search_context()
         self._filter_cards()
         self.cards_grid.update()
         self.empty_state.update()
         self.lbl_categoria.update()
         self.lbl_count.update()
+        self.search_box.update()
 
     def _on_busca_change(self, e):
         if self._search_debounce_task:
