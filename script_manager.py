@@ -429,18 +429,25 @@ class ScriptManagerApp(ctk.CTk):
                                corner_radius=0)
         accent.pack(side="left", fill="y")
 
-        ctk.CTkLabel(frame, text=icone, font=ctk.CTkFont(size=13),
-                      text_color=text).pack(side="left", padx=(10, 6))
-        ctk.CTkLabel(frame, text=nome, font=ctk.CTkFont(size=12),
-                      text_color=text).pack(side="left")
+        lbl_icon = ctk.CTkLabel(frame, text=icone, font=ctk.CTkFont(size=13),
+                                 text_color=text)
+        lbl_icon.pack(side="left", padx=(10, 6))
 
-        ctk.CTkLabel(frame, text=str(count), font=ctk.CTkFont(size=10),
-                      fg_color=bg, text_color=fg_count,
-                      corner_radius=10).pack(side="right", padx=12, ipadx=5, ipady=1)
+        lbl_nome = ctk.CTkLabel(frame, text=nome, font=ctk.CTkFont(size=12),
+                                 text_color=text)
+        lbl_nome.pack(side="left")
 
-        frame.bind("<Button-1>", lambda e: self._selecionar_categoria(nome))
-        for widget in frame.winfo_children():
-            widget.bind("<Button-1>", lambda e: self._selecionar_categoria(nome))
+        lbl_count = ctk.CTkLabel(frame, text=str(count), font=ctk.CTkFont(size=10),
+                                  fg_color=bg, text_color=fg_count, corner_radius=10)
+        lbl_count.pack(side="right", padx=12, ipadx=5, ipady=1)
+
+        def on_click(e):
+            self.categoria_atual = nome
+            self._categorias_dirty = True
+            self._atualizar_cards()
+
+        for widget in [frame, accent, lbl_icon, lbl_nome, lbl_count]:
+            widget.bind("<Button-1>", on_click)
 
     def _selecionar_categoria(self, nome):
         self.categoria_atual = nome
