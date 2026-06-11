@@ -311,6 +311,9 @@ class ScriptManagerApp(ctk.CTk):
         self._running: dict[str, bool] = {}
         self._run_buttons: dict[str, ctk.CTkButton] = {}
         self._categorias_dirty = True
+        self._sidebar_frames: dict[str, dict] = {}
+        self._card_widgets: list[dict] = []
+        self._empty_frame: ctk.CTkFrame | None = None
         self._build_ui()
         self.bind("<Control-f>", lambda e: self.entry_busca.focus())
         self.bind("<Escape>", self._on_escape)
@@ -441,20 +444,28 @@ class ScriptManagerApp(ctk.CTk):
                                   fg_color=bg, text_color=fg_count, corner_radius=10)
         lbl_count.pack(side="right", padx=12, ipadx=5, ipady=1)
 
+        self._sidebar_frames[nome] = {
+            "frame": frame, "accent": accent,
+            "lbl_icon": lbl_icon, "lbl_nome": lbl_nome, "lbl_count": lbl_count,
+        }
+
         def on_click(e):
-            self.categoria_atual = nome
-            self._categorias_dirty = True
-            self._atualizar_cards()
+            if self.categoria_atual != nome:
+                self.categoria_atual = nome
+                self._update_sidebar_active(nome)
+                self._atualizar_cards()
 
         for widget in [frame, accent, lbl_icon, lbl_nome, lbl_count]:
             widget.bind("<Button-1>", on_click)
 
     def _selecionar_categoria(self, nome):
-        self.categoria_atual = nome
-        self._categorias_dirty = True
-        self._atualizar_cards()
+        if self.categoria_atual != nome:
+            self.categoria_atual = nome
+            self._update_sidebar_active(nome)
+            self._atualizar_cards()
 
     def _render_sidebar(self):
+        self._sidebar_frames.clear()
         for w in self.sidebar_menu.winfo_children():
             w.destroy()
 
@@ -517,152 +528,189 @@ class ScriptManagerApp(ctk.CTk):
     def _todos_scripts(self):
         return self.dados["scripts"] + self._embedded_scripts
 
+    def _update_sidebar_active(self, nome):
+        for name, refs in self._sidebar_frames.items():
+            active = (name == nome)
+            refs["frame"].configure(fg_color=T.bg_card if active else "transparent")
+            refs["accent"].configure(fg_color=T.cyan if active else "transparent")
+            text_color = T.cyan if active else T.text_muted
+            refs["lbl_icon"].configure(text_color=text_color)
+            refs["lbl_nome"].configure(text_color=text_color)
+            bg = T.cyan_bg if active else "#252525"
+            fg = T.cyan if active else "#555555"
+            refs["lbl_count"].configure(fg_color=bg, text_color=fg)
+
     def _atualizar_cards(self):
         if self._categorias_dirty:
             self._render_sidebar()
+            self._create_all_cards()
             self._categorias_dirty = False
 
-        self._run_buttons.clear()
+        self._filter_cards()
 
+    def _filter_cards(self):
         busca = self.entry_busca.get().strip().lower()
-        scripts = self._todos_scripts()
 
-        if self.categoria_atual == "Personalizados":
-            scripts = [s for s in scripts if not s.get("embedded")]
-        elif self.categoria_atual == "Favoritos":
-            scripts = []
-        elif self.categoria_atual != "Todas":
-            scripts = [s for s in scripts if s.get("categoria") == self.categoria_atual]
+        visible_count = 0
+        for entry in self._card_widgets:
+            script = entry["script"]
+            show = True
 
-        if busca:
-            scripts = [s for s in scripts if busca in s["nome"].lower() or busca in s.get("descricao", "").lower()]
+            if self.categoria_atual == "Personalizados":
+                show = not script.get("embedded")
+            elif self.categoria_atual == "Favoritos":
+                show = False
+            elif self.categoria_atual != "Todas":
+                show = script.get("categoria") == self.categoria_atual
+
+            if show and busca:
+                show = (busca in script["nome"].lower() or
+                        busca in script.get("descricao", "").lower())
+
+            if show:
+                entry["widget"].pack(fill="x", pady=3)
+                visible_count += 1
+            else:
+                entry["widget"].pack_forget()
 
         self.lbl_categoria.configure(text=self.categoria_atual)
-        total_count = len(scripts)
-        self.lbl_count.configure(text=f"{total_count} {'script' if total_count == 1 else 'scripts'}")
+        self.lbl_count.configure(text=f"{visible_count} {'script' if visible_count == 1 else 'scripts'}")
 
-        for w in self.cards_frame.winfo_children():
-            w.destroy()
-
-        if not scripts:
-            frame_vazio = ctk.CTkFrame(self.cards_frame, fg_color="transparent")
-            frame_vazio.pack(expand=True, pady=60)
-            ctk.CTkLabel(
-                frame_vazio,
-                text="Nenhum script encontrado",
-                font=ctk.CTkFont(size=15, weight="bold"),
-                text_color=T.text_muted
-            ).pack()
+        if visible_count == 0:
             if self.categoria_atual == "Favoritos":
-                ctk.CTkLabel(
-                    frame_vazio,
-                    text="Em breve — favoritar scripts",
-                    font=ctk.CTkFont(size=11),
-                    text_color=T.text_muted
-                ).pack(pady=(6, 0))
-            elif not self.dados["scripts"] and not self.entry_busca.get().strip():
-                ctk.CTkLabel(
-                    frame_vazio,
-                    text="Use '+ Adicionar Script' para incluir seus próprios scripts",
-                    font=ctk.CTkFont(size=11),
-                    text_color=T.text_muted
-                ).pack(pady=(6, 0))
-            return
+                self._sub_empty_label.configure(text="Em breve — favoritar scripts")
+            elif not self.dados["scripts"] and not busca:
+                self._sub_empty_label.configure(text="Use '+ Adicionar Script' para incluir seus próprios scripts")
+            else:
+                self._sub_empty_label.configure(text="")
+            self._empty_frame.pack(expand=True, pady=60)
+        else:
+            self._empty_frame.pack_forget()
+
+    def _create_all_cards(self):
+        for entry in self._card_widgets:
+            entry["widget"].destroy()
+        self._card_widgets.clear()
+        self._run_buttons.clear()
+
+        if self._empty_frame:
+            self._empty_frame.destroy()
+            self._empty_frame = None
+
+        self._empty_frame = ctk.CTkFrame(self.cards_frame, fg_color="transparent")
+        ctk.CTkLabel(
+            self._empty_frame,
+            text="Nenhum script encontrado",
+            font=ctk.CTkFont(size=15, weight="bold"),
+            text_color=T.text_muted
+        ).pack()
+        self._sub_empty_label = ctk.CTkLabel(
+            self._empty_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color=T.text_muted
+        )
+        self._sub_empty_label.pack(pady=(6, 0))
+        self._empty_frame.pack_forget()
 
         icons = {"bat": chr(9881), "cmd": chr(9881), "ps1": chr(9889),
                  "exe": chr(9654), "reg": chr(10025), "txt": chr(8505)}
 
-        for script in scripts:
-            is_embedded = script.get("embedded", False)
-            _tipo = script.get("tipo", "").replace(".", "")
-            icon_color = (T.green if _tipo in ("bat", "cmd") else
-                          T.cyan if _tipo == "ps1" else
-                          T.amber if _tipo in ("exe", "reg") else
-                          T.text_muted)
-            _icon_bg = {T.green: T.green_bg, T.cyan: T.bg_card_hover,
-                        T.amber: T.amber_hover}.get(icon_color, T.bg_card)
-            accent_color = ACCENT_COLORS.get(script.get("tipo", ""), T.text_muted)
+        for script in self._todos_scripts():
+            self._card_widgets.append({"script": dict(script), "widget": self._build_card(script, icons)})
 
-            card = ctk.CTkFrame(self.cards_frame, fg_color=T.bg_card, corner_radius=8,
-                                 border_width=1, border_color=T.border_card)
-            card.pack(fill="x", pady=3)
+    def _build_card(self, script, icons):
+        is_embedded = script.get("embedded", False)
+        _tipo = script.get("tipo", "").replace(".", "")
+        icon_color = (T.green if _tipo in ("bat", "cmd") else
+                      T.cyan if _tipo == "ps1" else
+                      T.amber if _tipo in ("exe", "reg") else
+                      T.text_muted)
+        _icon_bg = {T.green: T.green_bg, T.cyan: T.bg_card_hover,
+                    T.amber: T.amber_hover}.get(icon_color, T.bg_card)
+        accent_color = ACCENT_COLORS.get(script.get("tipo", ""), T.text_muted)
 
-            inner = ctk.CTkFrame(card, fg_color="transparent")
-            inner.pack(fill="both", expand=True)
+        card = ctk.CTkFrame(self.cards_frame, fg_color=T.bg_card, corner_radius=8,
+                             border_width=1, border_color=T.border_card)
 
-            ctk.CTkFrame(inner, width=3, fg_color=accent_color,
-                          corner_radius=0).pack(side="left", fill="y")
+        inner = ctk.CTkFrame(card, fg_color="transparent")
+        inner.pack(fill="both", expand=True)
 
-            body = ctk.CTkFrame(inner, fg_color="transparent")
-            body.pack(side="left", fill="both", expand=True, padx=14, pady=10)
+        ctk.CTkFrame(inner, width=3, fg_color=accent_color,
+                      corner_radius=0).pack(side="left", fill="y")
 
-            row = ctk.CTkFrame(body, fg_color="transparent")
-            row.pack(fill="x")
+        body = ctk.CTkFrame(inner, fg_color="transparent")
+        body.pack(side="left", fill="both", expand=True, padx=14, pady=10)
 
-            left = ctk.CTkFrame(row, fg_color="transparent")
-            left.pack(side="left", fill="x", expand=True)
+        row = ctk.CTkFrame(body, fg_color="transparent")
+        row.pack(fill="x")
 
-            right = ctk.CTkFrame(row, fg_color="transparent")
-            right.pack(side="right", padx=(12, 0))
+        left = ctk.CTkFrame(row, fg_color="transparent")
+        left.pack(side="left", fill="x", expand=True)
 
-            icon_line = ctk.CTkFrame(left, fg_color="transparent")
-            icon_line.pack(fill="x")
-            ctk.CTkLabel(icon_line, text=icons.get(_tipo, chr(9654)),
-                          font=ctk.CTkFont(size=16), text_color=icon_color).pack(side="left")
-            ctk.CTkLabel(icon_line, text=script["nome"],
-                          font=ctk.CTkFont(size=14, weight="bold"),
-                          text_color=T.text_primary).pack(side="left", padx=(8, 0))
+        right = ctk.CTkFrame(row, fg_color="transparent")
+        right.pack(side="right", padx=(12, 0))
 
-            if script.get("descricao"):
-                ctk.CTkLabel(left, text=script["descricao"], text_color=T.text_muted,
-                              font=ctk.CTkFont(size=11), wraplength=500,
-                              anchor="w").pack(anchor="w", pady=(2, 6))
+        icon_line = ctk.CTkFrame(left, fg_color="transparent")
+        icon_line.pack(fill="x")
+        ctk.CTkLabel(icon_line, text=icons.get(_tipo, chr(9654)),
+                      font=ctk.CTkFont(size=16), text_color=icon_color).pack(side="left")
+        ctk.CTkLabel(icon_line, text=script["nome"],
+                      font=ctk.CTkFont(size=14, weight="bold"),
+                      text_color=T.text_primary).pack(side="left", padx=(8, 0))
 
-            meta = ctk.CTkFrame(left, fg_color="transparent")
-            meta.pack(anchor="w")
-            ctk.CTkLabel(meta, text=script.get("tipo", "").upper(),
+        if script.get("descricao"):
+            ctk.CTkLabel(left, text=script["descricao"], text_color=T.text_muted,
+                          font=ctk.CTkFont(size=11), wraplength=500,
+                          anchor="w").pack(anchor="w", pady=(2, 6))
+
+        meta = ctk.CTkFrame(left, fg_color="transparent")
+        meta.pack(anchor="w")
+        ctk.CTkLabel(meta, text=script.get("tipo", "").upper(),
+                      font=ctk.CTkFont(size=8, weight="bold"),
+                      text_color=icon_color, fg_color=_icon_bg,
+                      corner_radius=3).pack(side="left", padx=(0, 6), ipadx=4, ipady=1)
+        if script.get("admin"):
+            ctk.CTkLabel(meta, text="ADMIN",
                           font=ctk.CTkFont(size=8, weight="bold"),
-                          text_color=icon_color, fg_color=_icon_bg,
+                          text_color=T.amber, fg_color=T.amber_hover,
                           corner_radius=3).pack(side="left", padx=(0, 6), ipadx=4, ipady=1)
-            if script.get("admin"):
-                ctk.CTkLabel(meta, text="ADMIN",
-                              font=ctk.CTkFont(size=8, weight="bold"),
-                              text_color=T.amber, fg_color=T.amber_hover,
-                              corner_radius=3).pack(side="left", padx=(0, 6), ipadx=4, ipady=1)
-            ctk.CTkLabel(meta, text=script.get("categoria", ""),
-                          font=ctk.CTkFont(size=10),
-                          text_color=T.text_muted).pack(side="left")
+        ctk.CTkLabel(meta, text=script.get("categoria", ""),
+                      font=ctk.CTkFont(size=10),
+                      text_color=T.text_muted).pack(side="left")
 
-            btn_label = "Abrir" if script.get("tipo") == ".txt" else "Executar"
-            btn = ctk.CTkButton(right, text=btn_label, width=80, height=28,
-                                 fg_color=T.green, text_color="#ffffff",
-                                 hover_color=T.green_bg,
-                                 font=ctk.CTkFont(size=11),
-                                 command=lambda s=script: self._executar_script(s))
-            btn.pack(side="top", pady=(0, 4))
-            self._run_buttons[script["nome"]] = btn
-            if self._running.get(script["nome"]):
-                btn.configure(text="Executando...", state="disabled",
-                               fg_color=T.green_bg, text_color=T.green,
-                               border_width=1, border_color="#2a4a2a")
+        btn_label = "Abrir" if script.get("tipo") == ".txt" else "Executar"
+        btn = ctk.CTkButton(right, text=btn_label, width=80, height=28,
+                             fg_color=T.green, text_color="#ffffff",
+                             hover_color=T.green_bg,
+                             font=ctk.CTkFont(size=11),
+                             command=lambda s=script: self._executar_script(s))
+        btn.pack(side="top", pady=(0, 4))
+        self._run_buttons[script["nome"]] = btn
+        if self._running.get(script["nome"]):
+            btn.configure(text="Executando...", state="disabled",
+                           fg_color=T.green_bg, text_color=T.green,
+                           border_width=1, border_color="#2a4a2a")
 
-            if is_embedded:
-                ctk.CTkButton(right, text="Detalhes", width=80, height=28,
-                                fg_color="transparent", text_color=T.cyan,
-                                hover_color=T.cyan_bg, border_width=1, border_color=T.cyan_border,
-                                font=ctk.CTkFont(size=11),
-                                command=lambda s=script: self._mostrar_detalhes(s)).pack(side="top")
-            else:
-                ctk.CTkButton(right, text="Editar", width=80, height=28,
-                                fg_color="transparent", text_color=T.amber,
-                                hover_color=T.amber_hover, border_width=1, border_color=T.amber_border,
-                                font=ctk.CTkFont(size=11),
-                                command=lambda s=script: self._editar_script(s)).pack(side="top", pady=(0, 4))
-                ctk.CTkButton(right, text="Remover", width=80, height=28,
-                                fg_color="transparent", text_color=T.red,
-                                hover_color=T.red_hover, border_width=1, border_color=T.red_border,
-                                font=ctk.CTkFont(size=11),
-                                command=lambda s=script: self._remover_script(s)).pack(side="top")
+        if is_embedded:
+            ctk.CTkButton(right, text="Detalhes", width=80, height=28,
+                            fg_color="transparent", text_color=T.cyan,
+                            hover_color=T.cyan_bg, border_width=1, border_color=T.cyan_border,
+                            font=ctk.CTkFont(size=11),
+                            command=lambda s=script: self._mostrar_detalhes(s)).pack(side="top")
+        else:
+            ctk.CTkButton(right, text="Editar", width=80, height=28,
+                            fg_color="transparent", text_color=T.amber,
+                            hover_color=T.amber_hover, border_width=1, border_color=T.amber_border,
+                            font=ctk.CTkFont(size=11),
+                            command=lambda s=script: self._editar_script(s)).pack(side="top", pady=(0, 4))
+            ctk.CTkButton(right, text="Remover", width=80, height=28,
+                            fg_color="transparent", text_color=T.red,
+                            hover_color=T.red_hover, border_width=1, border_color=T.red_border,
+                            font=ctk.CTkFont(size=11),
+                            command=lambda s=script: self._remover_script(s)).pack(side="top")
+
+        return card
 
     def _log(self, msg):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
