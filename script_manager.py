@@ -1,76 +1,17 @@
+import asyncio
 import atexit
 import base64
-import ctypes
-import customtkinter as ctk
 import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
-import queue
-import threading
 import datetime
-import time
 from collections import Counter
-from tkinter import filedialog, messagebox
-from dataclasses import dataclass
+
+import flet as ft
 from scripts_registry import EMBEDDED_SCRIPTS
-
-ctk.set_appearance_mode("dark")
-
-
-@dataclass(frozen=True)
-class Theme:
-    cyan: str = "#60cdff"
-    cyan_dim: str = "#1a4a6a"
-    cyan_bg: str = "#1a2a3a"
-    cyan_border: str = "#1a5a7a"
-    cyan_active: str = "#2c2c2c"
-    amber: str = "#e6a84c"
-    amber_hover: str = "#2a2010"
-    amber_border: str = "#4d3600"
-    green: str = "#4caf50"
-    green_bg: str = "#1a3a1a"
-    red: str = "#e74c3c"
-    red_hover: str = "#2a1010"
-    red_border: str = "#4d0000"
-    bg_primary: str = "#1a1a1a"
-    bg_sidebar: str = "#222222"
-    bg_card: str = "#242424"
-    bg_card_hover: str = "#2c2c2c"
-    border_card: str = "#333333"
-    text_primary: str = "#e0e0e0"
-    text_muted: str = "#888888"
-    terminal_bg: str = "#111111"
-    header_divider: str = "#333333"
-    sidebar_divider: str = "#333333"
-    log_muted: str = "#444444"
-    log_bg: str = "#111111"
-
-
-T = Theme()
-SIDEBAR_WIDTH = 200
-
-ACCENT_COLORS = {
-    ".bat": T.green,
-    ".cmd": T.green,
-    ".ps1": T.cyan,
-    ".exe": T.amber,
-    ".reg": T.amber,
-    ".txt": T.text_muted,
-}
-
-CATEGORY_ICONS = {
-    "Todas": "▦",
-    "Limpeza": "◫",
-    "Script Babbo": "◈",
-    "GPU - AMD": "◈",
-    "GPU - NVIDIA": "◈",
-    "Windows 11": "◆",
-    "Personalizados": "◉",
-    "Favoritos": "★",
-}
 
 
 def get_app_dir():
@@ -105,401 +46,320 @@ def salvar_dados(dados):
         print(f"Erro ao salvar dados: {e}")
 
 
-class ScriptDetailsDialog(ctk.CTkToplevel):
-    def __init__(self, parent, script):
-        super().__init__(parent)
-        self.title(script["nome"])
-        self.geometry("560x400")
-        self.configure(fg_color=T.bg_primary)
-        self.transient(parent)
-        self.grab_set()
-
-        main = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        main.pack(fill="both", expand=True, padx=24, pady=18)
-
-        ctk.CTkLabel(main, text=script["nome"],
-                      font=ctk.CTkFont(size=18, weight="bold"),
-                      text_color=T.text_primary).pack(anchor="w", pady=(0, 8))
-
-        meta = ctk.CTkFrame(main, fg_color="transparent")
-        meta.pack(fill="x", pady=(0, 12))
-        colors = {".bat": T.green, ".cmd": T.green, ".ps1": T.cyan, ".exe": T.amber, ".reg": T.amber, ".txt": T.text_muted}
-        c = colors.get(script.get("tipo", ""), T.text_muted)
-        ctk.CTkLabel(meta, text=script.get("tipo", "").upper(),
-                      font=ctk.CTkFont(size=10, weight="bold"),
-                      text_color=c, fg_color=T.bg_card, corner_radius=3).pack(side="left", padx=(0, 8), ipadx=6, ipady=2)
-        ctk.CTkLabel(meta, text=script.get("categoria", ""),
-                      font=ctk.CTkFont(size=11),
-                      text_color=T.text_muted).pack(side="left", padx=(0, 8))
-        if script.get("admin"):
-            ctk.CTkLabel(meta, text="REQUER ADMIN",
-                          font=ctk.CTkFont(size=9, weight="bold"),
-                          text_color=T.amber, fg_color=T.amber_hover,
-                          corner_radius=3, padx=6).pack(side="left", ipadx=4, ipady=2)
-
-        ctk.CTkFrame(main, height=1, fg_color=T.border_card).pack(fill="x", pady=(0, 12))
-
-        explicacao = script.get("explicacao", script.get("descricao", "Sem descricao disponivel."))
-        lbl = ctk.CTkLabel(main, text=explicacao, wraplength=490,
-                           font=ctk.CTkFont(size=13), text_color=T.text_primary,
-                           justify="left")
-        lbl.pack(anchor="w", fill="x", pady=(0, 16))
-
-        btn_frame = ctk.CTkFrame(main, fg_color="transparent")
-        btn_frame.pack(fill="x")
-        ctk.CTkButton(btn_frame, text="Fechar", width=120, fg_color=T.cyan,
-                       text_color=T.bg_primary, hover_color="#00c4d9",
-                       command=self.destroy).pack(side="right")
+C = ft.Colors
+ICONS = ft.icons.Icons
 
 
-class AddEditScriptDialog(ctk.CTkToplevel):
-    def __init__(self, parent, categorias, script=None, callback=None):
-        super().__init__(parent)
-        self.callback = callback
-        self.script = script
-        self.title("Editar Script" if script else "Adicionar Script")
-        self.geometry("520x380")
-        self.configure(fg_color=T.bg_primary)
-        self.transient(parent)
-        self.grab_set()
+def border_all(width, color):
+    s = ft.BorderSide(width, color)
+    return ft.Border(left=s, right=s, top=s, bottom=s)
 
-        lbl_style = {"font": ctk.CTkFont(size=12), "text_color": T.text_muted}
-        entry_style = {"fg_color": T.bg_card, "border_color": T.border_card, "text_color": T.text_primary,
-                       "placeholder_text_color": T.text_muted}
+CATEGORY_ICONS = {
+    "Todas": ICONS.APPS,
+    "Limpeza": ICONS.AUTO_FIX_HIGH,
+    "Script Babbo": ICONS.CODE,
+    "GPU - AMD": ICONS.MEMORY,
+    "GPU - NVIDIA": ICONS.MEMORY,
+    "Windows 11": ICONS.DESKTOP_WINDOWS,
+    "Personalizados": ICONS.PERSON,
+    "Favoritos": ICONS.STAR,
+}
 
-        ctk.CTkLabel(self, text="Nome", **lbl_style).pack(anchor="w", padx=24, pady=(18, 2))
-        self.entry_nome = ctk.CTkEntry(self, width=470, **entry_style)
-        self.entry_nome.pack(padx=24, pady=(0, 10))
-        if script:
-            self.entry_nome.insert(0, script["nome"])
+SCRIPT_ICONS = {
+    "bat": ICONS.SETTINGS,
+    "cmd": ICONS.SETTINGS,
+    "ps1": ICONS.PLAY_CIRCLE,
+    "exe": ICONS.PLAY_CIRCLE_FILLED,
+    "reg": ICONS.TUNE,
+    "txt": ICONS.DESCRIPTION,
+}
 
-        ctk.CTkLabel(self, text="Descricao", **lbl_style).pack(anchor="w", padx=24)
-        self.entry_desc = ctk.CTkEntry(self, width=470, **entry_style)
-        self.entry_desc.pack(padx=24, pady=(0, 10))
-        if script:
-            self.entry_desc.insert(0, script.get("descricao", ""))
-
-        ctk.CTkLabel(self, text="Categoria", **lbl_style).pack(anchor="w", padx=24)
-        self.combo_cat = ctk.CTkComboBox(self, values=categorias if categorias else [""],
-                                          width=470, fg_color=T.bg_card, border_color=T.border_card,
-                                          button_color=T.cyan, button_hover_color="#00c4d9",
-                                          dropdown_fg_color=T.bg_card, dropdown_text_color=T.text_primary,
-                                          dropdown_hover_color=T.bg_card_hover, text_color=T.text_primary)
-        self.combo_cat.pack(padx=24, pady=(0, 10))
-        if script:
-            self.combo_cat.set(script.get("categoria", categorias[0] if categorias else ""))
-
-        ctk.CTkLabel(self, text="Caminho do Script", **lbl_style).pack(anchor="w", padx=24)
-        path_frame = ctk.CTkFrame(self, fg_color="transparent")
-        path_frame.pack(padx=24, pady=(0, 16), fill="x")
-        self.entry_path = ctk.CTkEntry(path_frame, **entry_style)
-        self.entry_path.pack(side="left", fill="x", expand=True)
-        if script:
-            self.entry_path.insert(0, script.get("caminho", ""))
-        ctk.CTkButton(path_frame, text="...", width=40, fg_color=T.bg_card, text_color=T.text_primary,
-                       hover_color=T.bg_card_hover, border_width=1, border_color=T.border_card,
-                       command=self.browse).pack(side="right", padx=(6, 0))
-
-        ctk.CTkButton(self, text="Salvar", width=200, fg_color=T.cyan, text_color=T.bg_primary,
-                       hover_color="#00c4d9", command=self.save).pack(pady=6)
-
-    def browse(self):
-        path = filedialog.askopenfilename(
-            title="Selecionar Script",
-            filetypes=[("Scripts", "*.bat;*.cmd;*.ps1;*.exe"), ("Todos", "*.*")]
-        )
-        if path:
-            self.entry_path.delete(0, "end")
-            self.entry_path.insert(0, path)
-
-    def save(self):
-        nome = self.entry_nome.get().strip()
-        desc = self.entry_desc.get().strip()
-        cat = self.combo_cat.get().strip()
-        path = self.entry_path.get().strip()
-        if not nome or not path:
-            messagebox.showwarning("Campos obrigatorios", "Preencha nome e caminho do script.")
-            return
-        if not os.path.exists(path):
-            messagebox.showwarning("Arquivo nao encontrado", f"O arquivo nao existe:\n{path}")
-            return
-        ext = os.path.splitext(path)[1].lower()
-        if ext not in (".bat", ".cmd", ".ps1", ".exe"):
-            messagebox.showwarning("Tipo invalido", "Apenas .bat, .cmd, .ps1 e .exe sao permitidos.")
-            return
-        data = {
-            "nome": nome, "descricao": desc, "categoria": cat,
-            "caminho": path, "tipo": ext
-        }
-        if self.callback:
-            self.callback(data)
-        self.destroy()
+ACCENT_COLORS = {
+    ".bat": C.GREEN_400,
+    ".cmd": C.GREEN_400,
+    ".ps1": C.CYAN_400,
+    ".exe": C.AMBER_400,
+    ".reg": C.AMBER_400,
+    ".txt": C.GREY_500,
+}
 
 
-class CategoryDialog(ctk.CTkToplevel):
-    def __init__(self, parent, categorias, callback):
-        super().__init__(parent)
-        self.callback = callback
-        self.categorias = categorias[:]
-        self.title("Gerenciar Categorias")
-        self.geometry("420x360")
-        self.configure(fg_color=T.bg_primary)
-        self.transient(parent)
-        self.grab_set()
+class FMOptimizationApp:
+    def __init__(self, page: ft.Page):
+        self.page = page
+        page.title = "FM Optimization"
+        page.theme_mode = ft.ThemeMode.DARK
+        page.window.width = 1200
+        page.window.height = 720
+        page.window.min_width = 900
+        page.window.min_height = 500
+        page.padding = 0
+        page.spacing = 0
 
-        top_frame = ctk.CTkFrame(self, fg_color="transparent")
-        top_frame.pack(fill="x", padx=24, pady=18)
-        self.entry_cat = ctk.CTkEntry(top_frame, placeholder_text="Nova categoria...", width=260,
-                                       fg_color=T.bg_card, border_color=T.border_card, text_color=T.text_primary,
-                                       placeholder_text_color=T.text_muted)
-        self.entry_cat.pack(side="left")
-        ctk.CTkButton(top_frame, text="Adicionar", width=90, fg_color=T.cyan, text_color=T.bg_primary,
-                       hover_color="#00c4d9", command=self.add_categoria).pack(side="right", padx=(10, 0))
-
-        self.list_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        self.list_frame.pack(fill="both", expand=True, padx=24, pady=(0, 18))
-        self.render_list()
-
-    def render_list(self):
-        for w in self.list_frame.winfo_children():
-            w.destroy()
-        for cat in self.categorias:
-            f = ctk.CTkFrame(self.list_frame, fg_color=T.bg_card, corner_radius=8)
-            f.pack(fill="x", pady=3)
-            ctk.CTkLabel(f, text=cat, text_color=T.text_primary).pack(side="left", padx=14, pady=8)
-            ctk.CTkButton(f, text="Remover", width=70, fg_color="transparent", text_color=T.red,
-                           hover_color=T.red_hover, border_width=1, border_color=T.red_border,
-                           command=lambda c=cat: self.remove_categoria(c)).pack(side="right", padx=8, pady=4)
-
-    def add_categoria(self):
-        nome = self.entry_cat.get().strip()
-        if nome and nome not in self.categorias:
-            self.categorias.append(nome)
-            self.entry_cat.delete(0, "end")
-            self.render_list()
-
-    def remove_categoria(self, cat):
-        if cat in self.categorias:
-            self.categorias.remove(cat)
-            self.render_list()
-
-    def destroy(self):
-        self.callback(self.categorias)
-        super().destroy()
-
-
-class ScriptManagerApp(ctk.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("FM Optimization")
-        self.geometry("1200x720")
-        self.minsize(900, 500)
-        self.configure(fg_color=T.bg_primary)
         self.dados = carregar_dados()
-
         for s in EMBEDDED_SCRIPTS:
             if s["categoria"] not in self.dados["categorias"]:
                 self.dados["categorias"].append(s["categoria"])
 
         self.categoria_atual = "Todas"
-        if self.dados["categorias"]:
-            self.categoria_atual = self.dados["categorias"][0]
-
         self._temp_scripts_dir = tempfile.mkdtemp(prefix="FMOptimization_")
         atexit.register(self._limpar_temp)
 
-        self._log_queue = queue.Queue()
         self._running: dict[str, bool] = {}
-        self._run_buttons: dict[str, ctk.CTkButton] = {}
         self._categorias_dirty = True
         self._cached_embedded: list[dict] | None = None
         self._cached_todos: list[dict] | None = None
         self._script_indices: dict[tuple[str, str], int] = {}
-        self._sidebar_frames: dict[str, dict] = {}
+        self._sidebar_refs: dict[str, dict] = {}
         self._card_widgets: list[dict] = []
-        self._empty_frame: ctk.CTkFrame | None = None
+        self._log_lines: list[str] = []
+        self.log_queue: asyncio.Queue = asyncio.Queue()
+        self.log_expanded = True
+
+        self._file_picker = ft.FilePicker()
+        self._file_picker.on_result = self._on_file_picked
+        page.overlay.append(self._file_picker)
+        self._pending_path_field = None
+        self._search_debounce_task = None
+
         self._build_ui()
-        self.bind("<Control-f>", lambda e: self.entry_busca.focus())
-        self.bind("<Escape>", self._on_escape)
+        page.on_keyboard_event = self._on_keyboard_event
         self._atualizar_cards()
-        self.after_idle(self._drain_log_queue)
+        page.run_task(self._drain_log_queue)
 
     def _build_ui(self):
-        self.grid_columnconfigure(0, weight=0)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        page = self.page
+        self.sidebar = self._build_sidebar()
+        self.content_area = self._build_content()
+        page.add(ft.Row([self.sidebar, self.content_area], expand=True, spacing=0))
 
-        sidebar = ctk.CTkFrame(self, width=SIDEBAR_WIDTH, fg_color=T.bg_sidebar, corner_radius=0)
-        sidebar.grid(row=0, column=0, sticky="nsew")
-        sidebar.grid_propagate(False)
+    def _build_sidebar(self):
+        search_container = ft.Container(
+            content=ft.Row([
+                ft.Icon(ICONS.SEARCH, size=14, color=C.GREY_500),
+                ft.TextField(
+                    hint_text="Buscar...",
+                    border=ft.InputBorder.NONE,
+                    text_size=12,
+                    text_style=ft.TextStyle(color=C.GREY_100),
+                    hint_style=ft.TextStyle(color=C.GREY_500),
+                    fill_color=None,
+                    expand=True,
+                    height=30,
+                    content_padding=ft.Padding(4, 0, 0, 0),
+                    on_change=self._on_busca_change,
+                ),
+            ], spacing=6, alignment=ft.MainAxisAlignment.CENTER),
+            bgcolor="#242424",
+            border_radius=6,
+            border=border_all(1, "#333333"),
+            padding=ft.Padding(8, 4, 8, 4),
+            margin=ft.Margin(12, 12, 12, 8),
+        )
 
-        search_frame = ctk.CTkFrame(sidebar, fg_color=T.bg_card, corner_radius=6,
-                                     border_width=1, border_color=T.border_card)
-        search_frame.pack(fill="x", padx=12, pady=(12, 8))
+        self.sidebar_menu = ft.Column(scroll=ft.ScrollMode.ALWAYS, expand=True, spacing=0)
+        self.search_field = search_container.content.controls[1]
 
-        ctk.CTkLabel(search_frame, text=chr(9745), text_color=T.text_muted,
-                      font=ctk.CTkFont(size=14)).pack(side="left", padx=(8, 4))
-        self.entry_busca = ctk.CTkEntry(search_frame, border_width=0,
-                                         fg_color="transparent", text_color=T.text_primary,
-                                         placeholder_text="Buscar...",
-                                         placeholder_text_color=T.text_muted,
-                                         font=ctk.CTkFont(size=12))
-        self.entry_busca.pack(side="left", fill="x", expand=True, pady=5, padx=(0, 8))
-        self.entry_busca.bind("<KeyRelease>", self._on_busca_keyrelease)
+        return ft.Container(
+            content=ft.Column([
+                search_container,
+                self.sidebar_menu,
+            ], spacing=0, expand=True),
+            width=200,
+            bgcolor="#161618",
+        )
 
-        self.sidebar_menu = ctk.CTkScrollableFrame(sidebar, fg_color="transparent",
-                                                     corner_radius=0)
-        self.sidebar_menu.pack(fill="both", expand=True)
+    def _build_content(self):
+        self.lbl_categoria = ft.Text("Todas", size=14, weight=ft.FontWeight.BOLD, color=C.GREY_100)
+        self.lbl_count = ft.Container(
+            content=ft.Text("0 scripts", size=10, color="#666666"),
+            bgcolor="#252525",
+            border_radius=10,
+            padding=ft.Padding(8, 1, 8, 1),
+        )
 
-        content = ctk.CTkFrame(self, fg_color=T.bg_primary, corner_radius=0)
-        content.grid(row=0, column=1, sticky="nsew")
+        topbar = ft.Container(
+            content=ft.Row([
+                ft.Row([self.lbl_categoria, self.lbl_count], spacing=8),
+                ft.Row([
+                    ft.TextButton(
+                        "Gerenciar Categorias",
+                        style=ft.ButtonStyle(color=C.GREY_400, overlay_color="#ffffff08"),
+                        on_click=lambda e: self._abrir_gerenciar_categorias(),
+                    ),
+                    ft.FilledButton(
+                        "+ Adicionar Script",
+                        style=ft.ButtonStyle(
+                            color=C.BLACK,
+                            bgcolor=C.CYAN_400,
+                            overlay_color=C.WHITE10,
+                        ),
+                        on_click=lambda e: self._abrir_adicionar_script(),
+                    ),
+                ], spacing=8),
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+            height=44,
+            bgcolor="#161618",
+            padding=ft.Padding(16, 0, 16, 0),
+        )
 
-        topbar = ctk.CTkFrame(content, fg_color=T.bg_sidebar, corner_radius=0, height=44)
-        topbar.pack(fill="x")
-        topbar.pack_propagate(False)
+        self.cards_column = ft.Column(spacing=3, expand=True, scroll=ft.ScrollMode.ALWAYS)
+        self.empty_state = ft.Column([
+            ft.Text("Nenhum script encontrado", size=15, weight=ft.FontWeight.BOLD, color=C.GREY_500, text_align=ft.TextAlign.CENTER),
+            ft.Text("", size=11, color=C.GREY_500, text_align=ft.TextAlign.CENTER),
+        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+        self.empty_sub = self.empty_state.controls[1]
+        self.empty_state.visible = False
 
-        self.lbl_categoria = ctk.CTkLabel(topbar, text="Todas",
-                                            font=ctk.CTkFont(size=14, weight="bold"),
-                                            text_color=T.text_primary)
-        self.lbl_categoria.pack(side="left", padx=16)
+        cards_area = ft.Container(
+            content=ft.Column([self.cards_column, self.empty_state], expand=True),
+            expand=True,
+        )
 
-        self.lbl_count = ctk.CTkLabel(topbar, text="0 scripts",
-                                        font=ctk.CTkFont(size=11),
-                                        fg_color="#252525", text_color="#666666",
-                                        corner_radius=10)
-        self.lbl_count.pack(side="left", padx=4, ipadx=8, ipady=2)
+        self.log_dot = ft.Container(
+            width=6, height=6, bgcolor="#333333", border_radius=3,
+        )
 
-        ctk.CTkButton(topbar, text="+ Adicionar Script", width=130, height=30,
-                       fg_color=T.cyan, text_color=T.bg_primary,
-                       hover_color=T.cyan_dim, font=ctk.CTkFont(size=12),
-                       command=self._abrir_adicionar_script).pack(side="right", padx=16)
+        log_header = ft.Container(
+            content=ft.Row([
+                ft.Row([
+                    self.log_dot,
+                    ft.Text("LOG", size=9, weight=ft.FontWeight.BOLD, color=C.GREY_700),
+                ], spacing=6),
+                ft.Row([
+                    ft.TextButton("Copiar", style=ft.ButtonStyle(color=C.CYAN_400, overlay_color="#ffffff08", padding=8), on_click=lambda e: self._copiar_log()),
+                    ft.TextButton("Limpar", style=ft.ButtonStyle(color=C.GREY_500, overlay_color="#ffffff08", padding=8), on_click=lambda e: self._limpar_log_rapido()),
+                    ft.TextButton("▲", style=ft.ButtonStyle(color=C.GREY_500, overlay_color="#ffffff08", padding=8), on_click=self._toggle_log),
+                ], spacing=0),
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+            height=26,
+            padding=ft.Padding(14, 0, 8, 0),
+        )
 
-        self.cards_frame = ctk.CTkScrollableFrame(content, fg_color="transparent",
-                                                    corner_radius=0)
-        self.cards_frame.pack(fill="both", expand=True)
+        self.log_text_field = ft.TextField(
+            multiline=True,
+            read_only=True,
+            text_size=11,
+            text_style=ft.TextStyle(font_family="Consolas", color=C.GREEN_400),
+            fill_color="#111111",
+            border=ft.InputBorder.NONE,
+            expand=True,
+        )
 
-        resizer = ctk.CTkFrame(content, height=6, fg_color=T.bg_sidebar,
-                                cursor="sb_v_double_arrow")
-        resizer.pack(fill="x")
-        ctk.CTkFrame(resizer, height=2, width=36,
-                      fg_color=T.border_card).place(relx=0.5, rely=0.5, anchor="center")
+        self.log_panel = ft.Container(
+            content=ft.Column([
+                log_header,
+                self.log_text_field,
+            ], spacing=0, expand=True),
+            height=120,
+            bgcolor="#111111",
+        )
 
-        self.log_panel = ctk.CTkFrame(content, fg_color=T.log_bg, corner_radius=0, height=120)
-        self.log_panel.pack(fill="x")
-        self.log_panel.pack_propagate(False)
+        resizer = ft.Container(
+            content=ft.Container(height=2, width=36, bgcolor="#333333"),
+            height=6,
+            bgcolor="#161618",
+            alignment=ft.alignment.Alignment.CENTER,
+        )
 
-        log_header = ctk.CTkFrame(self.log_panel, fg_color="transparent", height=26)
-        log_header.pack(fill="x")
-        log_header.pack_propagate(False)
-
-        self.log_expanded = True
-        self.log_dot = ctk.CTkFrame(log_header, width=6, height=6,
-                                      fg_color="#333333", corner_radius=3)
-        self.log_dot.pack(side="left", padx=(14, 6), pady=10)
-
-        ctk.CTkLabel(log_header, text="LOG",
-                      font=ctk.CTkFont(size=9, weight="bold"),
-                      text_color=T.log_muted).pack(side="left")
-
-        for txt, color, cmd in [
-            ("Copiar", T.cyan, self._copiar_log),
-            ("Limpar", T.text_muted, self._limpar_log_rapido),
-            (chr(9660), T.text_muted, self._toggle_log),
-        ]:
-            ctk.CTkButton(log_header, text=txt, width=44, height=18,
-                           fg_color="transparent", text_color=color,
-                           hover_color=T.bg_card, font=ctk.CTkFont(size=9),
-                           command=cmd).pack(side="right", padx=2)
-
-        self.log_text = ctk.CTkTextbox(self.log_panel, fg_color=T.log_bg,
-                                        text_color=T.green,
-                                        font=ctk.CTkFont(family="Consolas", size=11),
-                                        wrap="word")
-        self.log_text.pack(fill="both", expand=True, padx=4, pady=(0, 4))
+        return ft.Container(
+            content=ft.Column([
+                topbar,
+                cards_area,
+                resizer,
+                self.log_panel,
+            ], spacing=0, expand=True),
+            expand=True,
+            bgcolor=C.GREY_900,
+        )
 
     def _sidebar_section(self, parent, texto):
-        ctk.CTkLabel(parent, text=texto,
-                      font=ctk.CTkFont(size=10, weight="bold"),
-                      text_color="#444444").pack(anchor="w", padx=16, pady=(8, 4))
+        parent.controls.append(
+            ft.Container(
+                content=ft.Text(texto, size=10, weight=ft.FontWeight.BOLD, color="#444444"),
+                padding=ft.Padding(16, 8, 16, 4),
+            )
+        )
 
     def _sidebar_item(self, parent, nome, icone, count, active=False):
-        fg = T.bg_card if active else "transparent"
-        text = T.cyan if active else T.text_muted
-        bg = T.cyan_bg if active else "#252525"
-        fg_count = T.cyan if active else "#555555"
+        is_active = active or (nome == self.categoria_atual)
+        refs = {}
 
-        frame = ctk.CTkFrame(parent, fg_color=fg, corner_radius=0, height=32)
-        frame.pack(fill="x")
-        frame.pack_propagate(False)
+        accent = ft.Container(width=3, height=32, bgcolor=C.CYAN_400 if is_active else None)
+        icon_w = ft.Icon(icone, size=14, color=C.CYAN_400 if is_active else C.GREY_500)
+        name_w = ft.Text(nome, size=12, color=C.CYAN_400 if is_active else C.GREY_400, expand=True)
+        count_w = ft.Container(
+            content=ft.Text(str(count), size=10, color=C.CYAN_400 if is_active else "#555555"),
+            bgcolor="#1a4a6a" if is_active else "#252525",
+            border_radius=10,
+            padding=ft.Padding(5, 1, 5, 1),
+            margin=ft.Margin(0, 0, 12, 0),
+        )
 
-        accent = ctk.CTkFrame(frame, width=2, fg_color=T.cyan if active else "transparent",
-                               corner_radius=0)
-        accent.pack(side="left", fill="y")
+        container = ft.Container(
+            height=32,
+            bgcolor="#242424" if is_active else None,
+            content=ft.Row([accent, icon_w, name_w, count_w], spacing=6),
+            on_click=lambda e, n=nome: self._selecionar_categoria(n),
+        )
 
-        lbl_icon = ctk.CTkLabel(frame, text=icone, font=ctk.CTkFont(size=13),
-                                 text_color=text)
-        lbl_icon.pack(side="left", padx=(10, 6))
+        refs["accent"] = accent
+        refs["icon"] = icon_w
+        refs["name"] = name_w
+        refs["count_bg"] = count_w
+        refs["count_text"] = count_w.content
+        refs["container"] = container
+        self._sidebar_refs[nome] = refs
 
-        lbl_nome = ctk.CTkLabel(frame, text=nome, font=ctk.CTkFont(size=12),
-                                 text_color=text)
-        lbl_nome.pack(side="left")
-
-        lbl_count = ctk.CTkLabel(frame, text=str(count), font=ctk.CTkFont(size=10),
-                                  fg_color=bg, text_color=fg_count, corner_radius=10)
-        lbl_count.pack(side="right", padx=12, ipadx=5, ipady=1)
-
-        self._sidebar_frames[nome] = {
-            "frame": frame, "accent": accent,
-            "lbl_icon": lbl_icon, "lbl_nome": lbl_nome, "lbl_count": lbl_count,
-        }
-
-        def on_click(e):
-            if self.categoria_atual != nome:
-                self.categoria_atual = nome
-                self._update_sidebar_active(nome)
-                self._atualizar_cards()
-
-        for widget in [frame, accent, lbl_icon, lbl_nome, lbl_count]:
-            widget.bind("<Button-1>", on_click)
+        parent.controls.append(container)
 
     def _selecionar_categoria(self, nome):
-        if self.categoria_atual != nome:
-            self.categoria_atual = nome
-            self._update_sidebar_active(nome)
-            self._atualizar_cards()
+        if self.categoria_atual == nome:
+            return
+        self.categoria_atual = nome
+        self._update_sidebar_active()
+        self._filter_cards()
+        self.page.update()
 
     def _render_sidebar(self):
-        self._sidebar_frames.clear()
-        for w in self.sidebar_menu.winfo_children():
-            w.destroy()
-
+        self._sidebar_refs.clear()
+        self.sidebar_menu.controls.clear()
         todos = self._todos_scripts()
         total_count = len(todos)
         counts = Counter(s.get("categoria") for s in todos)
 
         self._sidebar_section(self.sidebar_menu, "CATEGORIAS")
-
         self._sidebar_item(self.sidebar_menu, "Todas",
-                           CATEGORY_ICONS.get("Todas", "▦"),
-                           total_count, self.categoria_atual == "Todas")
-
+                           CATEGORY_ICONS.get("Todas", ICONS.APPS),
+                           total_count)
         for cat in self.dados["categorias"]:
-            icone = CATEGORY_ICONS.get(cat, "◈")
-            self._sidebar_item(self.sidebar_menu, cat, icone, counts.get(cat, 0),
-                               self.categoria_atual == cat)
+            icone = CATEGORY_ICONS.get(cat, ICONS.CIRCLE)
+            self._sidebar_item(self.sidebar_menu, cat, icone, counts.get(cat, 0))
 
-        ctk.CTkFrame(self.sidebar_menu, height=1, fg_color=T.border_card).pack(
-            fill="x", padx=12, pady=6)
-
+        self.sidebar_menu.controls.append(
+            ft.Container(height=1, bgcolor="#333333", margin=ft.Margin(12, 6, 12, 6))
+        )
         self._sidebar_section(self.sidebar_menu, "MEUS")
-
         user_count = len(self.dados["scripts"])
         self._sidebar_item(self.sidebar_menu, "Personalizados",
-                           CATEGORY_ICONS.get("Personalizados", "◉"),
-                           user_count, self.categoria_atual == "Personalizados")
+                           CATEGORY_ICONS.get("Personalizados", ICONS.PERSON),
+                           user_count)
         self._sidebar_item(self.sidebar_menu, "Favoritos",
-                           CATEGORY_ICONS.get("Favoritos", "★"),
-                           0, self.categoria_atual == "Favoritos")
+                           CATEGORY_ICONS.get("Favoritos", ICONS.STAR), 0)
+        self._update_sidebar_active()
+        self.sidebar_menu.update()
+
+    def _update_sidebar_active(self):
+        for name, refs in self._sidebar_refs.items():
+            active = (name == self.categoria_atual)
+            refs["container"].bgcolor = "#242424" if active else None
+            refs["accent"].bgcolor = C.CYAN_400 if active else None
+            color = C.CYAN_400 if active else C.GREY_500
+            refs["icon"].color = color
+            refs["name"].color = C.CYAN_400 if active else C.GREY_400
+            bg = "#1a4a6a" if active else "#252525"
+            refs["count_bg"].bgcolor = bg
+            refs["count_text"].color = C.CYAN_400 if active else "#555555"
 
     def _extrair_unico(self, script):
         dst = os.path.join(self._temp_scripts_dir, script["caminho_relativo"])
@@ -534,30 +394,155 @@ class ScriptManagerApp(ctk.CTk):
             self._cached_todos = self.dados["scripts"] + self._embedded_scripts
         return self._cached_todos
 
-    def _update_sidebar_active(self, nome):
-        for name, refs in self._sidebar_frames.items():
-            active = (name == nome)
-            refs["frame"].configure(fg_color=T.bg_card if active else "transparent")
-            refs["accent"].configure(fg_color=T.cyan if active else "transparent")
-            text_color = T.cyan if active else T.text_muted
-            refs["lbl_icon"].configure(text_color=text_color)
-            refs["lbl_nome"].configure(text_color=text_color)
-            bg = T.cyan_bg if active else "#252525"
-            fg = T.cyan if active else "#555555"
-            refs["lbl_count"].configure(fg_color=bg, text_color=fg)
+    def _build_card(self, script):
+        is_embedded = script.get("embedded", False)
+        _tipo = script.get("tipo", "").replace(".", "")
+        icon_color = (C.GREEN_400 if _tipo in ("bat", "cmd") else
+                      C.CYAN_400 if _tipo == "ps1" else
+                      C.AMBER_400 if _tipo in ("exe", "reg") else
+                      C.GREY_500)
+        _icon_bg = (C.GREEN_900 if icon_color == C.GREEN_400 else
+                    "#1a3a1a" if icon_color == C.GREEN_400 else
+                    "#1a2a3a" if icon_color == C.CYAN_400 else
+                    "#2a2010" if icon_color == C.AMBER_400 else
+                    "#242424")
+        accent_color = ACCENT_COLORS.get(script.get("tipo", ""), C.GREY_500)
+        icon_name = SCRIPT_ICONS.get(_tipo, ICONS.PLAY_ARROW)
 
-    def _atualizar_cards(self):
-        if self._categorias_dirty:
-            self._render_sidebar()
-            self._create_all_cards()
-            self._categorias_dirty = False
+        tipo = script.get("tipo", "").upper()
+        admin = script.get("admin", False)
+        categoria = script.get("categoria", "")
+        nome = script["nome"]
+        descricao = script.get("descricao", "")
 
-        self._filter_cards()
+        meta_controls = [
+            ft.Container(
+                content=ft.Text(tipo, size=8, weight=ft.FontWeight.BOLD, color=icon_color),
+                bgcolor=_icon_bg,
+                border_radius=3,
+                padding=ft.Padding(4, 1, 4, 1),
+            )
+        ]
+        if admin:
+            meta_controls.append(
+                ft.Container(
+                    content=ft.Text("ADMIN", size=8, weight=ft.FontWeight.BOLD, color=C.AMBER_400),
+                    bgcolor="#2a2010",
+                    border_radius=3,
+                    padding=ft.Padding(4, 1, 4, 1),
+                )
+            )
+        meta_controls.append(
+            ft.Text(categoria, size=10, color=C.GREY_500)
+        )
+
+        btn_label = "Abrir" if script.get("tipo") == ".txt" else "Executar"
+        card_key = script["nome"]
+
+        run_btn = ft.FilledButton(
+            btn_label,
+            style=ft.ButtonStyle(
+                color=C.WHITE,
+                bgcolor=C.GREEN_400,
+                overlay_color=C.WHITE10,
+                padding=8,
+                text_style=ft.TextStyle(size=11),
+            ),
+            on_click=lambda e, s=script: (
+                asyncio.create_task(self._executar_script(s))
+                if not self._running.get(s["nome"])
+                else None
+            ),
+        )
+        if self._running.get(card_key):
+            run_btn.style = ft.ButtonStyle(
+                color=C.GREEN_400,
+                bgcolor=C.GREEN_900,
+                side=ft.BorderSide(1, "#2a4a2a"),
+                padding=8,
+                text_style=ft.TextStyle(size=11),
+            )
+            run_btn.text = "Executando..."
+            run_btn.disabled = True
+
+        right_btns = ft.Column([run_btn], spacing=4, horizontal_alignment=ft.CrossAxisAlignment.END)
+
+        if is_embedded:
+            detail_btn = ft.OutlinedButton(
+                "Detalhes",
+                style=ft.ButtonStyle(
+                    color=C.CYAN_400,
+                    side=ft.BorderSide(1, C.CYAN_800),
+                    overlay_color="#ffffff08",
+                    padding=8,
+                    text_style=ft.TextStyle(size=11),
+                ),
+                on_click=lambda e, s=script: self._mostrar_detalhes(s),
+            )
+            right_btns.controls.append(detail_btn)
+        else:
+            edit_btn = ft.OutlinedButton(
+                "Editar",
+                style=ft.ButtonStyle(
+                    color=C.AMBER_400,
+                    side=ft.BorderSide(1, "#4d3600"),
+                    overlay_color="#ffffff08",
+                    padding=8,
+                    text_style=ft.TextStyle(size=11),
+                ),
+                on_click=lambda e, s=script: self._editar_script(s),
+            )
+            remove_btn = ft.OutlinedButton(
+                "Remover",
+                style=ft.ButtonStyle(
+                    color=C.RED_400,
+                    side=ft.BorderSide(1, "#4d0000"),
+                    overlay_color="#ffffff08",
+                    padding=8,
+                    text_style=ft.TextStyle(size=11),
+                ),
+                on_click=lambda e, s=script: self._remover_script(s),
+            )
+            right_btns.controls.append(edit_btn)
+            right_btns.controls.append(remove_btn)
+
+        card = ft.Card(
+            content=ft.Container(
+                content=ft.Row([
+                    ft.Container(width=3, bgcolor=accent_color),
+                    ft.Container(
+                        content=ft.Column([
+                            ft.Row([
+                                ft.Icon(icon_name, size=16, color=icon_color),
+                                ft.Text(nome, size=14, weight=ft.FontWeight.BOLD, color=C.GREY_100),
+                            ], spacing=8),
+                            ft.Text(descricao, size=11, color=C.GREY_500) if descricao else ft.Container(height=0),
+                            ft.Row(meta_controls, spacing=6),
+                        ], spacing=6),
+                        padding=ft.Padding(14, 10, 14, 10), expand=True,
+                    ),
+                    ft.Container(content=right_btns, padding=ft.Padding(0, 10, 14, 10)),
+                ], spacing=0),
+            ),
+            elevation=0,
+        )
+
+        return {"widget": card, "script": dict(script), "nome_lower": nome.lower(), "descricao_lower": descricao.lower(), "run_btn": run_btn}
+
+    def _create_all_cards(self):
+        self._card_widgets.clear()
+        self.cards_column.controls.clear()
+        self.empty_state.visible = False
+
+        for script in self._todos_scripts():
+            entry = self._build_card(script)
+            self._card_widgets.append(entry)
+            self.cards_column.controls.append(entry["widget"])
 
     def _filter_cards(self):
-        busca = self.entry_busca.get().strip().lower()
-
+        busca = (self.search_field.value or "").strip().lower()
         visible_count = 0
+
         for entry in self._card_widgets:
             script = entry["script"]
             show = True
@@ -573,170 +558,52 @@ class ScriptManagerApp(ctk.CTk):
                 show = (busca in entry["nome_lower"] or
                         busca in entry["descricao_lower"])
 
+            entry["widget"].visible = show
             if show:
-                entry["widget"].pack(fill="x", pady=3)
                 visible_count += 1
-            else:
-                entry["widget"].pack_forget()
 
-        self.lbl_categoria.configure(text=self.categoria_atual)
-        self.lbl_count.configure(text=f"{visible_count} {'script' if visible_count == 1 else 'scripts'}")
+        self.lbl_categoria.value = self.categoria_atual
+        self.lbl_count.content.value = f"{visible_count} {'script' if visible_count == 1 else 'scripts'}"
+        self.lbl_count.update()
 
         if visible_count == 0:
             if self.categoria_atual == "Favoritos":
-                self._sub_empty_label.configure(text="Em breve — favoritar scripts")
+                self.empty_sub.value = "Em breve — favoritar scripts"
             elif not self.dados["scripts"] and not busca:
-                self._sub_empty_label.configure(text="Use '+ Adicionar Script' para incluir seus próprios scripts")
+                self.empty_sub.value = "Use '+ Adicionar Script' para incluir seus próprios scripts"
             else:
-                self._sub_empty_label.configure(text="")
-            self._empty_frame.pack(expand=True, pady=60)
+                self.empty_sub.value = ""
+            self.empty_state.visible = True
         else:
-            self._empty_frame.pack_forget()
+            self.empty_state.visible = False
 
-    def _create_all_cards(self):
-        for entry in self._card_widgets:
-            entry["widget"].destroy()
-        self._card_widgets.clear()
-        self._run_buttons.clear()
+    def _atualizar_cards(self):
+        if self._categorias_dirty:
+            self._render_sidebar()
+            self._create_all_cards()
+            self._categorias_dirty = False
+        self._filter_cards()
+        self.cards_column.update()
+        self.empty_state.update()
+        self.lbl_categoria.update()
 
-        if self._empty_frame:
-            self._empty_frame.destroy()
-            self._empty_frame = None
+    def _on_busca_change(self, e):
+        if self._search_debounce_task:
+            self._search_debounce_task.cancel()
+        self._search_debounce_task = asyncio.create_task(self._debounced_search())
 
-        self._empty_frame = ctk.CTkFrame(self.cards_frame, fg_color="transparent")
-        ctk.CTkLabel(
-            self._empty_frame,
-            text="Nenhum script encontrado",
-            font=ctk.CTkFont(size=15, weight="bold"),
-            text_color=T.text_muted
-        ).pack()
-        self._sub_empty_label = ctk.CTkLabel(
-            self._empty_frame,
-            text="",
-            font=ctk.CTkFont(size=11),
-            text_color=T.text_muted
-        )
-        self._sub_empty_label.pack(pady=(6, 0))
-        self._empty_frame.pack_forget()
+    async def _debounced_search(self):
+        await asyncio.sleep(0.15)
+        self._atualizar_cards()
 
-        icons = {"bat": chr(9881), "cmd": chr(9881), "ps1": chr(9889),
-                 "exe": chr(9654), "reg": chr(10025), "txt": chr(8505)}
-
-        for script in self._todos_scripts():
-            entry = {"script": dict(script), "widget": self._build_card(script, icons)}
-            entry["nome_lower"] = entry["script"]["nome"].lower()
-            entry["descricao_lower"] = entry["script"].get("descricao", "").lower()
-            self._card_widgets.append(entry)
-
-    def _build_card(self, script, icons):
-        T_green = T.green
-        T_cyan = T.cyan
-        T_amber = T.amber
-        T_text_muted = T.text_muted
-        T_bg_card = T.bg_card
-        T_bg_card_hover = T.bg_card_hover
-        T_amber_hover = T.amber_hover
-        T_green_bg = T.green_bg
-        T_cyan_bg = T.cyan_bg
-        T_text_primary = T.text_primary
-        T_border_card = T.border_card
-        T_cyan_border = T.cyan_border
-        T_amber_border = T.amber_border
-        T_red = T.red
-        T_red_hover = T.red_hover
-        T_red_border = T.red_border
-
-        is_embedded = script.get("embedded", False)
-        _tipo = script.get("tipo", "").replace(".", "")
-        icon_color = (T_green if _tipo in ("bat", "cmd") else
-                      T_cyan if _tipo == "ps1" else
-                      T_amber if _tipo in ("exe", "reg") else
-                      T_text_muted)
-        _icon_bg = {T_green: T_green_bg, T_cyan: T_bg_card_hover,
-                    T_amber: T_amber_hover}.get(icon_color, T_bg_card)
-        accent_color = ACCENT_COLORS.get(script.get("tipo", ""), T_text_muted)
-
-        card = ctk.CTkFrame(self.cards_frame, fg_color=T_bg_card, corner_radius=8,
-                             border_width=1, border_color=T_border_card)
-
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="both", expand=True)
-
-        ctk.CTkFrame(inner, width=3, fg_color=accent_color,
-                      corner_radius=0).pack(side="left", fill="y")
-
-        body = ctk.CTkFrame(inner, fg_color="transparent")
-        body.pack(side="left", fill="both", expand=True, padx=14, pady=10)
-
-        row = ctk.CTkFrame(body, fg_color="transparent")
-        row.pack(fill="x")
-
-        left = ctk.CTkFrame(row, fg_color="transparent")
-        left.pack(side="left", fill="x", expand=True)
-
-        right = ctk.CTkFrame(row, fg_color="transparent")
-        right.pack(side="right", padx=(12, 0))
-
-        icon_line = ctk.CTkFrame(left, fg_color="transparent")
-        icon_line.pack(fill="x")
-        ctk.CTkLabel(icon_line, text=icons.get(_tipo, chr(9654)),
-                      font=ctk.CTkFont(size=16), text_color=icon_color).pack(side="left")
-        ctk.CTkLabel(icon_line, text=script["nome"],
-                      font=ctk.CTkFont(size=14, weight="bold"),
-                      text_color=T_text_primary).pack(side="left", padx=(8, 0))
-
-        if script.get("descricao"):
-            ctk.CTkLabel(left, text=script["descricao"], text_color=T_text_muted,
-                          font=ctk.CTkFont(size=11), wraplength=500,
-                          anchor="w").pack(anchor="w", pady=(2, 6))
-
-        meta = ctk.CTkFrame(left, fg_color="transparent")
-        meta.pack(anchor="w")
-        ctk.CTkLabel(meta, text=script.get("tipo", "").upper(),
-                      font=ctk.CTkFont(size=8, weight="bold"),
-                      text_color=icon_color, fg_color=_icon_bg,
-                      corner_radius=3).pack(side="left", padx=(0, 6), ipadx=4, ipady=1)
-        if script.get("admin"):
-            ctk.CTkLabel(meta, text="ADMIN",
-                          font=ctk.CTkFont(size=8, weight="bold"),
-                          text_color=T_amber, fg_color=T_amber_hover,
-                          corner_radius=3).pack(side="left", padx=(0, 6), ipadx=4, ipady=1)
-        ctk.CTkLabel(meta, text=script.get("categoria", ""),
-                      font=ctk.CTkFont(size=10),
-                      text_color=T_text_muted).pack(side="left")
-
-        btn_label = "Abrir" if script.get("tipo") == ".txt" else "Executar"
-        btn = ctk.CTkButton(right, text=btn_label, width=80, height=28,
-                             fg_color=T_green, text_color="#ffffff",
-                             hover_color=T_green_bg,
-                             font=ctk.CTkFont(size=11),
-                             command=lambda s=script: self._executar_script(s))
-        btn.pack(side="top", pady=(0, 4))
-        self._run_buttons[script["nome"]] = btn
-        if self._running.get(script["nome"]):
-            btn.configure(text="Executando...", state="disabled",
-                           fg_color=T_green_bg, text_color=T_green,
-                           border_width=1, border_color="#2a4a2a")
-
-        if is_embedded:
-            ctk.CTkButton(right, text="Detalhes", width=80, height=28,
-                            fg_color="transparent", text_color=T_cyan,
-                            hover_color=T_cyan_bg, border_width=1, border_color=T_cyan_border,
-                            font=ctk.CTkFont(size=11),
-                            command=lambda s=script: self._mostrar_detalhes(s)).pack(side="top")
-        else:
-            ctk.CTkButton(right, text="Editar", width=80, height=28,
-                            fg_color="transparent", text_color=T_amber,
-                            hover_color=T_amber_hover, border_width=1, border_color=T_amber_border,
-                            font=ctk.CTkFont(size=11),
-                            command=lambda s=script: self._editar_script(s)).pack(side="top", pady=(0, 4))
-            ctk.CTkButton(right, text="Remover", width=80, height=28,
-                            fg_color="transparent", text_color=T_red,
-                            hover_color=T_red_hover, border_width=1, border_color=T_red_border,
-                            font=ctk.CTkFont(size=11),
-                            command=lambda s=script: self._remover_script(s)).pack(side="top")
-
-        return card
+    def _on_keyboard_event(self, e: ft.KeyboardEvent):
+        if e.ctrl and e.key == "F":
+            self.search_field.focus()
+            self.page.update()
+        elif e.key == "Escape":
+            if self.search_field.value:
+                self.search_field.value = ""
+                self._atualizar_cards()
 
     def _log(self, msg):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
@@ -746,73 +613,226 @@ class ScriptManagerApp(ctk.CTk):
             nivel = "error"
         elif any(w in msg_lower for w in ["aviso", "warning", "cancelado", "negado"]):
             nivel = "warn"
-        elif any(w in msg_lower for w in ["finalizado", "concluído", "iniciado"]):
+        elif any(w in msg_lower for w in ["finalizado", "concluido", "iniciado"]):
             nivel = "info"
         else:
             nivel = "muted"
-        self._log_queue.put((line, nivel))
-        self.after_idle(self._drain_log_queue)
+        self.log_queue.put_nowait((line, nivel))
 
-    def _drain_log_queue(self):
-        try:
-            while True:
-                item = self._log_queue.get_nowait()
-                if isinstance(item, tuple):
-                    line, nivel = item
-                else:
-                    line, nivel = item, "muted"
-                self._log_ui(line, nivel)
-        except queue.Empty:
-            pass
-
-    def _log_ui(self, line, nivel="muted"):
-        try:
+    async def _drain_log_queue(self):
+        while True:
+            line, nivel = await self.log_queue.get()
             if nivel == "error":
                 prefix = "[ERRO] "
             elif nivel == "warn":
                 prefix = "[AVISO] "
             else:
                 prefix = ""
-            self.log_text.insert("end", prefix + line + "\n")
-            line_count = int(self.log_text.index("end-1c").split(".")[0])
-            if line_count > 500:
-                self.log_text.delete("1.0", f"{line_count - 500}.0")
-            self.log_text.see("end")
-        except Exception:
-            pass
+            full = prefix + line
+            self._log_lines.append(full)
+            if len(self._log_lines) > 500:
+                self._log_lines = self._log_lines[-500:]
+            self.log_text_field.value = "\n".join(self._log_lines)
+            self.log_text_field.update()
 
-    def _toggle_log(self):
-        if self.log_expanded:
-            self.log_text.pack_forget()
-            self.log_panel.configure(height=26)
-        else:
-            self.log_text.pack(fill="both", expand=True, padx=4, pady=(0, 4))
-            self.log_panel.configure(height=120)
+    def _toggle_log(self, e):
         self.log_expanded = not self.log_expanded
-
-    def _mostrar_detalhes(self, script):
-        ScriptDetailsDialog(self, script)
+        self.log_panel.height = 120 if self.log_expanded else 26
+        self.log_text_field.visible = self.log_expanded
+        self.page.update()
 
     def _copiar_log(self):
-        texto = self.log_text.get("1.0", "end-1c")
+        texto = "\n".join(self._log_lines)
         if texto.strip():
-            self.clipboard_clear()
-            self.clipboard_append(texto)
+            self.page.clipboard = texto
             self._log("Log copiado para a area de transferencia")
 
     def _limpar_log_rapido(self):
-        self.log_text.delete("1.0", "end")
+        self._log_lines.clear()
+        self.log_text_field.value = ""
+        self.log_text_field.update()
+
+    def _mostrar_detalhes(self, script):
+        colors = {".bat": C.GREEN_400, ".cmd": C.GREEN_400, ".ps1": C.CYAN_400,
+                  ".exe": C.AMBER_400, ".reg": C.AMBER_400, ".txt": C.GREY_500}
+        c = colors.get(script.get("tipo", ""), C.GREY_500)
+        tipo = script.get("tipo", "").upper()
+        categoria = script.get("categoria", "")
+        admin = script.get("admin", False)
+        explicacao = script.get("explicacao", script.get("descricao", "Sem descricao disponivel."))
+
+        badges = [
+            ft.Container(
+                content=ft.Text(tipo, size=10, weight=ft.FontWeight.BOLD, color=c),
+                bgcolor="#242424", border_radius=3, padding=ft.Padding(6, 2, 6, 2),
+            ),
+            ft.Text(categoria, size=11, color=C.GREY_500),
+        ]
+        if admin:
+            badges.append(
+                ft.Container(
+                    content=ft.Text("REQUER ADMIN", size=9, weight=ft.FontWeight.BOLD, color=C.AMBER_400),
+                    bgcolor="#2a2010", border_radius=3, padding=ft.Padding(6, 2, 6, 2),
+                )
+            )
+
+        dialog = ft.AlertDialog(
+            title=ft.Text(script["nome"], size=18, weight=ft.FontWeight.BOLD),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row(badges, spacing=8),
+                    ft.Divider(height=1, color="#333333"),
+                    ft.Text(explicacao, size=13, color=C.GREY_100),
+                ], spacing=12, scroll=ft.ScrollMode.ALWAYS),
+                width=500,
+                height=280,
+            ),
+            actions=[
+                ft.TextButton("Fechar", on_click=lambda e: self._close_dialog()),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        self.page.show_dialog(dialog)
+
+    def _close_dialog(self):
+        self.page.pop_dialog()
+
+    def _on_file_picked(self, e):
+        if e.files and len(e.files) > 0 and self._pending_path_field is not None:
+            self._pending_path_field.value = e.files[0].path
+            self._pending_path_field.update()
+            self._pending_path_field = None
 
     def _abrir_adicionar_script(self):
-        AddEditScriptDialog(self, self.dados["categorias"], callback=self._adicionar_script_callback)
+        self._abrir_edit_dialog()
 
-    def _adicionar_script_callback(self, data):
-        self.dados["scripts"].append(data)
-        salvar_dados(self.dados)
-        self._script_indices.clear()
-        self._categorias_dirty = True
-        self._atualizar_cards()
-        self._log(f"Script adicionado: {data['nome']}")
+    def _abrir_edit_dialog(self, script=None):
+        categorias = self.dados["categorias"]
+        nome_val = script["nome"] if script else ""
+        desc_val = script.get("descricao", "") if script else ""
+        cat_val = script.get("categoria", categorias[0] if categorias else "") if script else (categorias[0] if categorias else "")
+        path_val = script.get("caminho", "") if script else ""
+        is_edit = script is not None
+
+        entry_nome = ft.TextField(
+            label="Nome", value=nome_val,
+            border_color="#333333", fill_color="#242424",
+            text_style=ft.TextStyle(color=C.GREY_100),
+            label_style=ft.TextStyle(color=C.GREY_500),
+        )
+        entry_desc = ft.TextField(
+            label="Descricao", value=desc_val,
+            border_color="#333333", fill_color="#242424",
+            text_style=ft.TextStyle(color=C.GREY_100),
+            label_style=ft.TextStyle(color=C.GREY_500),
+        )
+        combo_cat = ft.Dropdown(
+            label="Categoria",
+            options=[ft.dropdown.Option(c) for c in categorias],
+            value=cat_val,
+            border_color="#333333", fill_color="#242424",
+            text_style=ft.TextStyle(color=C.GREY_100),
+            label_style=ft.TextStyle(color=C.GREY_500),
+        )
+        entry_path = ft.TextField(
+            label="Caminho do Script", value=path_val, read_only=True,
+            border_color="#333333", fill_color="#242424",
+            text_style=ft.TextStyle(color=C.GREY_100),
+            label_style=ft.TextStyle(color=C.GREY_500),
+        )
+
+        def browse_click(e):
+            self._pending_path_field = entry_path
+            self._file_picker.pick_files(
+                dialog_title="Selecionar Script",
+                allowed_extensions=["bat", "cmd", "ps1", "exe"],
+                allow_multiple=False,
+            )
+
+        browse_btn = ft.OutlinedButton(
+            "...",
+            style=ft.ButtonStyle(color=C.GREY_100, side=ft.BorderSide(1, "#333333")),
+            on_click=browse_click,
+        )
+
+        def save_click(e):
+            nome = entry_nome.value.strip() if entry_nome.value else ""
+            desc = entry_desc.value.strip() if entry_desc.value else ""
+            cat = combo_cat.value
+            path = entry_path.value.strip() if entry_path.value else ""
+            if not nome or not path:
+                self._show_warning("Campos obrigatorios", "Preencha nome e caminho do script.")
+                return
+            if not os.path.exists(path):
+                self._show_warning("Arquivo nao encontrado", f"O arquivo nao existe:\n{path}")
+                return
+            ext = os.path.splitext(path)[1].lower()
+            if ext not in (".bat", ".cmd", ".ps1", ".exe"):
+                self._show_warning("Tipo invalido", "Apenas .bat, .cmd, .ps1 e .exe sao permitidos.")
+                return
+            data = {
+                "nome": nome, "descricao": desc, "categoria": cat,
+                "caminho": path, "tipo": ext,
+            }
+            if is_edit:
+                idx = self._find_script_index(script)
+                if idx >= 0:
+                    self.dados["scripts"][idx] = data
+                    salvar_dados(self.dados)
+                    self._script_indices.clear()
+                    self._categorias_dirty = True
+                    self._atualizar_cards()
+                    self._log(f"Script editado: {data['nome']}")
+            else:
+                self.dados["scripts"].append(data)
+                salvar_dados(self.dados)
+                self._script_indices.clear()
+                self._categorias_dirty = True
+                self._atualizar_cards()
+                self._log(f"Script adicionado: {data['nome']}")
+            self._close_dialog()
+
+        path_row = ft.Row([entry_path, browse_btn], spacing=6)
+
+        content = ft.Column([
+            entry_nome, entry_desc, combo_cat, path_row,
+        ], spacing=10, scroll=ft.ScrollMode.ALWAYS)
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Editar Script" if is_edit else "Adicionar Script", size=16, weight=ft.FontWeight.BOLD),
+            content=ft.Container(content=content, width=480, height=320),
+            actions=[
+                ft.TextButton("Cancelar", on_click=lambda e: self._close_dialog()),
+                ft.FilledButton("Salvar",
+                    style=ft.ButtonStyle(color=C.BLACK, bgcolor=C.CYAN_400),
+                    on_click=save_click,
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        self.page.show_dialog(dialog)
+
+    def _show_warning(self, title, message):
+        dialog = ft.AlertDialog(
+            title=ft.Text(title),
+            content=ft.Text(message),
+            actions=[ft.TextButton("OK", on_click=lambda e: self._close_dialog())],
+        )
+        self.page.show_dialog(dialog)
+
+    def _show_confirm(self, title, message, callback):
+        dialog = ft.AlertDialog(
+            title=ft.Text(title),
+            content=ft.Text(message),
+            actions=[
+                ft.TextButton("Nao", on_click=lambda e: self._close_dialog()),
+                ft.FilledButton("Sim",
+                    style=ft.ButtonStyle(color=C.BLACK, bgcolor=C.CYAN_400),
+                    on_click=lambda e: (self._close_dialog(), callback()),
+                ),
+            ],
+        )
+        self.page.show_dialog(dialog)
 
     def _find_script_index(self, script):
         if not self._script_indices:
@@ -824,19 +844,10 @@ class ScriptManagerApp(ctk.CTk):
         return self._script_indices.get(key, -1)
 
     def _editar_script(self, script):
-        def callback(data):
-            idx = self._find_script_index(script)
-            if idx >= 0:
-                self.dados["scripts"][idx] = data
-                salvar_dados(self.dados)
-                self._script_indices.clear()
-                self._categorias_dirty = True
-                self._atualizar_cards()
-                self._log(f"Script editado: {data['nome']}")
-        AddEditScriptDialog(self, self.dados["categorias"], script=script, callback=callback)
+        self._abrir_edit_dialog(script=script)
 
     def _remover_script(self, script):
-        if messagebox.askyesno("Confirmar", f"Remover o script '{script['nome']}'?"):
+        def confirm():
             idx = self._find_script_index(script)
             if idx >= 0:
                 self.dados["scripts"].pop(idx)
@@ -846,8 +857,49 @@ class ScriptManagerApp(ctk.CTk):
                 self._atualizar_cards()
                 self._log(f"Script removido: {script['nome']}")
 
+        self._show_confirm("Confirmar", f"Remover o script '{script['nome']}'?", confirm)
+
     def _abrir_gerenciar_categorias(self):
-        def callback(categorias):
+        categorias = self.dados["categorias"][:]
+
+        entry_cat = ft.TextField(
+            label="Nova categoria...",
+            border_color="#333333", fill_color="#242424",
+            text_style=ft.TextStyle(color=C.GREY_100),
+            label_style=ft.TextStyle(color=C.GREY_500),
+        )
+        cat_list = ft.Column(spacing=4, scroll=ft.ScrollMode.ALWAYS, expand=True)
+
+        def render_cat_list():
+            cat_list.controls.clear()
+            for cat in categorias:
+                f = ft.Container(
+                    content=ft.Row([
+                        ft.Text(cat, color=C.GREY_100, expand=True),
+                        ft.OutlinedButton("Remover",
+                            style=ft.ButtonStyle(color=C.RED_400, side=ft.BorderSide(1, "#4d0000")),
+                            on_click=lambda e, c=cat: remove_cat(c),
+                        ),
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    bgcolor="#242424", border_radius=8, padding=ft.Padding(14, 8, 8, 8),
+                )
+                cat_list.controls.append(f)
+            cat_list.update()
+
+        def add_cat(e):
+            nome = entry_cat.value.strip() if entry_cat.value else ""
+            if nome and nome not in categorias:
+                categorias.append(nome)
+                entry_cat.value = ""
+                entry_cat.update()
+                render_cat_list()
+
+        def remove_cat(cat):
+            if cat in categorias:
+                categorias.remove(cat)
+                render_cat_list()
+
+        def save_cats(e):
             self.dados["categorias"] = categorias
             if not self.dados["categorias"]:
                 self.dados["categorias"] = []
@@ -857,37 +909,77 @@ class ScriptManagerApp(ctk.CTk):
             self._script_indices.clear()
             self._categorias_dirty = True
             self._atualizar_cards()
-        CategoryDialog(self, self.dados["categorias"], callback)
+            self._close_dialog()
+            self._log("Categorias atualizadas")
+
+        render_cat_list()
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Gerenciar Categorias", size=16, weight=ft.FontWeight.BOLD),
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        entry_cat,
+                        ft.FilledButton("Adicionar",
+                            style=ft.ButtonStyle(color=C.BLACK, bgcolor=C.CYAN_400),
+                            on_click=add_cat,
+                        ),
+                    ], spacing=10, vertical_alignment=ft.CrossAxisAlignment.END),
+                    cat_list,
+                ], spacing=12),
+                width=400,
+                height=300,
+            ),
+            actions=[
+                ft.TextButton("Cancelar", on_click=lambda e: self._close_dialog()),
+                ft.FilledButton("Salvar",
+                    style=ft.ButtonStyle(color=C.BLACK, bgcolor=C.CYAN_400),
+                    on_click=save_cats,
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        self.page.show_dialog(dialog)
 
     def _set_running(self, nome, estado):
         self._running[nome] = estado
         any_running = any(self._running.values())
-        self.log_dot.configure(fg_color=T.green if any_running else "#333333")
+        self.log_dot.bgcolor = C.GREEN_400 if any_running else "#333333"
 
-        def update():
-            btn = self._run_buttons.get(nome)
-            if btn:
+        for entry in self._card_widgets:
+            if entry["script"]["nome"] == nome:
+                btn = entry["run_btn"]
                 if estado:
-                    btn.configure(text="Executando...",
-                                   fg_color=T.green_bg,
-                                   text_color=T.green,
-                                   border_width=1,
-                                   border_color="#2a4a2a",
-                                   state="disabled")
+                    btn.text = "Executando..."
+                    btn.disabled = True
+                    btn.style = ft.ButtonStyle(
+                        color=C.GREEN_400,
+                        bgcolor=C.GREEN_900,
+                        side=ft.BorderSide(1, "#2a4a2a"),
+                        padding=8,
+                        text_style=ft.TextStyle(size=11),
+                    )
                 else:
-                    btn.configure(text="Executar",
-                                   fg_color=T.green,
-                                   text_color="#ffffff",
-                                   border_width=0,
-                                   state="normal")
-        self.after(0, update)
+                    btn_label = "Abrir" if entry["script"].get("tipo") == ".txt" else "Executar"
+                    btn.text = btn_label
+                    btn.disabled = False
+                    btn.style = ft.ButtonStyle(
+                        color=C.WHITE,
+                        bgcolor=C.GREEN_400,
+                        overlay_color=C.WHITE10,
+                        padding=8,
+                        text_style=ft.TextStyle(size=11),
+                    )
+                break
+        self.log_dot.update()
 
-    def _executar_script(self, script):
+    async def _executar_script(self, script):
         nome = script["nome"]
         if self._running.get(nome):
             return
 
         self._set_running(nome, True)
+        self.page.update()
 
         tipo = script.get("tipo", "")
         caminho = script["caminho"]
@@ -899,6 +991,7 @@ class ScriptManagerApp(ctk.CTk):
         if not os.path.exists(caminho):
             self._log(f"Erro: Arquivo nao encontrado: {caminho}")
             self._set_running(nome, False)
+            self.page.update()
             return
 
         if tipo == ".txt":
@@ -907,75 +1000,102 @@ class ScriptManagerApp(ctk.CTk):
             except Exception as e:
                 self._log(f"Erro ao abrir {nome}: {e}")
             self._set_running(nome, False)
+            self.page.update()
             return
 
+        import ctypes
         if script.get("admin") and not ctypes.windll.shell32.IsUserAnAdmin():
-            resposta = messagebox.askyesno(
-                "Permissao de Administrador",
-                f'O script "{nome}" requer permissoes de administrador.\n\n'
-                "Deseja continuar mesmo assim? O script pode falhar se nao for executado como administrador."
-            )
-            if not resposta:
+            proceed = await self._ask_admin_continue(nome)
+            if not proceed:
                 self._log(f"Execucao cancelada: {nome} (requer admin)")
                 self._set_running(nome, False)
+                self.page.update()
                 return
 
-        def run():
-            try:
-                self._log(f"Executando: {nome}")
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                if tipo in (".bat", ".cmd"):
-                    proc = subprocess.Popen(
-                        ["cmd.exe", "/c", caminho],
-                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                        startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
-                        cwd=script_dir
-                    )
-                elif tipo == ".ps1":
-                    proc = subprocess.Popen(
-                        ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", caminho],
-                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                        startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
-                        cwd=script_dir
-                    )
-                elif tipo == ".reg":
-                    proc = subprocess.Popen(
-                        ["regedit.exe", "/s", caminho],
-                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                        startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
-                        cwd=script_dir
-                    )
-                else:
-                    proc = subprocess.Popen(
-                        [caminho],
-                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                        startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
-                        cwd=script_dir
-                    )
-                for line in proc.stdout:
-                    if line.strip():
-                        self._log(line.strip())
-                proc.wait()
-                self._log(f"Finalizado: {nome} (codigo: {proc.returncode})")
-            except Exception as e:
-                self._log(f"Erro ao executar {nome}: {e}")
-            finally:
-                self._set_running(nome, False)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self._run_script_thread, script, nome, tipo, caminho, script_dir)
 
-        threading.Thread(target=run, daemon=True).start()
+        self._set_running(nome, False)
+        self.page.update()
 
-    def _on_busca_keyrelease(self, event=None):
-        if hasattr(self, "_busca_after_id"):
-            self.after_cancel(self._busca_after_id)
-        self._busca_after_id = self.after(150, self._atualizar_cards)
+    def _run_script_thread(self, script, nome, tipo, caminho, script_dir):
+        try:
+            self._log(f"Executando: {nome}")
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            if tipo in (".bat", ".cmd"):
+                proc = subprocess.Popen(
+                    ["cmd.exe", "/c", caminho],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
+                    cwd=script_dir,
+                )
+            elif tipo == ".ps1":
+                proc = subprocess.Popen(
+                    ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", caminho],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
+                    cwd=script_dir,
+                )
+            elif tipo == ".reg":
+                proc = subprocess.Popen(
+                    ["regedit.exe", "/s", caminho],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
+                    cwd=script_dir,
+                )
+            else:
+                proc = subprocess.Popen(
+                    [caminho],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    startupinfo=startupinfo, text=True, encoding="utf-8", errors="replace",
+                    cwd=script_dir,
+                )
+            for line in proc.stdout:
+                if line.strip():
+                    self._log(line.strip())
+            proc.wait()
+            self._log(f"Finalizado: {nome} (codigo: {proc.returncode})")
+        except Exception as e:
+            self._log(f"Erro ao executar {nome}: {e}")
 
-    def _on_escape(self, event=None):
-        if self.entry_busca.get():
-            self.entry_busca.delete(0, "end")
-            self._atualizar_cards()
+    async def _ask_admin_continue(self, nome):
+        ev = asyncio.Event()
+        result = [False]
+
+        def yes_click(e):
+            result[0] = True
+            ev.set()
+            self._close_dialog()
+
+        def no_click(e):
+            result[0] = False
+            ev.set()
+            self._close_dialog()
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Permissao de Administrador"),
+            content=ft.Text(
+                f'O script "{nome}" requer permissoes de administrador.\n\n'
+                "Deseja continuar mesmo assim? O script pode falhar se nao for executado como administrador."
+            ),
+            actions=[
+                ft.TextButton("Nao", on_click=no_click),
+                ft.FilledButton("Sim",
+                    style=ft.ButtonStyle(color=C.BLACK, bgcolor=C.CYAN_400),
+                    on_click=yes_click,
+                ),
+            ],
+        )
+        self.page.show_dialog(dialog)
+        self.page.update()
+        await ev.wait()
+        return result[0]
+
+
+def main(page: ft.Page):
+    FMOptimizationApp(page)
 
 
 if __name__ == "__main__":
-    app = ScriptManagerApp()
-    app.mainloop()
+    ft.run(main=main)
