@@ -253,7 +253,7 @@ class FMOptimizationApp:
             content=ft.Column([
                 ft.Container(content=self.cards_grid, expand=True),
                 self.empty_state,
-            ], expand=True),
+            ], expand=True, scroll=ft.ScrollMode.ALWAYS),
             expand=True,
             padding=ft.Padding(8, 8, 8, 0),
         )
