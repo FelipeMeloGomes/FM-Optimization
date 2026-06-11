@@ -359,8 +359,18 @@ class ScriptManagerApp(ctk.CTk):
                 data = base64.b64decode(s["conteudo_b64"])
                 with open(dst, "wb") as f:
                     f.write(data)
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Erro extraindo {s['nome']}: {e}")
+
+    def _extrair_unico(self, script):
+        dst = os.path.join(self._temp_scripts_dir, script["caminho_relativo"])
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        try:
+            data = base64.b64decode(script["conteudo_b64"])
+            with open(dst, "wb") as f:
+                f.write(data)
+        except Exception as e:
+            print(f"Erro extraindo {script['nome']}: {e}")
 
     def _limpar_temp(self):
         try:
@@ -581,6 +591,9 @@ class ScriptManagerApp(ctk.CTk):
         tipo = script.get("tipo", "")
         caminho = script["caminho"]
         script_dir = os.path.dirname(caminho)
+
+        if not os.path.exists(caminho) and script.get("embedded"):
+            self._extrair_unico(script)
 
         if not os.path.exists(caminho):
             self._log(f"Erro: Arquivo nao encontrado: {caminho}")
