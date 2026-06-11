@@ -322,7 +322,7 @@ class FMOptimizationApp:
         is_active = active or (nome == self.categoria_atual)
         refs = {}
 
-        accent = ft.Container(width=2, height=28, bgcolor=AMBER_PRIMARY if is_active else None, border_radius=ft.border_radius.all(1))
+        accent = ft.Container(width=2, height=28, bgcolor=AMBER_PRIMARY if is_active else None, border_radius=1)
         icon_w = ft.Icon(icone, size=13, color=AMBER_PRIMARY if is_active else TEXT_MUTED)
         name_w = ft.Text(nome, size=12, color=TEXT_PRIMARY if is_active else TEXT_MUTED, expand=True)
         count_w = ft.Container(
@@ -535,7 +535,7 @@ class FMOptimizationApp:
         card = ft.Card(
             content=ft.Container(
                 content=ft.Row([
-                    ft.Container(width=2, bgcolor=accent_color, border_radius=ft.border_radius.all(1)),
+                    ft.Container(width=2, bgcolor=accent_color, border_radius=1),
                     ft.Container(
                         content=ft.Column([
                             ft.Text(nome, size=13, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY,
