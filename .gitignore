@@ -1,8 +1,10 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.spec
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
 
 # Build
 build/
@@ -11,6 +13,7 @@ dist/
 # IDE
 .vscode/
 .idea/
+*.DotSettings
 
 # OS
 Thumbs.db
