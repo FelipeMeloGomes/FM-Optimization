@@ -159,7 +159,7 @@ class FMOptimizationApp:
         ], expand=True, spacing=0))
 
     def _build_sidebar(self):
-        font = "JetBrains Mono" if "JetBrains Mono" in self.page.fonts else None
+        font = "JetBrains Mono" if self.page.fonts and "JetBrains Mono" in self.page.fonts else None
 
         search_container = ft.Container(
             content=ft.Row([
@@ -208,7 +208,7 @@ class FMOptimizationApp:
         )
 
     def _build_content(self):
-        font = "JetBrains Mono Bold" if "JetBrains Mono Bold" in self.page.fonts else None
+        font = "JetBrains Mono Bold" if self.page.fonts and "JetBrains Mono Bold" in self.page.fonts else None
 
         self.lbl_categoria = ft.Text(
             "Todas", size=14, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY,
@@ -447,8 +447,8 @@ class FMOptimizationApp:
         nome = script["nome"]
         descricao = script.get("descricao", "")
 
-        mono = "JetBrains Mono" if "JetBrains Mono" in self.page.fonts else None
-        mono_b = "JetBrains Mono Bold" if "JetBrains Mono Bold" in self.page.fonts else None
+        mono = "JetBrains Mono" if self.page.fonts and "JetBrains Mono" in self.page.fonts else None
+        mono_b = "JetBrains Mono Bold" if self.page.fonts and "JetBrains Mono Bold" in self.page.fonts else None
 
         type_badge = ft.Container(
             content=ft.Text(tipo_label, size=8, weight=ft.FontWeight.BOLD, color=icon_color,
