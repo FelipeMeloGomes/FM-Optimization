@@ -78,7 +78,6 @@ CATEGORY_ICONS = {
     "GPU - AMD": ICONS.MEMORY,
     "GPU - NVIDIA": ICONS.MEMORY,
     "Windows 11": ICONS.DESKTOP_WINDOWS,
-    "Personalizados": ICONS.PERSON,
     "Favoritos": ICONS.STAR,
 }
 
@@ -375,10 +374,6 @@ class FMOptimizationApp:
         self.sidebar_menu.controls.append(
             ft.Container(height=1, bgcolor=BORDER_DEFAULT, margin=ft.Margin(12, 8, 12, 8))
         )
-        self._sidebar_section(self.sidebar_menu, "MEUS")
-        user_count = len(self.dados["scripts"])
-        self._sidebar_item(self.sidebar_menu, "Personalizados",
-                           CATEGORY_ICONS.get("Personalizados", ICONS.PERSON), user_count)
         self._sidebar_item(self.sidebar_menu, "Favoritos",
                            CATEGORY_ICONS.get("Favoritos", ICONS.STAR), self._favoritos_count)
         self._update_sidebar_active()
@@ -604,9 +599,7 @@ class FMOptimizationApp:
             script = entry["script"]
             show = True
 
-            if self.categoria_atual == "Personalizados":
-                show = not script.get("embedded")
-            elif self.categoria_atual == "Favoritos":
+            if self.categoria_atual == "Favoritos":
                 show = script["nome"] in self.dados.get("favoritos", [])
             elif self.categoria_atual != "Todas":
                 show = script.get("categoria") == self.categoria_atual
@@ -960,7 +953,7 @@ class FMOptimizationApp:
             self.dados["categorias"] = categorias
             if not self.dados["categorias"]:
                 self.dados["categorias"] = []
-            if self.categoria_atual not in categorias and self.categoria_atual not in ("Todas", "Personalizados", "Favoritos"):
+            if self.categoria_atual not in categorias and self.categoria_atual not in ("Todas", "Favoritos"):
                 self.categoria_atual = categorias[0] if categorias else "Todas"
             salvar_dados(self.dados)
             self._script_indices.clear()
