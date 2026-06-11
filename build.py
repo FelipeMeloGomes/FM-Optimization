@@ -10,6 +10,7 @@ args = [
     "--product-version", "1.0.0",
     "--file-version", "1.0.0",
     "--company-name", "FM Optimization",
+    "--icon", "assets/icon.ico",
     "--uac-admin",
     "--debug-console", "False",
     "-y",

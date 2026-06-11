@@ -166,6 +166,25 @@ class FMOptimizationApp:
     def _build_sidebar(self):
         self.sidebar_menu = ft.Column(scroll=ft.ScrollMode.ALWAYS, expand=True, spacing=0)
 
+        mono = "JetBrains Mono" if self.page.fonts and "JetBrains Mono" in self.page.fonts else None
+        mono_b = "JetBrains Mono Bold" if self.page.fonts and "JetBrains Mono Bold" in self.page.fonts else None
+
+        logo = ft.Container(
+            content=ft.Column([
+                ft.Row([
+                    ft.Text("FM", size=28, weight=ft.FontWeight.BOLD, color=AMBER_PRIMARY, font_family=mono_b),
+                ], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Container(
+                    content=ft.Text("OPTIMIZATION", size=9, weight=ft.FontWeight.BOLD, color=CYAN_ACCENT, font_family=mono),
+                    alignment=ft.alignment.Alignment.CENTER,
+                    padding=ft.Padding(0, 0, 0, 6),
+                ),
+                ft.Container(height=1, bgcolor=BORDER_DEFAULT, margin=ft.Margin(16, 0, 16, 0)),
+                ft.Container(height=4),
+            ], spacing=0, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+            padding=ft.Padding(0, 16, 0, 4),
+        )
+
         gear_btn = ft.Container(
             content=ft.Row([
                 ft.Icon(ICONS.SETTINGS, size=13, color=TEXT_MUTED),
@@ -178,6 +197,7 @@ class FMOptimizationApp:
 
         return ft.Container(
             content=ft.Column([
+                logo,
                 self.sidebar_menu,
                 gear_btn,
             ], spacing=0, expand=True),
