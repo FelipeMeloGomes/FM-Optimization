@@ -864,7 +864,7 @@ class FMOptimizationApp:
         )
         cat_list = ft.Column(spacing=4, scroll=ft.ScrollMode.ALWAYS, expand=True)
 
-        def render_cat_list():
+        def render_cat_list(do_update=True):
             cat_list.controls.clear()
             for cat in categorias:
                 f = ft.Container(
@@ -878,7 +878,8 @@ class FMOptimizationApp:
                     bgcolor="#242424", border_radius=8, padding=ft.Padding(14, 8, 8, 8),
                 )
                 cat_list.controls.append(f)
-            cat_list.update()
+            if do_update:
+                cat_list.update()
 
         def add_cat(e):
             nome = entry_cat.value.strip() if entry_cat.value else ""
@@ -906,7 +907,7 @@ class FMOptimizationApp:
             self._close_dialog()
             self._log("Categorias atualizadas")
 
-        render_cat_list()
+        render_cat_list(do_update=False)
 
         dialog = ft.AlertDialog(
             title=ft.Text("Gerenciar Categorias", size=16, weight=ft.FontWeight.BOLD),
