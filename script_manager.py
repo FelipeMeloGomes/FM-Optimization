@@ -444,6 +444,7 @@ class ScriptManagerApp(ctk.CTk):
 
     def _selecionar_categoria(self, nome):
         self.categoria_atual = nome
+        self._categorias_dirty = True
         self._atualizar_cards()
 
     def _render_sidebar(self):
