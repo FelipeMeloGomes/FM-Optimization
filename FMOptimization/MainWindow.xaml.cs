@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 using FMOptimization.ViewModels;
 
 namespace FMOptimization;
@@ -62,7 +63,11 @@ public partial class MainWindow : Window
 
     private void OpenCategoryDialog()
     {
-        var dialog = new DialogManageCategories(_vm.Categories.Select(c => c.Name).ToList()) { Owner = this };
+        var cats = _vm.Categories
+            .Select(c => c.Name)
+            .Where(c => c != Strings.CategoryAll && c != Strings.CategoryFavorites)
+            .ToList();
+        var dialog = new DialogManageCategories(cats) { Owner = this };
         if (dialog.ShowDialog() == true)
             _vm.LoadData();
     }

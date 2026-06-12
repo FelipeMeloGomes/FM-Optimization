@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FMOptimization.Converters;
@@ -117,11 +118,11 @@ public partial class MainViewModel : ObservableObject
         AllScripts = new ObservableCollection<ScriptModel>(scripts);
         ApplyFilter();
 
-        if (!_data.Categorias.Contains(Strings.CategoryLimpeza))
+        if (_data.Categorias.Count == 0)
         {
-            var cats = new HashSet<string>(_data.Categorias);
+            var cats = new HashSet<string>();
             foreach (var s in ScriptRegistry.Entries)
-                cats.Add(s.Categoria);
+                _ = cats.Add(s.Categoria);
             _data.Categorias = [.. cats];
             _dataService.Salvar(_data);
         }
@@ -211,7 +212,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task ExecuteScript(ScriptModel? script)
     {
-        if (script == null) return;
+        if (script == null || script.IsExecuting) return;
         script.IsExecuting = true;
         try
         {
@@ -222,7 +223,11 @@ public partial class MainViewModel : ObservableObject
         }
         finally
         {
-            script.IsExecuting = false;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                script.IsExecuting = false;
+                Log($"✓ Script '{script.Nome}' finalizado. Botão reabilitado.", LogLevel.End);
+            });
         }
     }
 
