@@ -44,9 +44,11 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Button Content="Copiar" Style="{StaticResource GhostButton}"
                                 FontSize="10" Foreground="{StaticResource NeonBlueLightBrush}"
+                                Margin="0,0,6,0"
                                 Command="{Binding CopyLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         <Button Content="Limpar" Style="{StaticResource GhostButton}"
                                 FontSize="10" Foreground="{StaticResource TextMutedBrush}"
+                                Margin="0,0,6,0"
                                 Command="{Binding ClearLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         <Button Content="▲" Style="{StaticResource GhostButton}"
                                 FontSize="8" x:Name="LogToggleBtn"

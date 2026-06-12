@@ -7,31 +7,43 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 ## Funcionalidades
 
 - **39 Scripts Embutidos** em 8 categorias (Limpeza, Desempenho, Rede, Privacidade, Sistema, GPU AMD/NVIDIA, Energia)
-- **Interface escura** com cards, sidebar animada e busca instantânea (Ctrl+F)
+- **Tema escuro azul neon** com acentos `#0044ff`, ícones SVG e gradientes
+- **Circuito animado no fundo** — traços de PCB com pulsos de dados fluindo (efeito neon)
+- **Interface componentizada**: Sidebar, TopBar, ScriptCard e LogPanel como UserControls independentes
+- **Busca instantânea** (Ctrl+F) com glow neon no foco
 - **Favoritos**: marque scripts com estrela e filtre rapidamente
-- **Log em tempo real**: execute scripts e veja a saída com ícones coloridos
+- **Log em tempo real** com terminal scrollável, cursor piscante e botões Copiar/Limpar
 - **Execução inteligente**: .bat, .cmd, .ps1, .reg, .exe com detecção de admin
 - **Gerenciamento**: adicione, edite ou remova scripts e categorias
+- **Elevação UAC**: executável requer administrador automaticamente na abertura
 
 ## Tecnologias
 
 | Tecnologia | Finalidade |
 |---|---|
 | **C# / .NET 9** | Linguagem e runtime |
-| **WPF / XAML** | Interface gráfica com animações nativas |
+| **WPF / XAML** | Interface gráfica com animações nativas (Storyboard, DoubleAnimation) |
 | **CommunityToolkit.Mvvm** | Padrão MVVM |
 | **Windows API** | Detecção de privilégios de administrador |
 
 ## Como executar
 
+> O executável requer **Administrador** (UAC). Clique com botão direito e selecione "Executar como administrador".
+
 ```bash
 dotnet run --project FMOptimization
 ```
 
-## Publicar executável
+## Publicar executável portátil
+
+Gera um único `.exe` self-contained (~68 MB) sem dependência do .NET Runtime:
 
 ```bash
-dotnet publish FMOptimization -c Release -o dist
+dotnet publish FMOptimization -c Release -o dist `
+  --self-contained true `
+  -p:PublishSingleFile=true `
+  -p:IncludeNativeLibrariesForSelfExtract=true `
+  -p:EnableCompressionInSingleFile=true
 ```
 
 ## Estrutura
@@ -40,12 +52,20 @@ dotnet publish FMOptimization -c Release -o dist
 FM-Scripts/
 ├── FMOptimization.sln
 ├── FMOptimization/
-│   ├── App.xaml/.cs         - Tema escuro e estilos globais
-│   ├── MainWindow.xaml/.cs  - Interface principal
-│   ├── Models/              - ScriptModel, AppData
-│   ├── Services/            - ScriptRegistry, DataService, ScriptExecution
-│   ├── ViewModels/          - MainViewModel (MVVM)
-│   ├── Views/               - Dialogs (editar, categorias)
-│   └── Converters/          - Conversores de cor, opacidade, etc.
-└── assets/                  - Ícone do aplicativo
+│   ├── App.xaml/.cs              - Tema azul neon e estilos globais
+│   ├── MainWindow.xaml/.cs       - Interface principal (compõe UserControls)
+│   ├── app.manifest              - requireAdministrator (UAC)
+│   ├── icon.ico                  - Ícone do executável
+│   ├── Models/                   - ScriptModel, AppData
+│   ├── Services/                 - ScriptRegistry, DataService, ScriptExecution
+│   ├── ViewModels/               - MainViewModel (MVVM)
+│   ├── Views/                    - Dialogs (editar, categorias)
+│   ├── Controls/                 - UserControls:
+│   │   ├── SidebarControl        - Sidebar com logo pulsante e categorias
+│   │   ├── TopBarControl         - Título + badge + search com glow
+│   │   ├── ScriptCardControl     - Card de script (favorito, admin, ações)
+│   │   ├── LogPanelControl       - Terminal com log scrollável
+│   │   └── CircuitBackground     - Circuito PCB animado (fundo neon)
+│   └── Converters/               - 7 conversores (cor, opacidade, visibilidade)
+└── dist/                         - Executável publicado (single-file)
 ```

@@ -42,6 +42,8 @@
 
             <Rectangle Grid.RowSpan="3" Fill="{StaticResource BgGridTexture}" Opacity="0.15"/>
 
+            <controls:CircuitBackground Grid.RowSpan="3"/>
+
             <controls:TopBarControl Grid.Row="0" x:Name="TopBar"
                 SelectedCategory="{Binding SelectedCategory}"
                 ScriptCount="{Binding FilteredScripts.Count}"

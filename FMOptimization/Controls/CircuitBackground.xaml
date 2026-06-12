@@ -1,0 +1,297 @@
+<UserControl x:Class="FMOptimization.Controls.CircuitBackground"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="800"
+             IsHitTestVisible="False"
+             Background="Transparent">
+    <Grid>
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+
+                            <!-- Flow animado: rota horizontal superior (esquerda → direita) -->
+                            <DoubleAnimation Storyboard.TargetName="Flow1"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="24" Duration="0:0:4" RepeatBehavior="Forever"/>
+
+                            <DoubleAnimation Storyboard.TargetName="Flow2"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="24" Duration="0:0:4" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0.5"/>
+
+                            <DoubleAnimation Storyboard.TargetName="Flow3"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="24" Duration="0:0:4" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1"/>
+
+                            <!-- Flow animado: ramo vertical esquerdo (cima → baixo) -->
+                            <DoubleAnimation Storyboard.TargetName="Flow4"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="24" Duration="0:0:5" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1.5"/>
+
+                            <!-- Flow animado: ramo vertical centro (cima → baixo) -->
+                            <DoubleAnimation Storyboard.TargetName="Flow5"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="30" Duration="0:0:6" RepeatBehavior="Forever"
+                                             BeginTime="0:0:2"/>
+
+                            <!-- Flow animado: ramo vertical direito (cima → baixo) -->
+                            <DoubleAnimation Storyboard.TargetName="Flow6"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="24" Duration="0:0:5" RepeatBehavior="Forever"
+                                             BeginTime="0:0:2.5"/>
+
+                            <!-- Flow animado: barramento horizontal inferior (esquerda → direita) -->
+                            <DoubleAnimation Storyboard.TargetName="Flow7"
+                                             Storyboard.TargetProperty="StrokeDashOffset"
+                                             From="0" To="30" Duration="0:0:6" RepeatBehavior="Forever"
+                                             BeginTime="0:0:3"/>
+
+                            <!-- Nós pulsantes -->
+                            <DoubleAnimation Storyboard.TargetName="Node1"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0"/>
+                            <DoubleAnimation Storyboard.TargetName="Node2"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0.5"/>
+                            <DoubleAnimation Storyboard.TargetName="Node3"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1"/>
+                            <DoubleAnimation Storyboard.TargetName="Node4"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1.5"/>
+                            <DoubleAnimation Storyboard.TargetName="Node5"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0.8"/>
+                            <DoubleAnimation Storyboard.TargetName="Node6"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1.2"/>
+                            <DoubleAnimation Storyboard.TargetName="Node7"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0.3"/>
+                            <DoubleAnimation Storyboard.TargetName="Node8"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1.8"/>
+                            <DoubleAnimation Storyboard.TargetName="Node9"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0.6"/>
+                            <DoubleAnimation Storyboard.TargetName="Node10"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.15" To="0.5" Duration="0:0:2"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1.4"/>
+
+                            <!-- Nós de junção principais (glow maior, pulso mais lento) -->
+                            <DoubleAnimation Storyboard.TargetName="GlowNode1"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.2" To="0.7" Duration="0:0:3"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0"/>
+                            <DoubleAnimation Storyboard.TargetName="GlowNode2"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.2" To="0.7" Duration="0:0:3"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:1.5"/>
+                            <DoubleAnimation Storyboard.TargetName="GlowNode3"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0.2" To="0.7" Duration="0:0:3"
+                                             AutoReverse="True" RepeatBehavior="Forever"
+                                             BeginTime="0:0:0.8"/>
+
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+        </Grid.Triggers>
+
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="800" Height="600">
+                <!--
+                    CIRCUITO PCB — traçados estáticos (fundo)
+                    Barramento horizontal superior
+                -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M -20,120 L 100,120 L 150,70 L 270,70 L 320,120 L 430,120 L 480,70 L 620,70 L 670,120 L 820,120"/>
+
+                <!-- Ramo vertical esquerdo -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 150,70 L 150,180 L 100,230 L 100,380 L 150,430"/>
+
+                <!-- Ramo vertical centro-esquerdo -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 270,70 L 270,180 L 320,230 L 320,330 L 270,380 L 270,520"/>
+
+                <!-- Ramo vertical centro-direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 480,70 L 480,180 L 430,230 L 430,380 L 480,430 L 480,530"/>
+
+                <!-- Ramo vertical direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 620,70 L 620,180 L 670,230 L 670,380 L 620,430"/>
+
+                <!-- Barramento horizontal inferior -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 100,430 L 150,480 L 270,480 L 320,430 L 430,430 L 480,480 L 620,480 L 670,430"/>
+
+                <!-- Ramo topo: coneção esquerda -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 150,70 L 150,30 L 220,30 L 270,70"/>
+
+                <!-- Ramo topo: coneção direita -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 480,70 L 480,30 L 550,30 L 620,70"/>
+
+                <!-- Coneção horizontal média -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 320,230 L 430,230"/>
+
+                <!-- Coneção horizontal inferior -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 270,380 L 430,380"/>
+
+                <!-- Ramo inferior direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 620,430 L 620,510 L 560,570"/>
+
+                <!-- Ramo extremo direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 670,120 L 740,120 L 740,280"/>
+
+                <!-- Ramo extremo esquerdo -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 100,230 L 40,230 L 40,380 L 100,380"/>
+
+                <!-- Ramo vertical pequeno centro-esquerdo -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 220,30 L 220,70"/>
+
+                <!-- Ramo vertical pequeno centro-direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 550,30 L 550,70"/>
+
+                <!-- Ramo diagonal canto superior direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 430,120 L 430,160 L 380,210"/>
+
+                <!-- Ramo extra inferior direito -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 480,530 L 560,530 L 620,470"/>
+
+                <!-- Ramo extra canto inferior esquerdo -->
+                <Path Stroke="#0044ff" StrokeThickness="0.6" Opacity="0.04"
+                      Data="M 150,480 L 150,540 L 220,540"/>
+
+                <!--
+                    TRAÇOS DE FLUXO — animados com StrokeDashOffset
+                -->
+                <Path x:Name="Flow1" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M -20,120 L 100,120 L 150,70 L 270,70"/>
+
+                <Path x:Name="Flow2" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M 270,70 L 320,120 L 430,120 L 480,70 L 620,70"/>
+
+                <Path x:Name="Flow3" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M 620,70 L 670,120 L 820,120"/>
+
+                <Path x:Name="Flow4" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M 150,70 L 150,180 L 100,230 L 100,380 L 150,430"/>
+
+                <Path x:Name="Flow5" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M 270,70 L 270,180 L 320,230 L 320,330 L 270,380 L 270,520"/>
+
+                <Path x:Name="Flow6" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M 620,70 L 620,180 L 670,230 L 670,380 L 620,430"/>
+
+                <Path x:Name="Flow7" Stroke="#0066ff" StrokeThickness="1.2" Opacity="0.12"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeDashArray="4,8"
+                      Data="M 100,430 L 150,480 L 270,480 L 320,430 L 430,430 L 480,480 L 620,480 L 670,430"/>
+
+                <!--
+                    NÓS PULSANTES — círculos nos vértices (Fill, Opacity animada)
+                -->
+                <Ellipse x:Name="Node1" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="148" Canvas.Top="68"/>
+                <Ellipse x:Name="Node2" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="268" Canvas.Top="68"/>
+                <Ellipse x:Name="Node3" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="478" Canvas.Top="68"/>
+                <Ellipse x:Name="Node4" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="618" Canvas.Top="68"/>
+                <Ellipse x:Name="Node5" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="98" Canvas.Top="228"/>
+                <Ellipse x:Name="Node6" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="318" Canvas.Top="228"/>
+                <Ellipse x:Name="Node7" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="428" Canvas.Top="228"/>
+                <Ellipse x:Name="Node8" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="98" Canvas.Top="378"/>
+                <Ellipse x:Name="Node9" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="268" Canvas.Top="378"/>
+                <Ellipse x:Name="Node10" Width="4" Height="4" Fill="#0066ff" Opacity="0.15"
+                         Canvas.Left="428" Canvas.Top="378"/>
+
+                <!--
+                    NÓS DE JUNÇÃO PRINCIPAIS — maiores, com glow
+                -->
+                <Ellipse x:Name="GlowNode1" Width="7" Height="7" Fill="#0066ff" Opacity="0.2"
+                         Canvas.Left="146" Canvas.Top="66">
+                    <Ellipse.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#0066ff" Opacity="0.6"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+
+                <Ellipse x:Name="GlowNode2" Width="7" Height="7" Fill="#0066ff" Opacity="0.2"
+                         Canvas.Left="316" Canvas.Top="226">
+                    <Ellipse.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#0066ff" Opacity="0.6"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+
+                <Ellipse x:Name="GlowNode3" Width="7" Height="7" Fill="#0066ff" Opacity="0.2"
+                         Canvas.Left="266" Canvas.Top="376">
+                    <Ellipse.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#0066ff" Opacity="0.6"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+
+            </Canvas>
+        </Viewbox>
+    </Grid>
+</UserControl>
