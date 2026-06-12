@@ -50,14 +50,7 @@ public class ScriptExecutionService : IScriptExecutionService
 
         try
         {
-            if (script.Admin)
-            {
-                await RunWithElevation(caminho, nome, tipo);
-            }
-            else
-            {
-                await RunNormal(caminho, nome, tipo);
-            }
+            await RunProcess(caminho, nome, tipo);
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
@@ -73,30 +66,7 @@ public class ScriptExecutionService : IScriptExecutionService
         }
     }
 
-    private async Task RunWithElevation(string caminho, string nome, string tipo)
-    {
-        var psi = tipo switch
-        {
-            ".bat" or ".cmd" => new ProcessStartInfo("cmd.exe", $"/c \"{caminho}\""),
-            ".ps1" => new ProcessStartInfo("powershell.exe",
-                $"-ExecutionPolicy Bypass -File \"{caminho}\""),
-            ".reg" => new ProcessStartInfo("regedit.exe", $"/s \"{caminho}\""),
-            _ => new ProcessStartInfo(caminho),
-        };
-
-        psi.UseShellExecute = true;
-        psi.Verb = "runas";
-        psi.WindowStyle = ProcessWindowStyle.Hidden;
-        psi.WorkingDirectory = Path.GetDirectoryName(caminho) ?? "";
-
-        using var process = new Process { StartInfo = psi };
-        process.Start();
-        await process.WaitForExitAsync();
-
-        Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
-    }
-
-    private async Task RunNormal(string caminho, string nome, string tipo)
+    private async Task RunProcess(string caminho, string nome, string tipo)
     {
         var psi = tipo switch
         {

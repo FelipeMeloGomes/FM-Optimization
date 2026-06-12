@@ -45,12 +45,54 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Button Content="Copiar" Style="{StaticResource GhostButton}"
                                 FontSize="12" Foreground="{StaticResource NeonBlueLightBrush}"
-                                Margin="0,0,6,0"
-                                Command="{Binding CopyLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                                Margin="0,0,6,0" x:Name="CopyBtn"
+                                RenderTransformOrigin="0.5,0.5"
+                                Command="{Binding CopyLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+                            <Button.RenderTransform>
+                                <ScaleTransform x:Name="CopyScale" ScaleX="1" ScaleY="1"/>
+                            </Button.RenderTransform>
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="Button.Click">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="CopyScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             From="1" To="1.4" Duration="0:0:0.12"
+                                                             AutoReverse="True"/>
+                                            <DoubleAnimation Storyboard.TargetName="CopyScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             From="1" To="1.4" Duration="0:0:0.12"
+                                                             AutoReverse="True"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Button.Triggers>
+                        </Button>
                         <Button Content="Limpar" Style="{StaticResource GhostButton}"
                                 FontSize="12" Foreground="{StaticResource TextMutedBrush}"
-                                Margin="0,0,6,0"
-                                Command="{Binding ClearLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                                Margin="0,0,6,0" x:Name="ClearBtn"
+                                RenderTransformOrigin="0.5,0.5"
+                                Command="{Binding ClearLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+                            <Button.RenderTransform>
+                                <ScaleTransform x:Name="ClearScale" ScaleX="1" ScaleY="1"/>
+                            </Button.RenderTransform>
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="Button.Click">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ClearScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             From="1" To="1.4" Duration="0:0:0.12"
+                                                             AutoReverse="True"/>
+                                            <DoubleAnimation Storyboard.TargetName="ClearScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             From="1" To="1.4" Duration="0:0:0.12"
+                                                             AutoReverse="True"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Button.Triggers>
+                        </Button>
                         <Button Content="▲" Style="{StaticResource GhostButton}"
                                 FontSize="10" x:Name="LogToggleBtn"
                                 Foreground="{StaticResource TextMutedBrush}"
