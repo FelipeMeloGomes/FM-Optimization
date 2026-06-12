@@ -4,19 +4,38 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="48" d:DesignWidth="800">
-    <Border Height="48"
+             d:DesignHeight="52" d:DesignWidth="800">
+    <Border Height="52"
             Background="{StaticResource BgSidebarBrush}"
             BorderBrush="{StaticResource BorderDefaultBrush}"
             BorderThickness="0,0,0,1"
-            Padding="20,0,16,0">
+            Padding="0,0,16,0">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <!-- Logo -->
+            <Border Grid.Column="0" BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="0,0,1,0" Width="200">
+                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                    <TextBlock Text="FM" FontSize="24" FontWeight="Bold"
+                               FontFamily="{StaticResource FontLogo}"
+                               Foreground="{StaticResource NeonBlueBrush}"
+                               Height="26"/>
+                    <TextBlock Text="OPTIMIZATION" FontSize="10" FontWeight="Bold"
+                               Foreground="{StaticResource NeonBlueLightBrush}"
+                               FontFamily="{StaticResource FontUIBold}"
+                               Margin="0,-2,0,0"
+                               TextOptions.TextRenderingMode="ClearType"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Category + Count -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
+                        Margin="20,0,0,0">
                 <TextBlock Text="{Binding SelectedCategory, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" FontSize="18" FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
                            FontFamily="{StaticResource FontUIBold}"
@@ -33,11 +52,12 @@
                 </Border>
             </StackPanel>
 
-            <Border Grid.Column="1" HorizontalAlignment="Right" Width="240"
+            <!-- Search -->
+            <Border Grid.Column="2" HorizontalAlignment="Right" Width="240"
                     Background="{StaticResource BgCardBrush}"
                     CornerRadius="6"
                     BorderBrush="{StaticResource BorderDefaultBrush}"
-                    BorderThickness="1" Margin="0,6,0,6"
+                    BorderThickness="1" Margin="0,8,0,8"
                     x:Name="SearchBorder"
                     MouseDown="SearchBorder_MouseDown">
                 <TextBox x:Name="SearchBox" FontSize="14"

@@ -9,30 +9,44 @@
              d:DesignHeight="800" d:DesignWidth="200">
     <UserControl.Resources>
         <DataTemplate x:Key="CategoryTemplate" DataType="{x:Type models:CategoryItem}">
-            <Border Height="32" Padding="0"
+            <Border Height="36" Margin="8,1,8,1" Padding="0"
                     Background="Transparent" Cursor="Hand"
+                    CornerRadius="6"
                     x:Name="CatBorder">
                 <Border.InputBindings>
                     <MouseBinding MouseAction="LeftClick"
                                   Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                   CommandParameter="{Binding Name}"/>
                 </Border.InputBindings>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1a1a3e"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
                 <Grid>
                     <Rectangle Width="3" Height="20" HorizontalAlignment="Left" RadiusX="1.5" RadiusY="1.5"
                                Fill="{StaticResource NeonBlueLightBrush}"
-                               Opacity="0" x:Name="CatAccent">
+                               Opacity="0" Margin="0,0,0,0" x:Name="CatAccent">
                         <Rectangle.Effect>
-                            <DropShadowEffect BlurRadius="8" ShadowDepth="0"
-                                              Color="{StaticResource NeonBlueLight}" Opacity="0.4"/>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="0"
+                                              Color="{StaticResource NeonBlueLight}" Opacity="0.5"/>
                         </Rectangle.Effect>
                     </Rectangle>
-                    <Grid Margin="16,0,8,0">
+                    <Border x:Name="ActiveFill" CornerRadius="6" Opacity="0"
+                            Background="{StaticResource NeonBlueBrush}"
+                            Margin="0,0,0,0"/>
+                    <Grid Margin="20,0,12,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0" Width="14" Height="14" Stretch="Uniform"
-                              Fill="{StaticResource TextMutedBrush}" Margin="6,0,10,0"
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
                               Data="{Binding Name, Converter={StaticResource IconConverter}}"
                               VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13"
@@ -52,6 +66,9 @@
                                 <ColorAnimation Storyboard.TargetName="CatAccent"
                                                 Storyboard.TargetProperty="Fill.(SolidColorBrush.Color)"
                                                 To="{StaticResource NeonBlueLight}" Duration="0:0:0.2"/>
+                                <DoubleAnimation Storyboard.TargetName="ActiveFill"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="0.12" Duration="0:0:0.2"/>
                             </Storyboard>
                         </BeginStoryboard>
                     </DataTrigger.EnterActions>
@@ -59,6 +76,9 @@
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetName="CatAccent"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="0" Duration="0:0:0.2"/>
+                                <DoubleAnimation Storyboard.TargetName="ActiveFill"
                                                  Storyboard.TargetProperty="Opacity"
                                                  To="0" Duration="0:0:0.2"/>
                             </Storyboard>
@@ -70,48 +90,26 @@
     </UserControl.Resources>
 
     <Grid Background="{StaticResource SidebarGradient}">
-        <Grid.Triggers>
-            <EventTrigger RoutedEvent="Loaded">
-                <BeginStoryboard>
-                    <Storyboard RepeatBehavior="Forever">
-                        <DoubleAnimation
-                            Storyboard.TargetName="LogoGlow"
-                            Storyboard.TargetProperty="Opacity"
-                            From="0.2" To="0.6" Duration="0:0:2"
-                            AutoReverse="True"/>
-                        <DoubleAnimation
-                            Storyboard.TargetName="LogoSubtitle"
-                            Storyboard.TargetProperty="Opacity"
-                            From="0.6" To="1" Duration="0:0:1.5"
-                            AutoReverse="True"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-        </Grid.Triggers>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,20,0,8">
-            <TextBlock x:Name="LogoText" Text="FM" FontSize="32" FontWeight="Bold"
-                       FontFamily="{StaticResource FontUIBold}"
-                       Foreground="{StaticResource NeonBlueBrush}"
-                       HorizontalAlignment="Center">
-                <TextBlock.Effect>
-                    <DropShadowEffect x:Name="LogoGlow" BlurRadius="16"
-                                      ShadowDepth="0" Color="#0044ff" Opacity="0.3"/>
-                </TextBlock.Effect>
-            </TextBlock>
-            <TextBlock x:Name="LogoSubtitle" Text="OPTIMIZATION" FontSize="11" FontWeight="Bold"
-                       Foreground="{StaticResource NeonBlueLightBrush}"
-                       FontFamily="{StaticResource FontUIBold}"
-                       HorizontalAlignment="Center" Margin="0,0,0,8"
-                       TextOptions.TextRenderingMode="ClearType"/>
-            <Rectangle Height="1" Margin="24,0"
-                       Fill="{StaticResource BorderDefaultBrush}" Opacity="0.5"/>
-        </StackPanel>
+        <Border Grid.Row="0" Height="52" BorderBrush="{StaticResource BorderDefaultBrush}"
+                BorderThickness="0,0,0,1" Margin="0,0,0,0">
+            <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                <TextBlock Text="FM" FontSize="24" FontWeight="Bold"
+                           FontFamily="{StaticResource FontLogo}"
+                           Foreground="{StaticResource NeonBlueBrush}"
+                           Height="26"/>
+                <TextBlock Text="OPTIMIZATION" FontSize="10" FontWeight="Bold"
+                           Foreground="{StaticResource NeonBlueLightBrush}"
+                           FontFamily="{StaticResource FontUIBold}"
+                           Margin="0,-2,0,0"
+                           TextOptions.TextRenderingMode="ClearType"/>
+            </StackPanel>
+        </Border>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                       Background="Transparent">
@@ -119,16 +117,35 @@
                           ItemTemplate="{StaticResource CategoryTemplate}"/>
         </ScrollViewer>
 
-        <Border Grid.Row="2" Height="36" Cursor="Hand" Background="Transparent"
+        <Border Grid.Row="2" Height="40" Cursor="Hand"
                 BorderBrush="{StaticResource BorderDefaultBrush}"
-                BorderThickness="0,1,0,0">
+                BorderThickness="0,1,0,0" x:Name="ManageBtn">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#1a1a3e"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Border.InputBindings>
                 <MouseBinding MouseAction="LeftClick"
                               Command="{Binding ManageCategoriesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
             </Border.InputBindings>
-            <TextBlock Text="⚙ Gerenciar Categorias" FontSize="12"
-                       Foreground="{StaticResource TextDimBrush}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Grid Margin="20,0,12,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="⚙" FontSize="14"
+                           Foreground="{StaticResource TextDimBrush}"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Grid.Column="1" Text="Gerenciar Categorias" FontSize="12"
+                           Foreground="{StaticResource TextDimBrush}"
+                           VerticalAlignment="Center"/>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>
