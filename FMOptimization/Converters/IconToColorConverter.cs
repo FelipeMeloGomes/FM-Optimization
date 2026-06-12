@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace FMOptimization.Converters;
 
-public class FileTypeToColorConverter : IValueConverter
+public class IconToColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
