@@ -109,6 +109,8 @@ public partial class MainViewModel : ObservableObject
             DataService.Salvar(_data);
         }
 
+        RefreshCategories();
+
         foreach (var script in AllScripts)
         {
             if (script.IsEmbedded)
@@ -153,6 +155,15 @@ public partial class MainViewModel : ObservableObject
     {
         foreach (var cat in Categories)
             cat.IsActive = cat.Name == SelectedCategory;
+    }
+
+    private void RefreshCategories()
+    {
+        var allCats = new List<string> { "Todas", "Favoritos" };
+        allCats.AddRange(_data.Categorias);
+        Categories = new ObservableCollection<CategoryItem>(
+            allCats.Select(c => new CategoryItem { Name = c, Icon = GetCatIcon(c) }));
+        UpdateCategoryActive();
     }
 
     [RelayCommand]

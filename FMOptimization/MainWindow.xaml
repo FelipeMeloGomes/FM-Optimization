@@ -13,9 +13,6 @@
         WindowStartupLocation="CenterScreen"
         x:Name="ThisWindow"
         d:DataContext="{d:DesignInstance vm:MainViewModel}">
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="30" GlassFrameThickness="0" UseAeroCaptionButtons="True"/>
-    </WindowChrome.WindowChrome>
     <Window.Resources>
         <vm:IndexToDelayConverter x:Key="IndexToDelay"/>
     </Window.Resources>
