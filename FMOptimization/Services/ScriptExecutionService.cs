@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using FMOptimization.Helpers;
@@ -6,15 +7,10 @@ using FMOptimization.Resources;
 
 namespace FMOptimization.Services;
 
-/// <summary>Executes scripts (bat, cmd, ps1, reg, or txt) by launching the appropriate process.</summary>
 public class ScriptExecutionService : IScriptExecutionService
 {
-    /// <summary>Raised when a log message is produced during script execution.</summary>
     public event Action<string, LogLevel>? OnLog;
 
-    /// <summary>Executes the specified script asynchronously, capturing output and handling admin elevation checks.</summary>
-    /// <param name="script">The <see cref="ScriptModel"/> to execute.</param>
-    /// <returns>A task that represents the asynchronous execution.</returns>
     public async Task ExecuteAsync(ScriptModel script)
     {
         var caminho = script.Caminho;
@@ -54,36 +50,79 @@ public class ScriptExecutionService : IScriptExecutionService
 
         try
         {
-            var psi = tipo switch
+            if (script.Admin)
             {
-                ".bat" or ".cmd" => new ProcessStartInfo("cmd.exe", $"/c \"{caminho}\""),
-                ".ps1" => new ProcessStartInfo("powershell.exe",
-                    $"-ExecutionPolicy Bypass -File \"{caminho}\""),
-                ".reg" => new ProcessStartInfo("regedit.exe", $"/s \"{caminho}\""),
-                _ => new ProcessStartInfo(caminho),
-            };
-
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
-            psi.UseShellExecute = false;
-            psi.CreateNoWindow = true;
-            psi.WorkingDirectory = Path.GetDirectoryName(caminho) ?? "";
-
-            using var process = new Process { StartInfo = psi };
-            process.Start();
-
-            var outputTask = ReadStreamAsync(process.StandardOutput);
-            var errorTask = ReadStreamAsync(process.StandardError);
-
-            await Task.WhenAll(outputTask, errorTask);
-            process.WaitForExit();
-
-            Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
+                await RunWithElevation(caminho, nome, tipo);
+            }
+            else
+            {
+                await RunNormal(caminho, nome, tipo);
+            }
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 5)
+        {
+            Log(LogMessages.ExecutionError(nome, "Acesso negado. Tente executar o programa como administrador."), LogLevel.Error);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Log(LogMessages.ExecutionError(nome, $"Permissão insuficiente: {ex.Message}"), LogLevel.Error);
         }
         catch (Exception ex)
         {
             Log(LogMessages.ExecutionError(nome, ex.Message), LogLevel.Error);
         }
+    }
+
+    private async Task RunWithElevation(string caminho, string nome, string tipo)
+    {
+        var psi = tipo switch
+        {
+            ".bat" or ".cmd" => new ProcessStartInfo("cmd.exe", $"/c \"{caminho}\""),
+            ".ps1" => new ProcessStartInfo("powershell.exe",
+                $"-ExecutionPolicy Bypass -File \"{caminho}\""),
+            ".reg" => new ProcessStartInfo("regedit.exe", $"/s \"{caminho}\""),
+            _ => new ProcessStartInfo(caminho),
+        };
+
+        psi.UseShellExecute = true;
+        psi.Verb = "runas";
+        psi.WindowStyle = ProcessWindowStyle.Hidden;
+        psi.WorkingDirectory = Path.GetDirectoryName(caminho) ?? "";
+
+        using var process = new Process { StartInfo = psi };
+        process.Start();
+        await process.WaitForExitAsync();
+
+        Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
+    }
+
+    private async Task RunNormal(string caminho, string nome, string tipo)
+    {
+        var psi = tipo switch
+        {
+            ".bat" or ".cmd" => new ProcessStartInfo("cmd.exe", $"/c \"{caminho}\""),
+            ".ps1" => new ProcessStartInfo("powershell.exe",
+                $"-ExecutionPolicy Bypass -File \"{caminho}\""),
+            ".reg" => new ProcessStartInfo("regedit.exe", $"/s \"{caminho}\""),
+            _ => new ProcessStartInfo(caminho),
+        };
+
+        psi.RedirectStandardOutput = true;
+        psi.RedirectStandardError = true;
+        psi.UseShellExecute = false;
+        psi.CreateNoWindow = true;
+        psi.WorkingDirectory = Path.GetDirectoryName(caminho) ?? "";
+
+        using var process = new Process { StartInfo = psi };
+        process.Start();
+
+        var outputTask = ReadStreamAsync(process.StandardOutput);
+        var errorTask = ReadStreamAsync(process.StandardError);
+
+        await Task.WhenAll(outputTask, errorTask);
+        await process.WaitForExitAsync();
+
+        Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
     }
 
     private async Task ReadStreamAsync(StreamReader reader)

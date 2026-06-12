@@ -150,6 +150,7 @@ public partial class MainViewModel : ObservableObject
             {
                 var data = Convert.FromBase64String(entry.ConteudoB64);
                 File.WriteAllBytes(dst, data);
+                File.SetAttributes(dst, FileAttributes.Normal);
             }
         }
         catch (Exception ex)
