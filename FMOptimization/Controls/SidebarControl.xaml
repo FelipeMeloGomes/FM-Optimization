@@ -1,0 +1,133 @@
+<UserControl x:Class="FMOptimization.Controls.SidebarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:FMOptimization.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="200">
+    <UserControl.Resources>
+        <DataTemplate x:Key="CategoryTemplate" DataType="{x:Type vm:CategoryItem}">
+            <Border Height="32" Padding="0"
+                    Background="Transparent" Cursor="Hand"
+                    x:Name="CatBorder">
+                <Border.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                  CommandParameter="{Binding Name}"/>
+                </Border.InputBindings>
+                <Grid>
+                    <Rectangle Width="3" Height="20" HorizontalAlignment="Left" RadiusX="1.5" RadiusY="1.5"
+                               Fill="{StaticResource NeonBlueLightBrush}"
+                               Opacity="0" x:Name="CatAccent">
+                        <Rectangle.Effect>
+                            <DropShadowEffect BlurRadius="8" ShadowDepth="0"
+                                              Color="{StaticResource NeonBlueLight}" Opacity="0.4"/>
+                        </Rectangle.Effect>
+                    </Rectangle>
+                    <Grid Margin="16,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="14" Height="14" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="6,0,10,0"
+                              Data="{Binding Name, Converter={StaticResource IconConverter}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="CatAccent"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="1" Duration="0:0:0.2"/>
+                                <ColorAnimation Storyboard.TargetName="CatAccent"
+                                                Storyboard.TargetProperty="Fill.(SolidColorBrush.Color)"
+                                                To="{StaticResource NeonBlueLight}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="CatAccent"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="0" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource SidebarGradient}">
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever">
+                        <DoubleAnimation
+                            Storyboard.TargetName="LogoGlow"
+                            Storyboard.TargetProperty="Opacity"
+                            From="0.2" To="0.6" Duration="0:0:2"
+                            AutoReverse="True"/>
+                        <DoubleAnimation
+                            Storyboard.TargetName="LogoSubtitle"
+                            Storyboard.TargetProperty="Opacity"
+                            From="0.6" To="1" Duration="0:0:1.5"
+                            AutoReverse="True"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,20,0,8">
+            <TextBlock x:Name="LogoText" Text="FM" FontSize="32" FontWeight="Bold"
+                       FontFamily="{StaticResource FontUIBold}"
+                       Foreground="{StaticResource NeonBlueBrush}"
+                       HorizontalAlignment="Center">
+                <TextBlock.Effect>
+                    <DropShadowEffect x:Name="LogoGlow" BlurRadius="16"
+                                      ShadowDepth="0" Color="#0044ff" Opacity="0.3"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock x:Name="LogoSubtitle" Text="OPTIMIZATION" FontSize="9" FontWeight="Bold"
+                       Foreground="{StaticResource NeonBlueLightBrush}"
+                       FontFamily="{StaticResource FontUIBold}"
+                       HorizontalAlignment="Center" Margin="0,0,0,8"
+                       TextOptions.TextRenderingMode="ClearType"/>
+            <Rectangle Height="1" Margin="24,0"
+                       Fill="{StaticResource BorderDefaultBrush}" Opacity="0.5"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Background="Transparent">
+            <ItemsControl ItemsSource="{Binding Categories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                          ItemTemplate="{StaticResource CategoryTemplate}"/>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Height="36" Cursor="Hand" Background="Transparent"
+                BorderBrush="{StaticResource BorderDefaultBrush}"
+                BorderThickness="0,1,0,0">
+            <Border.InputBindings>
+                <MouseBinding MouseAction="LeftClick"
+                              Command="{Binding ManageCategoriesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+            </Border.InputBindings>
+            <TextBlock Text="⚙ Gerenciar Categorias" FontSize="10"
+                       Foreground="{StaticResource TextDimBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+    </Grid>
+</UserControl>

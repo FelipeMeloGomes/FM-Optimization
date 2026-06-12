@@ -1,0 +1,149 @@
+<UserControl x:Class="FMOptimization.Controls.ScriptCardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="160" d:DesignWidth="320">
+    <Border Width="320" Margin="6"
+            Background="#14142e"
+            BorderBrush="{StaticResource BorderDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="10"
+            x:Name="CardBorder"
+            RenderTransformOrigin="0.5,0.5"
+            Effect="{StaticResource CardShadow}"
+            DataContext="{Binding Script, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+        <Border.RenderTransform>
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </Border.RenderTransform>
+        <Border.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1" Duration="0:0:0.3"/>
+                        <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                                         From="0.95" To="1" Duration="0:0:0.3">
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                                         From="0.95" To="1" Duration="0:0:0.3">
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Border.Triggers>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Height="3" CornerRadius="10,10,0,0"
+                    Background="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"/>
+
+            <Grid Grid.Row="1" Margin="14,8,14,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding Nome}" FontSize="13"
+                               FontWeight="Bold" FontFamily="{StaticResource FontUIBold}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Style="{StaticResource GhostButton}"
+                            Command="{Binding ToggleFavoritoCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            CommandParameter="{Binding}"
+                            x:Name="StarBtn"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Button.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Button.RenderTransform>
+                        <TextBlock Text="{Binding IsFavorito, Converter={StaticResource BoolToStar}}"
+                                   FontSize="16"
+                                   Foreground="{StaticResource NeonBlueBrush}"/>
+                    </Button>
+                </Grid>
+
+                <TextBlock Grid.Row="1" Text="{Binding Descricao}" FontSize="10"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           TextWrapping="Wrap" Margin="0,4,0,0"
+                           MaxHeight="32" LineHeight="14"/>
+
+                <WrapPanel Grid.Row="2" Margin="0,6,0,0">
+                    <Border Visibility="{Binding Admin, Converter={StaticResource AdminToVisibility}}"
+                            Padding="6,1,6,1" Margin="0,0,4,2"
+                            BorderBrush="{StaticResource NeonBlueBrush}"
+                            Background="#001a33"
+                            BorderThickness="1" CornerRadius="3">
+                        <TextBlock Text="ADMIN" FontSize="7" FontWeight="Bold"
+                                   Foreground="{StaticResource NeonBlueBrush}"
+                                   FontFamily="{StaticResource FontUIBold}"/>
+                    </Border>
+                    <Border Padding="6,1,6,1" Margin="0,0,4,2"
+                            BorderBrush="{StaticResource BorderDefaultBrush}"
+                            Background="{StaticResource BgCardBrush}"
+                            BorderThickness="1" CornerRadius="3">
+                        <TextBlock Text="{Binding Categoria}" FontSize="7"
+                                   Foreground="{StaticResource TextMutedBrush}"/>
+                    </Border>
+                    <Border Padding="6,1,6,1" Margin="0,0,0,2"
+                            BorderBrush="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
+                            Background="#0a1a0a"
+                            BorderThickness="1" CornerRadius="3">
+                        <TextBlock Text="{Binding TipoLabel}" FontSize="7" FontWeight="Bold"
+                                   Foreground="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
+                                   FontFamily="{StaticResource FontUIBold}"/>
+                    </Border>
+                </WrapPanel>
+            </Grid>
+
+            <Border Grid.Row="2" Background="#0a0a1e"
+                    CornerRadius="0,0,10,10"
+                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="8,6,8,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" FontSize="9"
+                               Foreground="{StaticResource TextDimBrush}"
+                               VerticalAlignment="Center">
+                        <Run Text="{Binding IsFavorito, Converter={StaticResource BoolToOpacity}, StringFormat='{}{0:P0}'}"/>
+                    </TextBlock>
+                    <Button Grid.Column="1" Content="Detalhes" Height="26" MinWidth="64"
+                            Style="{StaticResource OutlineButton}"
+                            HorizontalAlignment="Center"
+                            Command="{Binding ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            CommandParameter="{Binding}"/>
+                    <Button Grid.Column="2" Content="▶ Executar" Height="26" MinWidth="80"
+                            Background="{StaticResource GreenRunBrush}"
+                            Foreground="{StaticResource BgDeepBrush}"
+                            FontSize="9" FontWeight="Bold" Cursor="Hand"
+                            BorderThickness="0"
+                            RenderTransformOrigin="0.5,0.5"
+                            Command="{Binding ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            CommandParameter="{Binding}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
