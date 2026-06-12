@@ -7,3 +7,7 @@ dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self
 ```
 
 Gera um único `FMOptimization.exe` standalone (~148MB) em `dist/` na raiz.
+
+# Commit
+
+Antes de commitar, verificar se o README.md foi atualizado com as últimas mudanças para manter sincronizado.
