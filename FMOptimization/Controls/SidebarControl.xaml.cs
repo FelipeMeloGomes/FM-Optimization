@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Windows;
 using System.Windows.Input;
+using FMOptimization.Resources;
 
 namespace FMOptimization.Controls;
 
@@ -12,7 +13,7 @@ public partial class SidebarControl
 
     public static readonly DependencyProperty SelectedCategoryProperty =
         DependencyProperty.Register(nameof(SelectedCategory), typeof(string), typeof(SidebarControl),
-            new PropertyMetadata("Todas"));
+            new PropertyMetadata(Strings.CategoryAll));
 
     public static readonly DependencyProperty SelectCategoryCommandProperty =
         DependencyProperty.Register(nameof(SelectCategoryCommand), typeof(ICommand), typeof(SidebarControl),

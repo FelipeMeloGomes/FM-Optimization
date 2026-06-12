@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using FMOptimization.Resources;
 
 namespace FMOptimization.Controls;
 
@@ -10,7 +11,7 @@ public partial class TopBarControl
 {
     public static readonly DependencyProperty SelectedCategoryProperty =
         DependencyProperty.Register(nameof(SelectedCategory), typeof(string), typeof(TopBarControl),
-            new PropertyMetadata("Todas"));
+            new PropertyMetadata(Strings.CategoryAll));
 
     public static readonly DependencyProperty ScriptCountProperty =
         DependencyProperty.Register(nameof(ScriptCount), typeof(int), typeof(TopBarControl),

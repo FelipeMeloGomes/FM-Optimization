@@ -1,13 +1,20 @@
 using System.Diagnostics;
 using System.IO;
+using FMOptimization.Helpers;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 
 namespace FMOptimization.Services;
 
-public class ScriptExecutionService
+/// <summary>Executes scripts (bat, cmd, ps1, reg, or txt) by launching the appropriate process.</summary>
+public class ScriptExecutionService : IScriptExecutionService
 {
+    /// <summary>Raised when a log message is produced during script execution.</summary>
     public event Action<string, LogLevel>? OnLog;
 
+    /// <summary>Executes the specified script asynchronously, capturing output and handling admin elevation checks.</summary>
+    /// <param name="script">The <see cref="ScriptModel"/> to execute.</param>
+    /// <returns>A task that represents the asynchronous execution.</returns>
     public async Task ExecuteAsync(ScriptModel script)
     {
         var caminho = script.Caminho;
@@ -16,7 +23,7 @@ public class ScriptExecutionService
 
         if (!File.Exists(caminho))
         {
-            Log($"Erro: Arquivo não encontrado: {caminho}", LogLevel.Error);
+            Log(LogMessages.FileNotFound(caminho), LogLevel.Error);
             return;
         }
 
@@ -32,18 +39,18 @@ public class ScriptExecutionService
             }
             catch (Exception ex)
             {
-                Log($"Erro ao abrir {nome}: {ex.Message}", LogLevel.Error);
+                Log(LogMessages.OpenError(nome, ex.Message), LogLevel.Error);
             }
             return;
         }
 
         if (script.Admin && !IsAdministrator())
         {
-            Log($"Execução cancelada: {nome} (requer admin)", LogLevel.Warn);
+            Log(LogMessages.ExecutionCanceledAdmin(nome), LogLevel.Warn);
             return;
         }
 
-        Log($"Executando: {nome}", LogLevel.Start);
+        Log(LogMessages.ScriptRunning(nome), LogLevel.Start);
 
         try
         {
@@ -62,7 +69,7 @@ public class ScriptExecutionService
             psi.CreateNoWindow = true;
             psi.WorkingDirectory = Path.GetDirectoryName(caminho) ?? "";
 
-            var process = new Process { StartInfo = psi };
+            using var process = new Process { StartInfo = psi };
             process.Start();
 
             var outputTask = ReadStreamAsync(process.StandardOutput);
@@ -71,11 +78,11 @@ public class ScriptExecutionService
             await Task.WhenAll(outputTask, errorTask);
             process.WaitForExit();
 
-            Log($"Finalizado: {nome} (código: {process.ExitCode})", LogLevel.End);
+            Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
         }
         catch (Exception ex)
         {
-            Log($"Erro ao executar {nome}: {ex.Message}", LogLevel.Error);
+            Log(LogMessages.ExecutionError(nome, ex.Message), LogLevel.Error);
         }
     }
 
@@ -94,19 +101,5 @@ public class ScriptExecutionService
         OnLog?.Invoke(msg, level);
     }
 
-    private static bool IsAdministrator()
-    {
-        using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-        var principal = new System.Security.Principal.WindowsPrincipal(identity);
-        return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-    }
-}
-
-public enum LogLevel
-{
-    Info,
-    Start,
-    End,
-    Error,
-    Warn
+    private static bool IsAdministrator() => SecurityHelper.IsAdministrator();
 }

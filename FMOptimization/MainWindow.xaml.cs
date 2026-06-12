@@ -1,17 +1,18 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using FMOptimization.Models;
+using FMOptimization.ViewModels;
 
 namespace FMOptimization;
 
 public partial class MainWindow : Window
 {
-    private readonly ViewModels.MainViewModel _vm;
+    private readonly MainViewModel _vm;
 
-    public MainWindow()
+    public MainWindow(MainViewModel vm)
     {
         InitializeComponent();
-        _vm = new ViewModels.MainViewModel();
+        _vm = vm;
         DataContext = _vm;
 
         _vm.OnShowDetails += ShowDetailsDialog;

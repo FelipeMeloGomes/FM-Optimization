@@ -5,23 +5,27 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 using FMOptimization.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 
 namespace FMOptimization;
 
 public partial class DialogEditScript : Window
 {
+    private readonly IDataService _dataService;
     private readonly ScriptModel? _existing;
     private readonly AppData _data;
 
     public DialogEditScript(ScriptModel? existing)
     {
         InitializeComponent();
+        _dataService = App.Services.GetRequiredService<IDataService>();
         _existing = existing;
-        _data = DataService.Carregar();
+        _data = _dataService.Carregar();
 
-        TituloJanela.Text = existing != null ? "Editar Script" : "Adicionar Script";
+        TituloJanela.Text = existing != null ? Strings.EditScriptTitle : Strings.AddScriptTitle;
 
         foreach (var cat in _data.Categorias)
             CboCategoria.Items.Add(cat);
@@ -41,8 +45,8 @@ public partial class DialogEditScript : Window
     {
         var openDialog = new OpenFileDialog
         {
-            Filter = "Scripts|*.bat;*.cmd;*.ps1;*.exe|All files|*.*",
-            Title = "Selecionar Script"
+            Filter = Strings.ScriptFilter,
+            Title = Strings.SelectScriptDialogTitle
         };
         if (openDialog.ShowDialog() == true)
             TxtCaminho.Text = openDialog.FileName;
@@ -57,14 +61,14 @@ public partial class DialogEditScript : Window
 
         if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(path))
         {
-            MessageBox.Show("Preencha nome e caminho do script.", "Campos obrigatórios",
+            MessageBox.Show(Strings.RequiredFieldsMessage, Strings.RequiredFieldsTitle,
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         if (!File.Exists(path))
         {
-            MessageBox.Show($"O arquivo não existe:\n{path}", "Arquivo não encontrado",
+            MessageBox.Show(Strings.FileNotFoundMessage(path), Strings.FileNotFoundTitle,
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -72,7 +76,7 @@ public partial class DialogEditScript : Window
         var ext = Path.GetExtension(path).ToLower();
         if (ext != ".bat" && ext != ".cmd" && ext != ".ps1" && ext != ".exe")
         {
-            MessageBox.Show("Apenas .bat, .cmd, .ps1 e .exe são permitidos.", "Tipo inválido",
+            MessageBox.Show(Strings.InvalidTypeMessage, Strings.InvalidTypeTitle,
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -101,7 +105,7 @@ public partial class DialogEditScript : Window
             });
         }
 
-        DataService.Salvar(_data);
+        _dataService.Salvar(_data);
         DialogResult = true;
         Close();
     }

@@ -1,15 +1,20 @@
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 
 namespace FMOptimization.Services;
 
-public static class DataService
+/// <summary>Loads and saves application data as JSON to a local file.</summary>
+public class DataService : IDataService
 {
-    private static readonly string DataFile = Path.Combine(
+    private readonly string DataFile = Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory, "scripts_data.json");
 
-    public static AppData Carregar()
+    /// <summary>Loads <see cref="AppData"/> from the local JSON file, or returns a new instance if the file is missing or corrupt.</summary>
+    /// <returns>The deserialized <see cref="AppData"/> or a new default instance.</returns>
+    public AppData Carregar()
     {
         try
         {
@@ -20,11 +25,16 @@ public static class DataService
                 if (data != null) return data;
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DataService.Carregar] {LogMessages.LoadError(ex.Message)}");
+        }
         return new AppData();
     }
 
-    public static void Salvar(AppData data)
+    /// <summary>Serializes the given <see cref="AppData"/> to JSON and writes it to the local file.</summary>
+    /// <param name="data">The <see cref="AppData"/> to persist.</param>
+    public void Salvar(AppData data)
     {
         try
         {
@@ -34,6 +44,9 @@ public static class DataService
             });
             File.WriteAllText(DataFile, json);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DataService.Salvar] {LogMessages.SaveError(ex.Message)}");
+        }
     }
 }

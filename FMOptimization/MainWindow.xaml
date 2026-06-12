@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FMOptimization.ViewModels"
+        xmlns:conv="clr-namespace:FMOptimization.Converters"
         xmlns:controls="clr-namespace:FMOptimization.Controls"
         mc:Ignorable="d"
         Title="FM Optimization"
@@ -14,7 +15,7 @@
         x:Name="ThisWindow"
         d:DataContext="{d:DesignInstance vm:MainViewModel}">
     <Window.Resources>
-        <vm:IndexToDelayConverter x:Key="IndexToDelay"/>
+        <conv:IndexToDelayConverter x:Key="IndexToDelay"/>
     </Window.Resources>
 
     <Grid Background="{StaticResource BgPrimaryBrush}">

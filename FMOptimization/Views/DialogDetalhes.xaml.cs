@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 
 namespace FMOptimization;
 
@@ -26,7 +27,7 @@ public partial class DialogDetalhes : Window
         AddBadge(script.TipoLabel, GetBrushForType(script.Tipo));
         AddBadge(script.Categoria, new SolidColorBrush(Color.FromRgb(0x6b, 0x71, 0x94)), false);
         if (script.Admin)
-            AddBadge("REQUER ADMIN", new SolidColorBrush(Color.FromRgb(0xff, 0x8c, 0x00)));
+            AddBadge(Strings.RequiresAdminBadge, new SolidColorBrush(Color.FromRgb(0xff, 0x8c, 0x00)));
 
         LoadScriptContent(script.Caminho);
     }
@@ -70,7 +71,7 @@ public partial class DialogDetalhes : Window
     {
         if (string.IsNullOrEmpty(caminho) || !File.Exists(caminho))
         {
-            TxtCodigo.Text = "(arquivo não encontrado)";
+            TxtCodigo.Text = Strings.FileNotFoundPlaceholder;
             return;
         }
 
@@ -83,7 +84,7 @@ public partial class DialogDetalhes : Window
         }
         catch
         {
-            TxtCodigo.Text = "(não foi possível ler o arquivo)";
+            TxtCodigo.Text = Strings.FileReadErrorPlaceholder;
         }
     }
 

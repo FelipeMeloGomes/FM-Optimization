@@ -1,42 +1,53 @@
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Globalization;
-using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FMOptimization.Converters;
+using FMOptimization.Helpers;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 using FMOptimization.Services;
 
 namespace FMOptimization.ViewModels;
 
+/// <summary>Main view model that manages script display, filtering, execution, and logging.</summary>
 public partial class MainViewModel : ObservableObject
 {
-    private readonly ScriptExecutionService _executor = new();
+    private readonly IScriptExecutionService _executor;
+    private readonly IDataService _dataService;
     private AppData _data = new();
     private string _searchText = "";
     private CancellationTokenSource? _searchCts;
 
+    /// <summary>Gets or sets the currently selected category name used to filter scripts.</summary>
     [ObservableProperty]
-    private string selectedCategory = "Todas";
+    private string selectedCategory = Strings.CategoryAll;
 
+    /// <summary>Gets or sets the complete list of all available scripts.</summary>
     [ObservableProperty]
     private ObservableCollection<ScriptModel> allScripts = [];
 
+    /// <summary>Gets or sets the filtered subset of scripts displayed in the UI.</summary>
     [ObservableProperty]
     private ObservableCollection<ScriptModel> filteredScripts = [];
 
+    /// <summary>Gets or sets the collection of category items shown in the filter bar.</summary>
     [ObservableProperty]
     private ObservableCollection<CategoryItem> categories = [];
 
+    /// <summary>Gets or sets the collection of log entries displayed in the log panel.</summary>
     [ObservableProperty]
     private ObservableCollection<LogEntry> logEntries = [];
 
+    /// <summary>Gets or sets whether the log panel is expanded or collapsed.</summary>
     [ObservableProperty]
     private bool logExpanded = true;
 
+    /// <summary>Gets or sets whether the view model is currently loading data.</summary>
     [ObservableProperty]
     private bool isLoading;
 
+    /// <summary>Gets or sets the search text used to filter scripts by name or description.</summary>
     public string SearchText
     {
         get => _searchText;
@@ -47,17 +58,23 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    public MainViewModel()
+    /// <summary>Initializes a new instance of the <see cref="MainViewModel"/> class.</summary>
+    /// <param name="dataService">The data service for loading and saving application data.</param>
+    /// <param name="executor">The script execution service.</param>
+    public MainViewModel(IDataService dataService, IScriptExecutionService executor)
     {
+        _dataService = dataService;
+        _executor = executor;
         _executor.OnLog += OnScriptLog;
         LoadData();
     }
 
+    /// <summary>Loads scripts from embedded resources and user data, then applies filtering and category setup.</summary>
     public void LoadData()
     {
-        _data = DataService.Carregar();
+        _data = _dataService.Carregar();
 
-        var allCats = new List<string> { "Todas", "Favoritos" };
+        var allCats = new List<string> { Strings.CategoryAll, Strings.CategoryFavorites };
         allCats.AddRange(_data.Categorias);
         Categories = new ObservableCollection<CategoryItem>(
             allCats.Select(c => new CategoryItem { Name = c, Icon = GetCatIcon(c) }));
@@ -100,13 +117,13 @@ public partial class MainViewModel : ObservableObject
         AllScripts = new ObservableCollection<ScriptModel>(scripts);
         ApplyFilter();
 
-        if (!_data.Categorias.Contains("Limpeza"))
+        if (!_data.Categorias.Contains(Strings.CategoryLimpeza))
         {
             var cats = new HashSet<string>(_data.Categorias);
             foreach (var s in ScriptRegistry.Entries)
                 cats.Add(s.Categoria);
             _data.Categorias = [.. cats];
-            DataService.Salvar(_data);
+            _dataService.Salvar(_data);
         }
 
         RefreshCategories();
@@ -135,14 +152,22 @@ public partial class MainViewModel : ObservableObject
                 File.WriteAllBytes(dst, data);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"[ExtrairScript] Erro ao extrair '{script.Nome}': {ex.Message}");
+        }
     }
 
+    /// <summary>Called when <see cref="SelectedCategory"/> changes; updates the active state on category items.</summary>
+    /// <param name="value">The new selected category name.</param>
     partial void OnSelectedCategoryChanged(string value)
     {
         UpdateCategoryActive();
     }
 
+    /// <summary>Selects a category and re-applies the script filter.</summary>
+    /// <param name="category">The category name to select.</param>
     [RelayCommand]
     private void SelectCategory(string category)
     {
@@ -159,13 +184,15 @@ public partial class MainViewModel : ObservableObject
 
     private void RefreshCategories()
     {
-        var allCats = new List<string> { "Todas", "Favoritos" };
+        var allCats = new List<string> { Strings.CategoryAll, Strings.CategoryFavorites };
         allCats.AddRange(_data.Categorias);
         Categories = new ObservableCollection<CategoryItem>(
             allCats.Select(c => new CategoryItem { Name = c, Icon = GetCatIcon(c) }));
         UpdateCategoryActive();
     }
 
+    /// <summary>Toggles the favorite status of the specified script and persists the change.</summary>
+    /// <param name="script">The script to toggle as favorite.</param>
     [RelayCommand]
     private void ToggleFavorito(ScriptModel script)
     {
@@ -175,9 +202,11 @@ public partial class MainViewModel : ObservableObject
         else
             _data.Favoritos.Remove(script.Nome);
 
-        DataService.Salvar(_data);
+        _dataService.Salvar(_data);
     }
 
+    /// <summary>Executes the specified script via the script execution service.</summary>
+    /// <param name="script">The script to execute, or <see langword="null"/>.</param>
     [RelayCommand]
     private async Task ExecuteScript(ScriptModel? script)
     {
@@ -186,12 +215,14 @@ public partial class MainViewModel : ObservableObject
         if (script.Admin && !IsAdministrator())
         {
             // Ask user to continue - for now log warning
-            Log($"AVISO: \"{script.Nome}\" requer administrador", LogLevel.Warn);
+            Log(LogMessages.AdminWarning(script.Nome), LogLevel.Warn);
         }
 
         await _executor.ExecuteAsync(script);
     }
 
+    /// <summary>Invokes the <see cref="OnShowDetails"/> event to display script details.</summary>
+    /// <param name="script">The script whose details to show.</param>
     [RelayCommand]
     private void ShowDetails(ScriptModel script)
     {
@@ -199,12 +230,16 @@ public partial class MainViewModel : ObservableObject
         OnShowDetails?.Invoke(script);
     }
 
+    /// <summary>Invokes the <see cref="OnEditScript"/> event to open the edit dialog for the specified script.</summary>
+    /// <param name="script">The script to edit.</param>
     [RelayCommand]
     private void OpenEditDialog(ScriptModel script)
     {
         OnEditScript?.Invoke(script);
     }
 
+    /// <summary>Removes the specified script from the user data and updates the UI.</summary>
+    /// <param name="script">The script to remove.</param>
     [RelayCommand]
     private void RemoveScript(ScriptModel script)
     {
@@ -212,24 +247,27 @@ public partial class MainViewModel : ObservableObject
         if (toRemove != null)
         {
             _data.Scripts.Remove(toRemove);
-            DataService.Salvar(_data);
+            _dataService.Salvar(_data);
             AllScripts.Remove(script);
             ApplyFilter();
         }
     }
 
+    /// <summary>Invokes the <see cref="OnAddScript"/> event to open the add-script dialog.</summary>
     [RelayCommand]
     private void AddScript()
     {
         OnAddScript?.Invoke();
     }
 
+    /// <summary>Invokes the <see cref="OnManageCategories"/> event to open the category management dialog.</summary>
     [RelayCommand]
     private void ManageCategories()
     {
         OnManageCategories?.Invoke();
     }
 
+    /// <summary>Copies all log messages to the system clipboard as a newline-separated string.</summary>
     [RelayCommand]
     private void CopyLog()
     {
@@ -238,21 +276,30 @@ public partial class MainViewModel : ObservableObject
             System.Windows.Clipboard.SetText(text);
     }
 
+    /// <summary>Clears all entries from the log.</summary>
     [RelayCommand]
     private void ClearLog()
     {
         LogEntries.Clear();
     }
 
+    /// <summary>Toggles the log panel between expanded and collapsed states.</summary>
     [RelayCommand]
     private void ToggleLog()
     {
         LogExpanded = !LogExpanded;
     }
 
+    /// <summary>Raised when the view should display details for a script.</summary>
     public event Action<ScriptModel>? OnShowDetails;
+
+    /// <summary>Raised when the view should open an edit dialog for a script.</summary>
     public event Action<ScriptModel>? OnEditScript;
+
+    /// <summary>Raised when the view should open the add-script dialog.</summary>
     public event Action? OnAddScript;
+
+    /// <summary>Raised when the view should open the category management dialog.</summary>
     public event Action? OnManageCategories;
 
     private void ApplyFilter()
@@ -260,9 +307,9 @@ public partial class MainViewModel : ObservableObject
         var busca = SearchText?.Trim().ToLower() ?? "";
         IEnumerable<ScriptModel> source = AllScripts;
 
-        if (SelectedCategory == "Favoritos")
+        if (SelectedCategory == Strings.CategoryFavorites)
             source = source.Where(s => s.IsFavorito);
-        else if (SelectedCategory != "Todas")
+        else if (SelectedCategory != Strings.CategoryAll)
             source = source.Where(s => s.Categoria == SelectedCategory);
 
         if (!string.IsNullOrEmpty(busca))
@@ -273,19 +320,21 @@ public partial class MainViewModel : ObservableObject
         FilteredScripts = new ObservableCollection<ScriptModel>(source);
     }
 
-    private void DebouncedSearch()
+    private async void DebouncedSearch()
     {
         _searchCts?.Cancel();
+        _searchCts?.Dispose();
         _searchCts = new CancellationTokenSource();
-        var token = _searchCts.Token;
 
-        Task.Delay(150, token).ContinueWith(_ =>
+        try
         {
-            if (!token.IsCancellationRequested)
-            {
-                System.Windows.Application.Current.Dispatcher.Invoke(ApplyFilter);
-            }
-        }, token);
+            await Task.Delay(150, _searchCts.Token);
+            ApplyFilter();
+        }
+        catch (OperationCanceledException)
+        {
+            // Nova pesquisa cancelou a anterior — ignora
+        }
     }
 
     private void OnScriptLog(string msg, LogLevel level)
@@ -296,7 +345,7 @@ public partial class MainViewModel : ObservableObject
             {
                 Message = msg,
                 Level = level,
-                Timestamp = DateTime.Now.ToString("HH:mm:ss")
+                Timestamp = DateTime.Now.ToString(Strings.TimestampFormat)
             });
 
             if (LogEntries.Count > 500)
@@ -309,59 +358,20 @@ public partial class MainViewModel : ObservableObject
         OnScriptLog(msg, level);
     }
 
-    private static bool IsAdministrator()
-    {
-        using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-        var principal = new System.Security.Principal.WindowsPrincipal(identity);
-        return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-    }
+    private static bool IsAdministrator() => SecurityHelper.IsAdministrator();
 
     private static string GetCatIcon(string cat) => cat switch
     {
-        "Todas" => "◉",
-        "Limpeza" => "◎",
-        "Desempenho" => "⚡",
-        "Energia" => "🔋",
-        "Privacidade" => "🛡",
-        "Rede" => "🌐",
-        "Sistema" => "💻",
-        "GPU - AMD" => "🧠",
-        "GPU - NVIDIA" => "🧠",
-        "Windows 11" => "🪟",
-        "Favoritos" => "★",
-        _ => "●",
+        "Todas" => Strings.IconAll,
+        "Limpeza" => Strings.IconLimpeza,
+        "Desempenho" => Strings.IconDesempenho,
+        "Energia" => Strings.IconEnergia,
+        "Privacidade" => Strings.IconPrivacidade,
+        "Rede" => Strings.IconRede,
+        "Sistema" => Strings.IconSistema,
+        "GPU - AMD" or "GPU - NVIDIA" => Strings.IconGpu,
+        "Windows 11" => Strings.IconWindows11,
+        "Favoritos" => Strings.IconFavorites,
+        _ => Strings.IconDefault,
     };
-}
-
-public class CategoryItem : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
-{
-    public string Name { get; set; } = "";
-    public string Icon { get; set; } = "●";
-
-    private bool _isActive;
-    public bool IsActive
-    {
-        get => _isActive;
-        set => SetProperty(ref _isActive, value);
-    }
-}
-
-public class LogEntry
-{
-    public string Message { get; set; } = "";
-    public LogLevel Level { get; set; }
-    public string Timestamp { get; set; } = "";
-}
-
-public class IndexToDelayConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is int index)
-            return TimeSpan.FromSeconds(index * 0.04);
-        return TimeSpan.Zero;
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
 }

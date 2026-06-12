@@ -4,7 +4,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using FMOptimization.Models;
+using FMOptimization.Resources;
 using FMOptimization.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Controls.Primitives;
 
 namespace FMOptimization;
@@ -25,7 +27,7 @@ public partial class DialogManageCategories : Window
         CatStackPanel.Children.Clear();
         foreach (var cat in _categories)
         {
-            if (cat is "Todas" or "Favoritos") continue;
+            if (cat == Strings.CategoryAll || cat == Strings.CategoryFavorites) continue;
 
             var border = new Border
             {
@@ -51,7 +53,7 @@ public partial class DialogManageCategories : Window
 
             var removeBtn = new Button
             {
-                Content = "Remover",
+                Content = Strings.RemoveButton,
                 Height = 26,
                 Padding = new Thickness(10, 0, 10, 0),
                 Background = Brushes.Transparent,
@@ -96,9 +98,10 @@ public partial class DialogManageCategories : Window
 
     private void SaveClick(object? sender, RoutedEventArgs e)
     {
-        var data = DataService.Carregar();
+        var dataService = App.Services.GetRequiredService<IDataService>();
+        var data = dataService.Carregar();
         data.Categorias = _categories;
-        DataService.Salvar(data);
+        dataService.Salvar(data);
         DialogResult = true;
         Close();
     }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">text/microsoft-resx</resheader>
+  <resheader name="version">2.0</resheader>
+  <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <data name="CategoryAll" xml:space="preserve"><value>Todas</value></data>
+  <data name="CategoryFavorites" xml:space="preserve"><value>Favoritos</value></data>
+  <data name="CategoryLimpeza" xml:space="preserve"><value>Limpeza</value></data>
+  <data name="CategoryDesempenho" xml:space="preserve"><value>Desempenho</value></data>
+  <data name="CategoryEnergia" xml:space="preserve"><value>Energia</value></data>
+  <data name="CategoryPrivacidade" xml:space="preserve"><value>Privacidade</value></data>
+  <data name="CategoryRede" xml:space="preserve"><value>Rede</value></data>
+  <data name="CategorySistema" xml:space="preserve"><value>Sistema</value></data>
+  <data name="CategoryGpuAmd" xml:space="preserve"><value>GPU - AMD</value></data>
+  <data name="CategoryGpuNvidia" xml:space="preserve"><value>GPU - NVIDIA</value></data>
+  <data name="CategoryWindows11" xml:space="preserve"><value>Windows 11</value></data>
+  <data name="EditScriptTitle" xml:space="preserve"><value>Editar Script</value></data>
+  <data name="AddScriptTitle" xml:space="preserve"><value>Adicionar Script</value></data>
+  <data name="RequiredFieldsMessage" xml:space="preserve"><value>Preencha nome e caminho do script.</value></data>
+  <data name="RequiredFieldsTitle" xml:space="preserve"><value>Campos obrigatórios</value></data>
+  <data name="FileNotFoundMessage" xml:space="preserve"><value>O arquivo não existe:{0}{1}</value></data>
+  <data name="FileNotFoundTitle" xml:space="preserve"><value>Arquivo não encontrado</value></data>
+  <data name="InvalidTypeMessage" xml:space="preserve"><value>Apenas .bat, .cmd, .ps1 e .exe são permitidos.</value></data>
+  <data name="InvalidTypeTitle" xml:space="preserve"><value>Tipo inválido</value></data>
+  <data name="SelectScriptDialogTitle" xml:space="preserve"><value>Selecionar Script</value></data>
+  <data name="ScriptFilter" xml:space="preserve"><value>Scripts|*.bat;*.cmd;*.ps1;*.exe|All files|*.*</value></data>
+  <data name="RemoveButton" xml:space="preserve"><value>Remover</value></data>
+  <data name="RequiresAdminBadge" xml:space="preserve"><value>REQUER ADMIN</value></data>
+  <data name="FileNotFoundPlaceholder" xml:space="preserve"><value>(arquivo não encontrado)</value></data>
+  <data name="FileReadErrorPlaceholder" xml:space="preserve"><value>(não foi possível ler o arquivo)</value></data>
+  <data name="IconAll" xml:space="preserve"><value>◉</value></data>
+  <data name="IconLimpeza" xml:space="preserve"><value>◎</value></data>
+  <data name="IconDesempenho" xml:space="preserve"><value>⚡</value></data>
+  <data name="IconEnergia" xml:space="preserve"><value>🔋</value></data>
+  <data name="IconPrivacidade" xml:space="preserve"><value>🛡</value></data>
+  <data name="IconRede" xml:space="preserve"><value>🌐</value></data>
+  <data name="IconSistema" xml:space="preserve"><value>💻</value></data>
+  <data name="IconGpu" xml:space="preserve"><value>🧠</value></data>
+  <data name="IconWindows11" xml:space="preserve"><value>🪟</value></data>
+  <data name="IconFavorites" xml:space="preserve"><value>★</value></data>
+  <data name="IconDefault" xml:space="preserve"><value>●</value></data>
+  <data name="LogToggleCollapse" xml:space="preserve"><value>▲</value></data>
+  <data name="LogToggleExpand" xml:space="preserve"><value>▼</value></data>
+  <data name="TimestampFormat" xml:space="preserve"><value>HH:mm:ss</value></data>
+  <data name="StarFilled" xml:space="preserve"><value>★</value></data>
+  <data name="StarEmpty" xml:space="preserve"><value>☆</value></data>
+</root>

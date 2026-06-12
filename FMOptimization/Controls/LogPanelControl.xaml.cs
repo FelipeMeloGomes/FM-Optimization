@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Windows;
 using System.Windows.Input;
+using FMOptimization.Resources;
 
 namespace FMOptimization.Controls;
 
@@ -72,12 +73,12 @@ public partial class LogPanelControl
         if (LogExpanded)
         {
             LogScrollView.MaxHeight = 160;
-            LogToggleBtn.Content = "▲";
+            LogToggleBtn.Content = Strings.LogToggleCollapse;
         }
         else
         {
             LogScrollView.MaxHeight = 0;
-            LogToggleBtn.Content = "▼";
+            LogToggleBtn.Content = Strings.LogToggleExpand;
         }
     }
 }
