@@ -45,4 +45,11 @@
   <data name="TimestampFormat" xml:space="preserve"><value>HH:mm:ss</value></data>
   <data name="StarFilled" xml:space="preserve"><value>★</value></data>
   <data name="StarEmpty" xml:space="preserve"><value>☆</value></data>
+  <data name="TabArquivo" xml:space="preserve"><value>Arquivo</value></data>
+  <data name="TabCodigo" xml:space="preserve"><value>Código</value></data>
+  <data name="CodeLabel" xml:space="preserve"><value>Código do Script:</value></data>
+  <data name="CodePlaceholder" xml:space="preserve"><value>Cole o conteúdo do script aqui...</value></data>
+  <data name="TypeLabel" xml:space="preserve"><value>Tipo:</value></data>
+  <data name="CodeRequiredMessage" xml:space="preserve"><value>Preencha nome e código do script.</value></data>
+  <data name="CodeSavedMessage" xml:space="preserve"><value>Script salvo em: {0}</value></data>
 </root>

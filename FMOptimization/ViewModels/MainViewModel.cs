@@ -134,6 +134,8 @@ public partial class MainViewModel : ObservableObject
             if (script.IsEmbedded)
                 ExtrairScript(script);
         }
+
+        ExtrairScriptsUsuario();
     }
 
     private static void ExtrairScript(ScriptModel script)
@@ -158,6 +160,31 @@ public partial class MainViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine(
                 $"[ExtrairScript] Erro ao extrair '{script.Nome}': {ex.Message}");
+        }
+    }
+
+    private void ExtrairScriptsUsuario()
+    {
+        foreach (var sd in _data.Scripts)
+        {
+            if (string.IsNullOrEmpty(sd.Conteudo)) continue;
+
+            try
+            {
+                var dst = sd.Caminho;
+                var dir = Path.GetDirectoryName(dst);
+                if (dir != null) Directory.CreateDirectory(dir);
+
+                if (!File.Exists(dst))
+                {
+                    File.WriteAllText(dst, sd.Conteudo);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[ExtrairScriptsUsuario] Erro ao extrair '{sd.Nome}': {ex.Message}");
+            }
         }
     }
 
@@ -260,6 +287,9 @@ public partial class MainViewModel : ObservableObject
             _dataService.Salvar(_data);
             AllScripts.Remove(script);
             ApplyFilter();
+
+            if (toRemove.Conteudo != null && File.Exists(script.Caminho))
+                File.Delete(script.Caminho);
         }
     }
 

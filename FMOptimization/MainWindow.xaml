@@ -29,7 +29,8 @@
             Categories="{Binding Categories}"
             SelectedCategory="{Binding SelectedCategory}"
             SelectCategoryCommand="{Binding SelectCategoryCommand}"
-            ManageCategoriesCommand="{Binding ManageCategoriesCommand}"/>
+            ManageCategoriesCommand="{Binding ManageCategoriesCommand}"
+            AddScriptCommand="{Binding AddScriptCommand}"/>
 
         <GridSplitter Grid.Column="1" Width="4" Background="Transparent"
                       HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
@@ -68,7 +69,9 @@
                                 Script="{Binding}"
                                 ToggleFavoritoCommand="{Binding DataContext.ToggleFavoritoCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 ShowDetailsCommand="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                ExecuteScriptCommand="{Binding DataContext.ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                                ExecuteScriptCommand="{Binding DataContext.ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                OpenEditDialogCommand="{Binding DataContext.OpenEditDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                RemoveScriptCommand="{Binding DataContext.RemoveScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

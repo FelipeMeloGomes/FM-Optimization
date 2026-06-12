@@ -94,4 +94,8 @@ public class ScriptData
 
     /// <summary>Gets or sets the file extension type.</summary>
     public string Tipo { get; set; } = "";
+
+    /// <summary>Gets or sets the raw script content for user-pasted scripts. Null for file-based scripts.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Conteudo { get; set; }
 }

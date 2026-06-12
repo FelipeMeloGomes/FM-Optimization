@@ -144,6 +144,30 @@
                             Style="{StaticResource OutlineButton}"
                             Command="{Binding ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                             CommandParameter="{Binding}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center"
+                                x:Name="UserActions">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEmbedded}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <Button Content="✎" Height="26" Width="26" Margin="0,0,4,0" FontSize="13"
+                                Style="{StaticResource SmallIconButton}"
+                                Command="{Binding OpenEditDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                CommandParameter="{Binding}"
+                                ToolTip="Editar script"/>
+                        <Button Content="✕" Height="26" Width="26" FontSize="13"
+                                Style="{StaticResource SmallIconButton}"
+                                Foreground="{StaticResource RedErrorBrush}"
+                                Command="{Binding RemoveScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                CommandParameter="{Binding}"
+                                ToolTip="Remover script"/>
+                    </StackPanel>
                     <Button Grid.Column="2" Height="28" MinWidth="88"
                             Cursor="Hand" BorderThickness="0"
                             RenderTransformOrigin="0.5,0.5"

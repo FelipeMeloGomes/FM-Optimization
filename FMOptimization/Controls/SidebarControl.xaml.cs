@@ -23,6 +23,10 @@ public partial class SidebarControl
         DependencyProperty.Register(nameof(ManageCategoriesCommand), typeof(ICommand), typeof(SidebarControl),
             new PropertyMetadata(null));
 
+    public static readonly DependencyProperty AddScriptCommandProperty =
+        DependencyProperty.Register(nameof(AddScriptCommand), typeof(ICommand), typeof(SidebarControl),
+            new PropertyMetadata(null));
+
     public IEnumerable Categories
     {
         get => (IEnumerable)GetValue(CategoriesProperty);
@@ -45,6 +49,12 @@ public partial class SidebarControl
     {
         get => (ICommand?)GetValue(ManageCategoriesCommandProperty);
         set => SetValue(ManageCategoriesCommandProperty, value);
+    }
+
+    public ICommand? AddScriptCommand
+    {
+        get => (ICommand?)GetValue(AddScriptCommandProperty);
+        set => SetValue(AddScriptCommandProperty, value);
     }
 
     public SidebarControl()

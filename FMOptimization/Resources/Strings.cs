@@ -47,4 +47,11 @@ public static class Strings
     public static string TimestampFormat => _rm.GetString("TimestampFormat") ?? "";
     public static string StarFilled => _rm.GetString("StarFilled") ?? "";
     public static string StarEmpty => _rm.GetString("StarEmpty") ?? "";
+    public static string TabArquivo => _rm.GetString("TabArquivo") ?? "";
+    public static string TabCodigo => _rm.GetString("TabCodigo") ?? "";
+    public static string CodeLabel => _rm.GetString("CodeLabel") ?? "";
+    public static string CodePlaceholder => _rm.GetString("CodePlaceholder") ?? "";
+    public static string TypeLabel => _rm.GetString("TypeLabel") ?? "";
+    public static string CodeRequiredMessage => _rm.GetString("CodeRequiredMessage") ?? "";
+    public static string CodeSavedMessage(string path) => string.Format(_rm.GetString("CodeSavedMessage") ?? "", path);
 }

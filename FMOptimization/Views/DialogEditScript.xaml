@@ -1,7 +1,8 @@
 <Window x:Class="FMOptimization.DialogEditScript"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Adicionar Script" Height="380" Width="520"
+        xmlns:resources="clr-namespace:FMOptimization.Resources"
+        Title="Adicionar Script" Height="500" Width="560"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Transparent"
@@ -11,6 +12,36 @@
         FontFamily="{StaticResource FontUI}"
         MouseDown="Window_MouseDown"
         x:Name="ThisDialog">
+    <Window.Resources>
+        <Style x:Key="TabToggleStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bg" Background="Transparent"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <TextBlock x:Name="Tb" Text="{TemplateBinding Content}"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontFamily="{StaticResource FontUIBold}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource BgCardBrush}"/>
+                                <Setter TargetName="Tb" Property="Foreground" Value="{StaticResource NeonBlueLightBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Tb" Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Window.RenderTransform>
         <ScaleTransform ScaleX="1" ScaleY="1"/>
     </Window.RenderTransform>
@@ -47,6 +78,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -75,6 +108,7 @@
                     Background="{StaticResource BgCardBrush}"
                     x:Name="NomeBorder">
                 <TextBox x:Name="TxtNome" Background="Transparent"
+                         Foreground="{StaticResource TextPrimaryBrush}"
                          BorderThickness="0" Padding="8,8"
                          FontSize="14"
                          CaretBrush="{StaticResource NeonBlueLightBrush}"
@@ -87,46 +121,105 @@
                     BorderBrush="{StaticResource BorderDefaultBrush}" BorderThickness="1"
                     Background="{StaticResource BgCardBrush}">
                 <TextBox x:Name="TxtDescricao" Background="Transparent"
+                         Foreground="{StaticResource TextPrimaryBrush}"
                          BorderThickness="0" Padding="8,8"
-                         TextWrapping="Wrap" Height="70"
+                         TextWrapping="Wrap" Height="50"
                          FontSize="14"
                          CaretBrush="{StaticResource NeonBlueLightBrush}"/>
             </Border>
 
-            <Grid Grid.Row="5" Margin="0,8,0,0">
+            <TextBlock Grid.Row="5" Text="Categoria:" FontSize="13"
+                       Foreground="{StaticResource TextMutedBrush}" Margin="0,8,0,4"/>
+            <ComboBox Grid.Row="6" x:Name="CboCategoria" Margin="0,0,0,6"
+                      Style="{StaticResource DarkComboBox}"
+                      ItemContainerStyle="{StaticResource DarkComboBoxItem}"/>
+
+            <!-- Tab toggle + content area -->
+            <Grid Grid.Row="7" Margin="0,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Categoria:" FontSize="13"
-                           Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
-                <ComboBox Grid.Row="1" x:Name="CboCategoria" Margin="0,0,0,8"
-                          Background="{StaticResource BgCardBrush}"
-                          Foreground="{StaticResource TextPrimaryBrush}"
-                          BorderBrush="{StaticResource BorderDefaultBrush}"
-                          BorderThickness="1" Padding="8,6" FontSize="14"/>
 
-                <Grid Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" CornerRadius="6"
+                <Border Grid.Row="0" Background="{StaticResource BgCardBrush}"
+                        CornerRadius="6" Padding="3" Margin="0,0,0,6" Height="30"
+                        HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="RadioArquivo"
+                                     Content="{x:Static resources:Strings.TabArquivo}"
+                                     Style="{StaticResource TabToggleStyle}"
+                                     IsChecked="True"
+                                     Checked="TabModeChanged"/>
+                        <RadioButton x:Name="RadioCodigo"
+                                     Content="{x:Static resources:Strings.TabCodigo}"
+                                     Style="{StaticResource TabToggleStyle}"
+                                     Checked="TabModeChanged"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- File picker mode -->
+                <Grid Grid.Row="1" x:Name="PanelArquivo" Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" CornerRadius="6"
+                                BorderBrush="{StaticResource BorderDefaultBrush}" BorderThickness="1"
+                                Background="{StaticResource BgCardBrush}">
+                            <TextBox x:Name="TxtCaminho" IsReadOnly="True"
+                                     Background="Transparent"
+                                     BorderThickness="0" Padding="8,8"
+                                     FontSize="13" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </Border>
+                        <Button Grid.Column="1" Content="..." Margin="6,0,0,0" Width="34" Height="28"
+                                Style="{StaticResource SmallIconButton}"
+                                Click="BrowseClick"/>
+                    </Grid>
+                </Grid>
+
+                <!-- Code mode -->
+                <Grid Grid.Row="1" x:Name="PanelCodigo" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{x:Static resources:Strings.CodeLabel}" FontSize="13"
+                               Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                    <Border Grid.Row="1" CornerRadius="6"
                             BorderBrush="{StaticResource BorderDefaultBrush}" BorderThickness="1"
                             Background="{StaticResource BgCardBrush}">
-                        <TextBox x:Name="TxtCaminho" IsReadOnly="True"
-                                 Background="Transparent"
+                        <TextBox x:Name="TxtCodigo" Background="Transparent"
                                  BorderThickness="0" Padding="8,8"
-                                 FontSize="13" Foreground="{StaticResource TextMutedBrush}"/>
+                                 TextWrapping="Wrap" AcceptsReturn="True"
+                                 FontFamily="{StaticResource FontMono}"
+                                 FontSize="13"
+                                 Foreground="{StaticResource TextPrimaryBrush}"
+                                 CaretBrush="{StaticResource NeonBlueLightBrush}"
+                                 VerticalScrollBarVisibility="Auto"/>
                     </Border>
-                    <Button Grid.Column="1" Content="..." Margin="6,0,0,0" Width="34" Height="28"
-                            Style="{StaticResource SmallIconButton}"
-                            Click="BrowseClick"/>
+                    <Grid Grid.Row="2" Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{x:Static resources:Strings.TypeLabel}"
+                                   FontSize="13" Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ComboBox Grid.Column="1" x:Name="CboTipo" MinWidth="100"
+                                  Style="{StaticResource DarkComboBox}"
+                                  ItemContainerStyle="{StaticResource DarkComboBoxItem}"
+                                  Padding="8,4" FontSize="13"/>
+                    </Grid>
                 </Grid>
             </Grid>
 
-            <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                 <Button Content="Cancelar" Width="100" Height="36" Margin="0,0,8,0"
                         Background="Transparent" Foreground="{StaticResource TextMutedBrush}"
                         BorderThickness="0"
