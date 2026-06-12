@@ -75,6 +75,25 @@ public class AppData
 
     /// <summary>Gets or sets the list of user-defined script data entries.</summary>
     public List<ScriptData> Scripts { get; set; } = [];
+
+    /// <summary>Gets or sets the user profile information.</summary>
+    public UserProfile Profile { get; set; } = new();
+}
+
+/// <summary>Holds persisted user profile data such as display name and system info.</summary>
+public class UserProfile
+{
+    /// <summary>Gets or sets the editable display name shown in the UI.</summary>
+    public string NomeExibicao { get; set; } = "";
+
+    /// <summary>Gets or sets the Windows user name (auto-populated).</summary>
+    public string UserName { get; set; } = "";
+
+    /// <summary>Gets or sets the machine name (auto-populated).</summary>
+    public string MachineName { get; set; } = "";
+
+    /// <summary>Gets or sets the date of first use (auto-populated).</summary>
+    public DateTime PrimeiroUso { get; set; }
 }
 
 /// <summary>Represents a serializable script entry stored in application data.</summary>

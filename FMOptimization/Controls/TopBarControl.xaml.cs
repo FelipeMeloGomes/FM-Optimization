@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using FMOptimization.Models;
 using FMOptimization.Resources;
 
 namespace FMOptimization.Controls;
@@ -21,6 +22,14 @@ public partial class TopBarControl
         DependencyProperty.Register(nameof(SearchText), typeof(string), typeof(TopBarControl),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
+    public static readonly DependencyProperty ProfileProperty =
+        DependencyProperty.Register(nameof(Profile), typeof(UserProfile), typeof(TopBarControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty SaveProfileNameCommandProperty =
+        DependencyProperty.Register(nameof(SaveProfileNameCommand), typeof(ICommand), typeof(TopBarControl),
+            new PropertyMetadata(null));
+
     public string SelectedCategory
     {
         get => (string)GetValue(SelectedCategoryProperty);
@@ -37,6 +46,18 @@ public partial class TopBarControl
     {
         get => (string)GetValue(SearchTextProperty);
         set => SetValue(SearchTextProperty, value);
+    }
+
+    public UserProfile? Profile
+    {
+        get => (UserProfile?)GetValue(ProfileProperty);
+        set => SetValue(ProfileProperty, value);
+    }
+
+    public ICommand? SaveProfileNameCommand
+    {
+        get => (ICommand?)GetValue(SaveProfileNameCommandProperty);
+        set => SetValue(SaveProfileNameCommandProperty, value);
     }
 
     public TopBarControl()
@@ -78,5 +99,16 @@ public partial class TopBarControl
     private void SearchBorder_MouseDown(object? sender, MouseButtonEventArgs e)
     {
         SearchBox.Focus();
+    }
+
+    private void ProfileBtn_Click(object? sender, RoutedEventArgs e)
+    {
+        ProfilePopup.IsOpen = true;
+    }
+
+    private void ProfilePopup_Closed(object? sender, EventArgs e)
+    {
+        if (SaveProfileNameCommand?.CanExecute(Profile?.NomeExibicao) == true)
+            SaveProfileNameCommand.Execute(Profile?.NomeExibicao);
     }
 }
