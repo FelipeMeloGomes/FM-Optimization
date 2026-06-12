@@ -9,6 +9,7 @@
   <data name="ExecutionCanceledAdmin" xml:space="preserve"><value>Execução cancelada: {0} (requer admin)</value></data>
   <data name="ScriptRunning" xml:space="preserve"><value>Executando: {0}</value></data>
   <data name="ScriptFinished" xml:space="preserve"><value>Finalizado: {0} (código: {1})</value></data>
+  <data name="ScriptCancelled" xml:space="preserve"><value>⚠ Cancelado: {0}</value></data>
   <data name="ExecutionError" xml:space="preserve"><value>Erro ao executar {0}: {1}</value></data>
   <data name="AdminWarning" xml:space="preserve"><value>AVISO: "{0}" requer administrador</value></data>
   <data name="ExtractError" xml:space="preserve"><value>Erro ao extrair '{0}': {1}</value></data>

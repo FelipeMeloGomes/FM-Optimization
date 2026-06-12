@@ -16,4 +16,5 @@ public static class LogMessages
     public static string ExtractError(string name, string message) => string.Format(_rm.GetString("ExtractError") ?? "", name, message);
     public static string LoadError(string message) => string.Format(_rm.GetString("LoadError") ?? "", message);
     public static string SaveError(string message) => string.Format(_rm.GetString("SaveError") ?? "", message);
+    public static string ScriptCancelled(string name) => string.Format(_rm.GetString("ScriptCancelled") ?? "", name);
 }

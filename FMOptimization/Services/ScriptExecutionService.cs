@@ -9,7 +9,30 @@ namespace FMOptimization.Services;
 
 public class ScriptExecutionService : IScriptExecutionService
 {
+    private readonly Dictionary<string, Process> _runningProcesses = new();
+
     public event Action<string, LogLevel>? OnLog;
+
+    public void Cancel(ScriptModel script)
+    {
+        if (_runningProcesses.TryGetValue(script.Nome, out var process))
+        {
+            try
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                    Log(LogMessages.ScriptCancelled(script.Nome), LogLevel.Warn);
+                }
+            }
+            catch { }
+            finally
+            {
+                _runningProcesses.Remove(script.Nome);
+                process.Dispose();
+            }
+        }
+    }
 
     public async Task ExecuteAsync(ScriptModel script)
     {
@@ -83,16 +106,25 @@ public class ScriptExecutionService : IScriptExecutionService
         psi.CreateNoWindow = true;
         psi.WorkingDirectory = Path.GetDirectoryName(caminho) ?? "";
 
-        using var process = new Process { StartInfo = psi };
+        var process = new Process { StartInfo = psi };
         process.Start();
+        _runningProcesses[nome] = process;
 
-        var outputTask = ReadStreamAsync(process.StandardOutput);
-        var errorTask = ReadStreamAsync(process.StandardError);
+        try
+        {
+            var outputTask = ReadStreamAsync(process.StandardOutput);
+            var errorTask = ReadStreamAsync(process.StandardError);
 
-        await Task.WhenAll(outputTask, errorTask);
-        await process.WaitForExitAsync();
+            await Task.WhenAll(outputTask, errorTask);
+            await process.WaitForExitAsync();
 
-        Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
+            Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
+        }
+        finally
+        {
+            _runningProcesses.Remove(nome);
+            process.Dispose();
+        }
     }
 
     private async Task ReadStreamAsync(StreamReader reader)

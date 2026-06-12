@@ -234,6 +234,15 @@ public partial class MainViewModel : ObservableObject
         _dataService.Salvar(_data);
     }
 
+    /// <summary>Cancels the execution of the specified script by killing its process.</summary>
+    [RelayCommand]
+    private void CancelScript(ScriptModel? script)
+    {
+        if (script == null || !script.IsExecuting) return;
+        _executor.Cancel(script);
+        script.IsExecuting = false;
+    }
+
     /// <summary>Executes the specified script via the script execution service.</summary>
     /// <param name="script">The script to execute, or <see langword="null"/>.</param>
     [RelayCommand]

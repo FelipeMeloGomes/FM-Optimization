@@ -30,6 +30,10 @@ public partial class ScriptCardControl
         DependencyProperty.Register(nameof(RemoveScriptCommand), typeof(ICommand), typeof(ScriptCardControl),
             new PropertyMetadata(null));
 
+    public static readonly DependencyProperty CancelScriptCommandProperty =
+        DependencyProperty.Register(nameof(CancelScriptCommand), typeof(ICommand), typeof(ScriptCardControl),
+            new PropertyMetadata(null));
+
     public ScriptModel? Script
     {
         get => (ScriptModel?)GetValue(ScriptProperty);
@@ -64,6 +68,12 @@ public partial class ScriptCardControl
     {
         get => (ICommand?)GetValue(RemoveScriptCommandProperty);
         set => SetValue(RemoveScriptCommandProperty, value);
+    }
+
+    public ICommand? CancelScriptCommand
+    {
+        get => (ICommand?)GetValue(CancelScriptCommandProperty);
+        set => SetValue(CancelScriptCommandProperty, value);
     }
 
     public ScriptCardControl()

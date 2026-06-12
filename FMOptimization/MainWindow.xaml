@@ -71,7 +71,8 @@
                                 ShowDetailsCommand="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 ExecuteScriptCommand="{Binding DataContext.ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 OpenEditDialogCommand="{Binding DataContext.OpenEditDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                RemoveScriptCommand="{Binding DataContext.RemoveScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                                RemoveScriptCommand="{Binding DataContext.RemoveScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CancelScriptCommand="{Binding DataContext.CancelScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

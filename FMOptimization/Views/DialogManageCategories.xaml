@@ -96,8 +96,9 @@
             <!-- Buttons -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
                 <Button Content="Cancelar" Width="100" Height="36" Margin="0,0,8,0"
-                        Background="Transparent" Foreground="{StaticResource TextMutedBrush}"
-                        BorderThickness="0" FontSize="13"
+                        Style="{StaticResource SmallIconButton}"
+                        Foreground="{StaticResource TextMutedBrush}"
+                        FontSize="13"
                         Click="CancelClick"/>
                 <Button Content="Salvar" Width="100" Height="36"
                         Style="{StaticResource AccentButton}"

@@ -14,7 +14,8 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 - **Favoritos**: marque scripts com estrela e filtre rapidamente
 - **Log em tempo real** com terminal scrollável, cursor piscante e botões Copiar/Limpar
 - **Execução inteligente**: .bat, .cmd, .ps1, .reg, .exe com detecção de admin
-- **Gerenciamento**: adicione, edite ou remova scripts e categorias
+- **Cancelamento**: botão "■ Parar" vermelho substitui o "▶ Executar" durante execução — kill completo do processo
+- **Gerenciamento**: adicione por arquivo ou código direto, edite ou remova scripts e categorias
 - **Elevação UAC**: executável requer administrador automaticamente na abertura
 
 ## Tecnologias
