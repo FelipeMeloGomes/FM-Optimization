@@ -11,31 +11,46 @@
         MinWidth="900" MinHeight="500"
         Style="{StaticResource DarkWindowStyle}"
         WindowStartupLocation="CenterScreen"
+        x:Name="ThisWindow"
         d:DataContext="{d:DesignInstance vm:MainViewModel}">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="30" GlassFrameThickness="0" UseAeroCaptionButtons="True"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
+        <!-- Card Stagger Delay Converter -->
+        <vm:IndexToDelayConverter x:Key="IndexToDelay"/>
+
+        <!-- Sidebar Category Template -->
         <DataTemplate x:Key="CategoryTemplate" DataType="{x:Type vm:CategoryItem}">
-            <Border Height="28" Padding="0" x:Name="CatBorder"
-                    Background="Transparent" Cursor="Hand">
+            <Border Height="32" Padding="0"
+                    Background="Transparent" Cursor="Hand"
+                    x:Name="CatBorder">
                 <Border.InputBindings>
                     <MouseBinding MouseAction="LeftClick"
                                   Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                   CommandParameter="{Binding Name}"/>
                 </Border.InputBindings>
                 <Grid>
-                    <Rectangle Width="2" Height="20" HorizontalAlignment="Left"
-                               Fill="{StaticResource AmberPrimaryBrush}"
-                               Opacity="0" x:Name="CatAccent"/>
-                    <Grid Margin="10,0,0,0">
+                    <!-- Active accent line (slides in with opacity) -->
+                    <Rectangle Width="3" Height="20" HorizontalAlignment="Left" RadiusX="1.5" RadiusY="1.5"
+                               Fill="{StaticResource NeonBlueLightBrush}"
+                               Opacity="0" x:Name="CatAccent">
+                        <Rectangle.Effect>
+                            <DropShadowEffect BlurRadius="8" ShadowDepth="0"
+                                              Color="{StaticResource NeonBlueLight}" Opacity="0.4"/>
+                        </Rectangle.Effect>
+                    </Rectangle>
+                    <Grid Margin="16,0,8,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding Icon}" FontSize="13"
-                                   Foreground="{StaticResource TextMutedBrush}"
-                                   VerticalAlignment="Center" Margin="6,0,8,0"/>
+                        <!-- Vector Icon -->
+                        <Path Grid.Column="0" Width="14" Height="14" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="6,0,10,0"
+                              Data="{Binding Name, Converter={StaticResource IconConverter}}"
+                              VerticalAlignment="Center"/>
+                        <!-- Category Name -->
                         <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
                                    Foreground="{StaticResource TextMutedBrush}"
                                    VerticalAlignment="Center"/>
@@ -44,21 +59,41 @@
             </Border>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                    <Setter TargetName="CatBorder" Property="Background" Value="{StaticResource BgCardBrush}"/>
-                    <Setter TargetName="CatAccent" Property="Opacity" Value="1"/>
-                    <Setter TargetName="CatAccent" Property="Fill" Value="{StaticResource AmberPrimaryBrush}"/>
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="CatAccent"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="1" Duration="0:0:0.2"/>
+                                <ColorAnimation Storyboard.TargetName="CatAccent"
+                                                Storyboard.TargetProperty="Fill.(SolidColorBrush.Color)"
+                                                To="{StaticResource NeonBlueLight}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="CatAccent"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="0" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
 
+        <!-- Glassmorphism Script Card Template -->
         <DataTemplate x:Key="ScriptCardTemplate" DataType="{x:Type models:ScriptModel}">
-            <Border Width="320" Margin="4"
-                    Background="{StaticResource BgCardBrush}"
+            <Border Width="320" Margin="6"
+                    Background="#14142e"
                     BorderBrush="{StaticResource BorderDefaultBrush}"
                     BorderThickness="1"
-                    CornerRadius="8"
+                    CornerRadius="10"
                     x:Name="CardBorder"
-                    RenderTransformOrigin="0.5,0.5">
+                    RenderTransformOrigin="0.5,0.5"
+                    Effect="{StaticResource CardShadow}">
                 <Border.RenderTransform>
                     <ScaleTransform ScaleX="1" ScaleY="1"/>
                 </Border.RenderTransform>
@@ -84,197 +119,244 @@
                         </BeginStoryboard>
                     </EventTrigger>
                 </Border.Triggers>
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1.02" Duration="0:0:0.15">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
-                                                             To="1.02" Duration="0:0:0.15">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1" Duration="0:0:0.15">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
-                                                             To="1" Duration="0:0:0.15">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <!-- Accent bar -->
-                    <Rectangle Grid.Column="0" Width="2" RadiusX="1" RadiusY="1"
-                               Fill="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"/>
-                    <!-- Content -->
-                    <Grid Grid.Column="1" Margin="12,8,8,8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top accent bar (type color) -->
+                    <Border Grid.Row="0" Height="3" CornerRadius="10,10,0,0"
+                            Background="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"/>
+
+                    <!-- Main content -->
+                    <Grid Grid.Row="1" Margin="14,8,14,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="{Binding Nome}" FontSize="13"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   TextWrapping="NoWrap"/>
+
+                        <!-- Title row with star -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding Nome}" FontSize="13"
+                                       FontWeight="Bold" FontFamily="{StaticResource FontUIBold}"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"/>
+                            <!-- Star Button with rotation animation -->
+                            <Button Grid.Column="1" Style="{StaticResource GhostButton}"
+                                    Command="{Binding DataContext.ToggleFavoritoCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                    CommandParameter="{Binding}"
+                                    x:Name="StarBtn"
+                                    RenderTransformOrigin="0.5,0.5">
+                                <Button.RenderTransform>
+                                    <RotateTransform Angle="0"/>
+                                </Button.RenderTransform>
+                                <TextBlock Text="{Binding IsFavorito, Converter={StaticResource BoolToStar}}"
+                                           FontSize="16"
+                                           Foreground="{StaticResource NeonBlueBrush}"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Description -->
                         <TextBlock Grid.Row="1" Text="{Binding Descricao}" FontSize="10"
                                    Foreground="{StaticResource TextMutedBrush}"
-                                   TextWrapping="Wrap" Margin="0,2,0,0"/>
-                        <Grid Grid.Row="2" Margin="0,4,0,0">
+                                   TextWrapping="Wrap" Margin="0,4,0,0"
+                                   MaxHeight="32" LineHeight="14"/>
+
+                        <!-- Badges row -->
+                        <WrapPanel Grid.Row="2" Margin="0,6,0,0">
+                            <!-- Admin badge -->
+                            <Border Visibility="{Binding Admin, Converter={StaticResource AdminToVisibility}}"
+                                    Padding="6,1,6,1" Margin="0,0,4,2"
+                                    BorderBrush="{StaticResource NeonBlueBrush}"
+                                    Background="#1a0a00"
+                                    BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="ADMIN" FontSize="7" FontWeight="Bold"
+                                           Foreground="{StaticResource NeonBlueBrush}"
+                                           FontFamily="{StaticResource FontUIBold}"/>
+                            </Border>
+                            <!-- Category -->
+                            <Border Padding="6,1,6,1" Margin="0,0,4,2"
+                                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                                    Background="{StaticResource BgCardBrush}"
+                                    BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="{Binding Categoria}" FontSize="7"
+                                           Foreground="{StaticResource TextMutedBrush}"/>
+                            </Border>
+                            <!-- Type badge -->
+                            <Border Padding="6,1,6,1" Margin="0,0,0,2"
+                                    BorderBrush="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
+                                    Background="#0a1a0a"
+                                    BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="{Binding TipoLabel}" FontSize="7" FontWeight="Bold"
+                                           Foreground="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
+                                           FontFamily="{StaticResource FontUIBold}"/>
+                            </Border>
+                        </WrapPanel>
+                    </Grid>
+
+                    <!-- Footer with actions -->
+                    <Border Grid.Row="2" Background="#0a0a1e"
+                            CornerRadius="0,0,10,10"
+                            BorderBrush="{StaticResource BorderDefaultBrush}"
+                            BorderThickness="0,1,0,0"
+                            Padding="8,6,8,6">
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <!-- Star -->
-                            <Button Grid.Column="0" Style="{StaticResource GhostButton}"
-                                    Command="{Binding DataContext.ToggleFavoritoCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                    CommandParameter="{Binding}">
-                                <TextBlock Text="{Binding IsFavorito, Converter={StaticResource BoolToStar}}"
-                                           FontSize="14"
-                                           Foreground="{StaticResource AmberPrimaryBrush}"/>
-                            </Button>
-                            <!-- Admin badge -->
-                            <Border Grid.Column="1"
-                                    Visibility="{Binding Admin, Converter={StaticResource AdminToVisibility}}"
-                                    Padding="5,1,5,1" Margin="4,0,0,0"
-                                    BorderBrush="{StaticResource AmberPrimaryBrush}"
-                                    BorderThickness="1" CornerRadius="4">
-                                <TextBlock Text="ADMIN" FontSize="8" FontWeight="Bold"
-                                           Foreground="{StaticResource AmberPrimaryBrush}"/>
-                            </Border>
-                            <!-- Category -->
-                            <TextBlock Grid.Column="2" Text="{Binding Categoria}" FontSize="9"
-                                       Foreground="{StaticResource TextMutedBrush}" Margin="6,0,0,0"/>
-                            <!-- Type badge -->
-                            <Border Grid.Column="4" Padding="5,1,5,1"
-                                    BorderBrush="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
-                                    BorderThickness="1" CornerRadius="4"
-                                    Opacity="0.6">
-                                <TextBlock Text="{Binding TipoLabel}" FontSize="8" FontWeight="Bold"
-                                           Foreground="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"/>
-                            </Border>
+                            <!-- Favorite indicator -->
+                            <TextBlock Grid.Column="0" FontSize="9"
+                                       Foreground="{StaticResource TextDimBrush}"
+                                       VerticalAlignment="Center">
+                                <Run Text="{Binding IsFavorito, Converter={StaticResource BoolToOpacity}, StringFormat='{}{0:P0}'}"/>
+                            </TextBlock>
+                            <!-- Details button -->
+                            <Button Grid.Column="1" Content="Detalhes" Height="26" MinWidth="64"
+                                    Style="{StaticResource OutlineButton}"
+                                    HorizontalAlignment="Center"
+                                    Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                    CommandParameter="{Binding}"/>
+                            <!-- Execute button -->
+                            <Button Grid.Column="2" Content="▶ Executar" Height="26" MinWidth="80"
+                                    Background="{StaticResource GreenRunBrush}"
+                                    Foreground="{StaticResource BgDeepBrush}"
+                                    FontSize="9" FontWeight="Bold" Cursor="Hand"
+                                    BorderThickness="0"
+                                    RenderTransformOrigin="0.5,0.5"
+                                    Command="{Binding DataContext.ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                    CommandParameter="{Binding}"/>
                         </Grid>
-                    </Grid>
-                    <!-- Actions column -->
-                    <StackPanel Grid.Column="2" Margin="0,8,8,8" VerticalAlignment="Top">
-                        <Button Content="Executar" Height="28" MinWidth="70" Margin="0,0,0,4"
-                                Background="{StaticResource GreenRunBrush}"
-                                Foreground="#0d0d1a" FontSize="10" FontWeight="Bold"
-                                Cursor="Hand" BorderThickness="0"
-                                Command="{Binding DataContext.ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                CommandParameter="{Binding}"/>
-                        <Button Content="Detalhes" Height="24" MinWidth="70" Margin="0,0,0,2"
-                                Background="Transparent"
-                                Foreground="{StaticResource CyanAccentBrush}"
-                                FontSize="9" Cursor="Hand"
-                                BorderBrush="{StaticResource CyanAccentBrush}"
-                                BorderThickness="1"
-                                Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                CommandParameter="{Binding}"/>
-                    </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
         </DataTemplate>
+
     </Window.Resources>
+
+    <Window.Triggers>
+        <!-- Logo glow pulse animation -->
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard RepeatBehavior="Forever">
+                    <DoubleAnimation
+                        Storyboard.TargetName="LogoGlow"
+                        Storyboard.TargetProperty="Opacity"
+                        From="0.2" To="0.6" Duration="0:0:2"
+                        AutoReverse="True"/>
+                    <DoubleAnimation
+                        Storyboard.TargetName="LogoSubtitle"
+                        Storyboard.TargetProperty="Opacity"
+                        From="0.6" To="1" Duration="0:0:1.5"
+                        AutoReverse="True"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <!-- Main Layout -->
     <Grid Background="{StaticResource BgPrimaryBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <!-- Sidebar -->
-        <Grid Grid.Column="0" Background="{StaticResource BgSidebarBrush}">
+
+        <!-- ==================== SIDEBAR ==================== -->
+        <Grid Grid.Column="0" Background="{StaticResource SidebarGradient}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <!-- Logo -->
-            <StackPanel Grid.Row="0" Margin="0,16,0,4">
-                <TextBlock Text="FM" FontSize="28" FontWeight="Bold"
-                           Foreground="{StaticResource AmberPrimaryBrush}"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="OPTIMIZATION" FontSize="9" FontWeight="Bold"
-                           Foreground="{StaticResource CyanAccentBrush}"
-                           HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                <Rectangle Height="1" Fill="{StaticResource BorderDefaultBrush}" Margin="16,0"/>
+
+            <!-- Animated Logo -->
+            <StackPanel Grid.Row="0" Margin="0,20,0,8">
+                <TextBlock x:Name="LogoText" Text="FM" FontSize="32" FontWeight="Bold"
+                           FontFamily="{StaticResource FontUIBold}"
+                           Foreground="{StaticResource NeonBlueBrush}"
+                           HorizontalAlignment="Center">
+                    <TextBlock.Effect>
+                        <DropShadowEffect x:Name="LogoGlow" BlurRadius="16"
+                                          ShadowDepth="0" Color="#ff8c00" Opacity="0.3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock x:Name="LogoSubtitle" Text="OPTIMIZATION" FontSize="9" FontWeight="Bold"
+                           Foreground="{StaticResource NeonBlueLightBrush}"
+                           FontFamily="{StaticResource FontUIBold}"
+                            HorizontalAlignment="Center" Margin="0,0,0,8"
+                            TextOptions.TextRenderingMode="ClearType"/>
+                <Rectangle Height="1" Margin="24,0"
+                           Fill="{StaticResource BorderDefaultBrush}" Opacity="0.5"/>
             </StackPanel>
-            <!-- Category list -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+
+            <!-- Category List -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          Background="Transparent">
                 <ItemsControl ItemsSource="{Binding Categories}"
-                              x:Name="CategoryList"
-                              ItemTemplate="{StaticResource CategoryTemplate}">
-                </ItemsControl>
+                              ItemTemplate="{StaticResource CategoryTemplate}"/>
             </ScrollViewer>
-            <!-- Manage categories -->
-            <Button Grid.Row="2" Height="32" Cursor="Hand"
-                    Background="Transparent" BorderThickness="0"
-                    Command="{Binding ManageCategoriesCommand}">
-                <TextBlock Text="Gerenciar Categorias" FontSize="10"
-                           Foreground="{StaticResource TextMutedBrush}"
-                           HorizontalAlignment="Center"/>
-            </Button>
+
+            <!-- Manage Categories -->
+            <Border Grid.Row="2" Height="36" Cursor="Hand" Background="Transparent"
+                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="0,1,0,0">
+                <Border.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="{Binding ManageCategoriesCommand}"/>
+                </Border.InputBindings>
+                <TextBlock Text="⚙ Gerenciar Categorias" FontSize="10"
+                           Foreground="{StaticResource TextDimBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
         </Grid>
+
         <!-- GridSplitter -->
-        <GridSplitter Grid.Column="1" Width="4" Background="{StaticResource BgSidebarBrush}"
+        <GridSplitter Grid.Column="1" Width="4" Background="Transparent"
                       HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
-        <!-- Content area -->
+
+        <!-- ==================== CONTENT AREA ==================== -->
         <Grid Grid.Column="2" Background="{StaticResource BgPrimaryBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <!-- Top bar -->
-            <Border Grid.Row="0" Height="44" Background="{StaticResource BgSidebarBrush}"
-                    Padding="16,0,16,0">
+
+            <!-- Background Grid Texture -->
+            <Rectangle Grid.RowSpan="3" Fill="{StaticResource BgGridTexture}" Opacity="0.15"/>
+
+            <!-- Top Bar -->
+            <Border Grid.Row="0" Height="48"
+                    Background="{StaticResource BgSidebarBrush}"
+                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,0,16,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <TextBlock Text="{Binding SelectedCategory}" FontSize="14" FontWeight="Bold"
+
+                    <!-- Category Title + Count -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SelectedCategory}" FontSize="16" FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontFamily="{StaticResource FontUIBold}"
                                    VerticalAlignment="Center"/>
-                        <Border Margin="8,0,0,0" Padding="8,1,8,1" CornerRadius="10"
+                        <Border Margin="10,0,0,0" Padding="8,1,8,1" CornerRadius="10"
                                 Background="{StaticResource BgCardBrush}"
                                 BorderBrush="{StaticResource BorderDefaultBrush}"
-                                BorderThickness="1">
+                                BorderThickness="1" VerticalAlignment="Center">
                             <TextBlock FontSize="10"
                                        Foreground="{StaticResource TextMutedBrush}">
                                 <Run Text="{Binding FilteredScripts.Count, Mode=OneWay}"/>
@@ -282,53 +364,49 @@
                             </TextBlock>
                         </Border>
                     </StackPanel>
-                    <!-- Search -->
-                    <Border Grid.Column="1" HorizontalAlignment="Right" Width="200"
+
+                    <!-- Search Box -->
+                    <Border Grid.Column="1" HorizontalAlignment="Right" Width="240"
                             Background="{StaticResource BgCardBrush}"
                             CornerRadius="6"
                             BorderBrush="{StaticResource BorderDefaultBrush}"
-                            BorderThickness="1" Margin="0,6,0,6">
-                        <TextBox x:Name="SearchBox" FontSize="12" CaretBrush="{StaticResource TextPrimaryBrush}"
+                            BorderThickness="1" Margin="0,6,0,6"
+                            x:Name="SearchBorder"
+                            MouseDown="SearchBorder_MouseDown">
+                        <TextBox x:Name="SearchBox" FontSize="12"
+                                 FontFamily="{StaticResource FontUI}"
+                                 CaretBrush="{StaticResource NeonBlueLightBrush}"
                                  Foreground="{StaticResource TextPrimaryBrush}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Padding="8,0,8,0" VerticalContentAlignment="Center"
-                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderThickness="0" CornerRadius="6">
-                                                    <ScrollViewer x:Name="PART_ContentHost"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                                 Background="{StaticResource BgCardBrush}"
+                                 BorderThickness="0"
+                                 Padding="12,0,12,0" VerticalContentAlignment="Center"
+                                 Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 GotFocus="SearchBox_GotFocus"
+                                 LostFocus="SearchBox_LostFocus"
+                                 TextChanged="SearchBox_TextChanged"/>
                     </Border>
                 </Grid>
             </Border>
-            <!-- Cards grid -->
+
+            <!-- Cards Grid -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                          Padding="8,8,8,0">
+                          Padding="8,8,8,0"
+                          Background="Transparent">
                 <ItemsControl ItemsSource="{Binding FilteredScripts}"
                               ItemTemplate="{StaticResource ScriptCardTemplate}"
                               x:Name="CardsGrid">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"
-                                       ItemWidth="328"
-                                       Margin="-4,0,0,0"/>
+                                       ItemWidth="332"
+                                       Margin="-6,0,0,0"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </ScrollViewer>
-            <!-- Log panel -->
-            <Border Grid.Row="2" Background="{StaticResource BgPrimaryBrush}"
-                    x:Name="LogPanel"
+
+            <!-- ==================== TERMINAL LOG PANEL ==================== -->
+            <Border Grid.Row="2" Background="{StaticResource BgLogBrush}"
                     BorderBrush="{StaticResource BorderDefaultBrush}"
                     BorderThickness="0,1,0,0">
                 <Grid>
@@ -336,8 +414,15 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <!-- Log header -->
-                    <Border Grid.Row="0" Height="26" Background="{StaticResource BgSidebarBrush}"
+
+                    <!-- Scan line overlay -->
+                    <Rectangle Grid.RowSpan="2" Fill="{StaticResource ScanLineTexture}" IsHitTestVisible="False"/>
+
+                    <!-- Log Header -->
+                    <Border Grid.Row="0" Height="28"
+                            Background="{StaticResource BgElevatedBrush}"
+                            BorderBrush="{StaticResource BorderDefaultBrush}"
+                            BorderThickness="0,0,0,1"
                             Padding="14,0,8,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -345,35 +430,75 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="LOG" FontSize="9" FontWeight="Bold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="6" Height="6"
+                                         Fill="{StaticResource GreenRunBrush}" Margin="0,0,8,0">
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect BlurRadius="6" ShadowDepth="0"
+                                                          Color="{StaticResource GreenRun}" Opacity="0.5"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                                <TextBlock Text="TERMINAL" FontSize="9" FontWeight="Bold"
+                                           Foreground="{StaticResource GreenRunBrush}"
+                                           VerticalAlignment="Center"
+                                           FontFamily="{StaticResource FontUIBold}"/>
+                            </StackPanel>
                             <StackPanel Grid.Column="2" Orientation="Horizontal">
                                 <Button Content="Copiar" Style="{StaticResource GhostButton}"
-                                        FontSize="10" Foreground="{StaticResource CyanAccentBrush}"
+                                        FontSize="10" Foreground="{StaticResource NeonBlueLightBrush}"
                                         Command="{Binding CopyLogCommand}"/>
                                 <Button Content="Limpar" Style="{StaticResource GhostButton}"
-                                        FontSize="10"
+                                        FontSize="10" Foreground="{StaticResource TextMutedBrush}"
                                         Command="{Binding ClearLogCommand}"/>
-                                <Button Content="&#x25B2;" Style="{StaticResource GhostButton}"
+                                <Button Content="▲" Style="{StaticResource GhostButton}"
                                         FontSize="8" x:Name="LogToggleBtn"
+                                        Foreground="{StaticResource TextMutedBrush}"
                                         Command="{Binding ToggleLogCommand}"/>
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <!-- Log messages -->
+
+                    <!-- Log Messages -->
                     <ScrollViewer Grid.Row="1" x:Name="LogScrollView"
-                                  MaxHeight="120" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding LogEntries}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type vm:LogEntry}">
-                                    <TextBlock Text="{Binding Message}" FontSize="11"
-                                               FontFamily="Consolas"
-                                               Foreground="{Binding Level, Converter={StaticResource LogLevelToColor}}"
-                                               TextWrapping="Wrap" Padding="14,0,14,0"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                  MaxHeight="160" VerticalScrollBarVisibility="Auto"
+                                  Background="Transparent">
+                        <Grid>
+                            <ItemsControl ItemsSource="{Binding LogEntries}"
+                                          x:Name="LogItems">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:LogEntry}">
+                                        <TextBlock FontFamily="{StaticResource FontMono}" FontSize="11"
+                                                   Padding="14,0,14,0">
+                                            <Run Text="[" Foreground="{StaticResource GreenRunBrush}"/>
+                                            <Run Text="{Binding Timestamp}" Foreground="{StaticResource GreenRunBrush}"/>
+                                            <Run Text="]" Foreground="{StaticResource GreenRunBrush}"/>
+                                            <Run Text=" " Foreground="{StaticResource TextDimBrush}"/>
+                                            <Run Text="{Binding Message, Mode=OneWay}"
+                                                 Foreground="{Binding Level, Converter={StaticResource LogLevelToColor}}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!-- Blinking cursor -->
+                            <TextBlock Text="|" FontFamily="{StaticResource FontMono}" FontSize="11"
+                                       Foreground="{StaticResource GreenRunBrush}"
+                                       Margin="14,0,0,0"
+                                       Opacity="1"
+                                       x:Name="LogCursor">
+                                <TextBlock.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    From="1" To="0" Duration="0:0:0.5"
+                                                    AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </TextBlock.Triggers>
+                            </TextBlock>
+                        </Grid>
                     </ScrollViewer>
                 </Grid>
             </Border>

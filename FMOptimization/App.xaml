@@ -6,33 +6,126 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <!-- Font Families -->
+            <FontFamily x:Key="FontUI">pack://application:,,,/Assets/Fonts/#Rajdhani</FontFamily>
+            <FontFamily x:Key="FontUIBold">pack://application:,,,/Assets/Fonts/#Rajdhani</FontFamily>
+            <FontFamily x:Key="FontMono">pack://application:,,,/Assets/Fonts/#JetBrains Mono</FontFamily>
+            <FontFamily x:Key="FontMonoBold">pack://application:,,,/Assets/Fonts/#JetBrains Mono</FontFamily>
+            <FontFamily x:Key="FontLogo">pack://application:,,,/Assets/Fonts/#Audiowide</FontFamily>
+
             <!-- Colors -->
-            <Color x:Key="BgPrimary">#0d0d1a</Color>
-            <Color x:Key="BgSidebar">#12122a</Color>
-            <Color x:Key="BgCard">#1a1a2e</Color>
-            <Color x:Key="TextPrimary">#eef0f4</Color>
-            <Color x:Key="TextMuted">#8a8fa3</Color>
-            <Color x:Key="BorderDefault">#2a2a4a</Color>
-            <Color x:Key="BorderHover">#5a5a7a</Color>
-            <Color x:Key="AmberPrimary">#ff8c00</Color>
-            <Color x:Key="CyanAccent">#00e5ff</Color>
+            <Color x:Key="BgDeep">#07071a</Color>
+            <Color x:Key="BgPrimary">#0a0a1e</Color>
+            <Color x:Key="BgSurface">#0d0d24</Color>
+            <Color x:Key="BgSidebar">#0f0f28</Color>
+            <Color x:Key="BgElevated">#14143a</Color>
+            <Color x:Key="BgCard">#11112a</Color>
+            <Color x:Key="BgLog">#080818</Color>
+            <Color x:Key="TextPrimary">#e8eaf0</Color>
+            <Color x:Key="TextMuted">#6b7194</Color>
+            <Color x:Key="TextDim">#4a5080</Color>
+            <Color x:Key="BorderDefault">#1e1e4a</Color>
+            <Color x:Key="BorderHover">#3a3a7a</Color>
+            <Color x:Key="BorderGlow">#0066ff</Color>
+            <Color x:Key="NeonBlue">#0044ff</Color>
+            <Color x:Key="NeonBlueDark">#0022aa</Color>
+            <Color x:Key="NeonBlueLight">#0066ff</Color>
+            <Color x:Key="NeonBlueMid">#0033cc</Color>
             <Color x:Key="GreenRun">#00e676</Color>
+            <Color x:Key="GreenDark">#00c853</Color>
             <Color x:Key="RedError">#ff1744</Color>
 
             <!-- Brushes -->
+            <SolidColorBrush x:Key="BgDeepBrush" Color="{StaticResource BgDeep}"/>
             <SolidColorBrush x:Key="BgPrimaryBrush" Color="{StaticResource BgPrimary}"/>
+            <SolidColorBrush x:Key="BgSurfaceBrush" Color="{StaticResource BgSurface}"/>
             <SolidColorBrush x:Key="BgSidebarBrush" Color="{StaticResource BgSidebar}"/>
+            <SolidColorBrush x:Key="BgElevatedBrush" Color="{StaticResource BgElevated}"/>
             <SolidColorBrush x:Key="BgCardBrush" Color="{StaticResource BgCard}"/>
+            <SolidColorBrush x:Key="BgLogBrush" Color="{StaticResource BgLog}"/>
             <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
             <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMuted}"/>
+            <SolidColorBrush x:Key="TextDimBrush" Color="{StaticResource TextDim}"/>
             <SolidColorBrush x:Key="BorderDefaultBrush" Color="{StaticResource BorderDefault}"/>
             <SolidColorBrush x:Key="BorderHoverBrush" Color="{StaticResource BorderHover}"/>
-            <SolidColorBrush x:Key="AmberPrimaryBrush" Color="{StaticResource AmberPrimary}"/>
-            <SolidColorBrush x:Key="CyanAccentBrush" Color="{StaticResource CyanAccent}"/>
+            <SolidColorBrush x:Key="BorderGlowBrush" Color="{StaticResource BorderGlow}"/>
+            <SolidColorBrush x:Key="NeonBlueBrush" Color="{StaticResource NeonBlue}"/>
+            <SolidColorBrush x:Key="NeonBlueLightBrush" Color="{StaticResource NeonBlueLight}"/>
+            <SolidColorBrush x:Key="NeonBlueDarkBrush" Color="{StaticResource NeonBlueDark}"/>
             <SolidColorBrush x:Key="GreenRunBrush" Color="{StaticResource GreenRun}"/>
             <SolidColorBrush x:Key="RedErrorBrush" Color="{StaticResource RedError}"/>
 
+            <!-- Gradient Brushes -->
+            <LinearGradientBrush x:Key="SidebarGradient" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#14143a" Offset="0"/>
+                <GradientStop Color="#0a0a1e" Offset="0.6"/>
+                <GradientStop Color="#07071a" Offset="1"/>
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="NeonGradient" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="{StaticResource NeonBlue}" Offset="0"/>
+                <GradientStop Color="{StaticResource NeonBlueDark}" Offset="1"/>
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="NeonGradientLight" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="{StaticResource NeonBlueLight}" Offset="0"/>
+                <GradientStop Color="{StaticResource NeonBlueMid}" Offset="1"/>
+            </LinearGradientBrush>
+
+            <!-- Background Texture (Subtle Grid) -->
+            <DrawingBrush x:Key="BgGridTexture" TileMode="Tile"
+                          Viewport="0,0,32,32" ViewportUnits="Absolute"
+                          Viewbox="0,0,32,32" ViewboxUnits="Absolute">
+                <DrawingBrush.Drawing>
+                    <DrawingGroup>
+                        <GeometryDrawing Geometry="M0,0 L32,0 M0,0 L0,32">
+                            <GeometryDrawing.Pen>
+                                <Pen Brush="#1a1a3a" Thickness="0.5"/>
+                            </GeometryDrawing.Pen>
+                        </GeometryDrawing>
+                        <GeometryDrawing Geometry="M32,0 L32,32 M0,32 L32,32">
+                            <GeometryDrawing.Pen>
+                                <Pen Brush="#1e1e4a" Thickness="0.5">
+                                    <Pen.DashStyle>
+                                        <DashStyle Dashes="2,2"/>
+                                    </Pen.DashStyle>
+                                </Pen>
+                            </GeometryDrawing.Pen>
+                        </GeometryDrawing>
+                    </DrawingGroup>
+                </DrawingBrush.Drawing>
+            </DrawingBrush>
+
+            <!-- Scan-line overlay brush -->
+            <DrawingBrush x:Key="ScanLineTexture" TileMode="Tile"
+                          Viewport="0,0,1,4" ViewportUnits="Absolute"
+                          Viewbox="0,0,1,4" ViewboxUnits="Absolute">
+                <DrawingBrush.Drawing>
+                    <GeometryDrawing Geometry="M0,0 L1,0 M0,2 L1,2">
+                        <GeometryDrawing.Pen>
+                            <Pen Thickness="1">
+                                <Pen.Brush>
+                                    <SolidColorBrush Color="#0a0a1e" Opacity="0.15"/>
+                                </Pen.Brush>
+                            </Pen>
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingBrush.Drawing>
+            </DrawingBrush>
+
+            <!-- Drop Shadow Effects -->
+            <DropShadowEffect x:Key="CardShadow" ShadowDepth="4" BlurRadius="12"
+                              Color="#000000" Opacity="0.4" Direction="270"/>
+            <DropShadowEffect x:Key="GlowNeon" ShadowDepth="0" BlurRadius="16"
+                              Color="{StaticResource NeonBlue}" Opacity="0.3"/>
+            <DropShadowEffect x:Key="GlowNeonLight" ShadowDepth="0" BlurRadius="16"
+                              Color="{StaticResource NeonBlueLight}" Opacity="0.3"/>
+            <DropShadowEffect x:Key="GlowGreen" ShadowDepth="0" BlurRadius="12"
+                              Color="{StaticResource GreenRun}" Opacity="0.2"/>
+
             <!-- Converters -->
+            <conv:IconConverter x:Key="IconConverter"/>
+            <conv:IconToColorConverter x:Key="IconToColor"/>
             <conv:FileTypeToColorConverter x:Key="FileTypeToColor"/>
             <conv:BoolToOpacityConverter x:Key="BoolToOpacity"/>
             <conv:BoolToStarConverter x:Key="BoolToStar"/>
@@ -43,15 +136,26 @@
             <Style TargetType="Window" x:Key="DarkWindowStyle">
                 <Setter Property="Background" Value="{StaticResource BgPrimaryBrush}"/>
                 <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="FontFamily" Value="Segoe UI"/>
+                <Setter Property="FontFamily" Value="{StaticResource FontUI}"/>
             </Style>
 
             <Style TargetType="ScrollViewer">
                 <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            </Style>
+
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource FontUI}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            </Style>
+
+            <Style x:Key="TextMono" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource FontMono}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             </Style>
 
             <Style x:Key="SidebarItemStyle" TargetType="Border">
-                <Setter Property="Height" Value="28"/>
+                <Setter Property="Height" Value="32"/>
                 <Setter Property="Margin" Value="0"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
@@ -60,9 +164,21 @@
                 <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="CornerRadius" Value="10"/>
                 <Setter Property="Margin" Value="4"/>
                 <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+            </Style>
+
+            <Style TargetType="TextBox" x:Key="DarkTextBox">
+                <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontFamily" Value="{StaticResource FontUI}"/>
+                <Setter Property="CaretBrush" Value="{StaticResource NeonBlueLightBrush}"/>
             </Style>
 
             <Style TargetType="Button" x:Key="GhostButton">
@@ -70,12 +186,92 @@
                 <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontFamily" Value="{StaticResource FontUI}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <ContentPresenter Content="{TemplateBinding Content}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <Grid>
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="Button" x:Key="AccentButton">
+                <Setter Property="Background" Value="{StaticResource NeonBlueBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource BgDeepBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontFamily" Value="{StaticResource FontUIBold}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="6"
+                                    BorderThickness="0"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="Button" x:Key="OutlineButton">
+                <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource NeonBlueLightBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource NeonBlueLightBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontFamily" Value="{StaticResource FontUI}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="FontSize" Value="9"/>
+                <Setter Property="Padding" Value="10,4"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="5"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="Button" x:Key="SmallIconButton">
+                <Setter Property="Background" Value="{StaticResource BgElevatedBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6"
+                                    SnapsToDevicePixels="True"
+                                    Padding="6,2">
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>

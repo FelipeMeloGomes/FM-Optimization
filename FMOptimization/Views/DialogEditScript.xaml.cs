@@ -1,5 +1,9 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using FMOptimization.Models;
 using FMOptimization.Services;
 using Microsoft.Win32;
@@ -17,7 +21,7 @@ public partial class DialogEditScript : Window
         _existing = existing;
         _data = DataService.Carregar();
 
-        Title = existing != null ? "Editar Script" : "Adicionar Script";
+        TituloJanela.Text = existing != null ? "Editar Script" : "Adicionar Script";
 
         foreach (var cat in _data.Categorias)
             CboCategoria.Items.Add(cat);
@@ -106,5 +110,46 @@ public partial class DialogEditScript : Window
     {
         DialogResult = false;
         Close();
+    }
+
+    private void Field_GotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb)
+        {
+            var parent = tb.Parent as Border;
+            if (parent != null)
+            {
+                parent.BorderBrush = new SolidColorBrush(Color.FromRgb(0x1e, 0x1e, 0x4a));
+                var anim = new ColorAnimation
+                {
+                    To = Color.FromRgb(0, 229, 255),
+                    Duration = new Duration(TimeSpan.FromSeconds(0.15)),
+                };
+                parent.BorderBrush.BeginAnimation(SolidColorBrush.ColorProperty, anim);
+            }
+        }
+    }
+
+    private void Field_LostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb)
+        {
+            var parent = tb.Parent as Border;
+            if (parent != null)
+            {
+                var anim = new ColorAnimation
+                {
+                    To = Color.FromRgb(0x1e, 0x1e, 0x4a),
+                    Duration = new Duration(TimeSpan.FromSeconds(0.15)),
+                };
+                parent.BorderBrush.BeginAnimation(SolidColorBrush.ColorProperty, anim);
+            }
+        }
+    }
+
+    private void Window_MouseDown(object? sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+            DragMove();
     }
 }

@@ -1,0 +1,143 @@
+<Window x:Class="FMOptimization.DialogDetalhes"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:FMOptimization.Converters"
+        Title="Detalhes do Script"
+        Width="640" Height="480"
+        MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        FontFamily="{StaticResource FontUI}"
+        MouseDown="Window_MouseDown"
+        x:Name="ThisWindow">
+    <Window.RenderTransform>
+        <ScaleTransform ScaleX="1" ScaleY="1"/>
+    </Window.RenderTransform>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.25"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)"
+                                     From="0.92" To="1" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleY)"
+                                     From="0.92" To="1" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Grid Margin="0">
+        <!-- Backdrop with blur effect (simulated via semi-transparent layers) -->
+        <Border Background="#0a0a1e" CornerRadius="12" Opacity="0.95"/>
+        <Border Background="{StaticResource BgGridTexture}" CornerRadius="12" Opacity="0.3"/>
+        <Border BorderBrush="{StaticResource BorderDefaultBrush}"
+                BorderThickness="1" CornerRadius="12"/>
+
+        <!-- Content -->
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" x:Name="TxtTitle"
+                           FontSize="18" FontWeight="Bold"
+                           FontFamily="{StaticResource FontUIBold}"
+                           Foreground="{StaticResource NeonBlueBrush}"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="✕" Width="28" Height="28"
+                        Style="{StaticResource GhostButton}"
+                        Foreground="{StaticResource TextMutedBrush}"
+                        FontSize="14"
+                        Click="CloseClick"/>
+            </Grid>
+
+            <!-- Badges Row -->
+            <WrapPanel Grid.Row="1" x:Name="BadgesPanel" Margin="0,0,0,12"/>
+
+            <!-- Description / Explanation -->
+            <Border Grid.Row="2" CornerRadius="8"
+                    Background="{StaticResource BgCardBrush}"
+                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="1"
+                    Margin="0,0,0,8"
+                    MaxHeight="100">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12,8">
+                    <TextBlock x:Name="TxtDescricao" TextWrapping="Wrap"
+                               FontSize="12"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               LineHeight="18"/>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Code Preview -->
+            <Border Grid.Row="3" CornerRadius="8"
+                    Background="{StaticResource BgLogBrush}"
+                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Height="24"
+                            Background="{StaticResource BgElevatedBrush}"
+                            CornerRadius="8,8,0,0"
+                            Padding="12,0,12,0">
+                        <Grid>
+                            <TextBlock Text="CÓDIGO" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource GreenRunBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Mode=OneWay}"
+                                       HorizontalAlignment="Right"
+                                       FontSize="9"
+                                       Foreground="{StaticResource TextDimBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  Padding="12,4" Background="Transparent">
+                        <TextBox x:Name="TxtCodigo" IsReadOnly="True"
+                                 FontFamily="{StaticResource FontMono}"
+                                 FontSize="11"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{StaticResource TextPrimaryBrush}"
+                                 TextWrapping="NoWrap"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Close Button -->
+            <Button Grid.Row="4" Content="Fechar"
+                    Style="{StaticResource AccentButton}"
+                    Width="100" Height="32"
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Right"
+                    Click="CloseClick"/>
+        </Grid>
+    </Grid>
+</Window>

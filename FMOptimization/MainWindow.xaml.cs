@@ -1,21 +1,20 @@
-﻿using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using FMOptimization.Models;
-using FMOptimization.ViewModels;
-using Microsoft.Win32;
 
 namespace FMOptimization;
 
 public partial class MainWindow : Window
 {
-    private readonly MainViewModel _vm;
+    private readonly ViewModels.MainViewModel _vm;
 
     public MainWindow()
     {
         InitializeComponent();
-        _vm = new MainViewModel();
+        _vm = new ViewModels.MainViewModel();
         DataContext = _vm;
 
         _vm.OnShowDetails += ShowDetailsDialog;
@@ -26,7 +25,7 @@ public partial class MainWindow : Window
         KeyDown += OnKeyDown;
         _vm.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(MainViewModel.LogExpanded))
+            if (e.PropertyName == nameof(ViewModels.MainViewModel.LogExpanded))
                 AnimateLogPanel();
         };
     }
@@ -52,7 +51,7 @@ public partial class MainWindow : Window
     {
         if (_vm.LogExpanded)
         {
-            LogScrollView.MaxHeight = 120;
+            LogScrollView.MaxHeight = 160;
             LogToggleBtn.Content = "▲";
         }
         else
@@ -64,16 +63,11 @@ public partial class MainWindow : Window
 
     private void ShowDetailsDialog(ScriptModel script)
     {
-        var badges = new List<string> { script.TipoLabel, script.Categoria };
-        if (script.Admin) badges.Add("REQUER ADMIN");
-
-        var explicacao = !string.IsNullOrEmpty(script.Explicacao)
-            ? script.Explicacao
-            : script.Descricao;
-
-        var msg = $"[{string.Join(" | ", badges)}]\n\n{explicacao}";
-
-        MessageBox.Show(msg, script.Nome, MessageBoxButton.OK, MessageBoxImage.Information);
+        var dialog = new DialogDetalhes(script)
+        {
+            Owner = this
+        };
+        dialog.ShowDialog();
     }
 
     private void OpenEditDialog(ScriptModel script)
@@ -104,5 +98,40 @@ public partial class MainWindow : Window
         {
             _vm.LoadData();
         }
+    }
+
+    // Search glow on focus
+    private void SearchBox_GotFocus(object? sender, RoutedEventArgs e)
+    {
+        var colorAnim = new ColorAnimation
+        {
+            To = Color.FromRgb(0, 229, 255),
+            Duration = new Duration(TimeSpan.FromSeconds(0.15)),
+        };
+        SearchBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0x1e, 0x1e, 0x4a));
+        SearchBorder.BorderBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
+    }
+
+    private void SearchBox_LostFocus(object? sender, RoutedEventArgs e)
+    {
+        var colorAnim = new ColorAnimation
+        {
+            To = Color.FromRgb(0x1e, 0x1e, 0x4a),
+            Duration = new Duration(TimeSpan.FromSeconds(0.15)),
+        };
+        SearchBorder.BorderBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
+    }
+
+    private void SearchBox_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is TextBox tb && DataContext is ViewModels.MainViewModel vm)
+        {
+            vm.SearchText = tb.Text;
+        }
+    }
+
+    private void SearchBorder_MouseDown(object? sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        SearchBox.Focus();
     }
 }

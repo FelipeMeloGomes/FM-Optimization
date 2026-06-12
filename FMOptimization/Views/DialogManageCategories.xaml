@@ -1,57 +1,109 @@
 <Window x:Class="FMOptimization.DialogManageCategories"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Gerenciar Categorias" Height="350" Width="450"
+        Title="Gerenciar Categorias" Height="380" Width="460"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="#0d0d1a"
-        Foreground="#eef0f4">
-    <Window.Resources>
-        <Style TargetType="TextBlock" x:Key="FieldLabel">
-            <Setter Property="Foreground" Value="#8a8fa3"/>
-            <Setter Property="FontSize" Value="11"/>
-        </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#1a1a2e"/>
-            <Setter Property="Foreground" Value="#eef0f4"/>
-            <Setter Property="BorderBrush" Value="#2a2a4a"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
-    </Window.Resources>
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <!-- Add category row -->
-        <Grid Grid.Row="0" Margin="0,0,0,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" x:Name="TxtNovaCategoria"/>
-            <Button Grid.Column="1" Content="Adicionar" Margin="8,0,0,0"
-                    Height="28" Padding="12,0"
-                    Background="#ff8c00" Foreground="#0d0d1a" FontWeight="Bold"
-                    BorderThickness="0"
-                    Click="AddClick"/>
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        FontFamily="{StaticResource FontUI}"
+        MouseDown="Window_MouseDown"
+        x:Name="ThisDialog">
+    <Window.RenderTransform>
+        <ScaleTransform ScaleX="1" ScaleY="1"/>
+    </Window.RenderTransform>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.25"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)"
+                                     From="0.92" To="1" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleY)"
+                                     From="0.92" To="1" Duration="0:0:0.25">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Grid>
+        <Border Background="{StaticResource BgSurfaceBrush}" CornerRadius="12" Opacity="0.98"/>
+        <Border BorderBrush="{StaticResource BorderDefaultBrush}"
+                BorderThickness="1" CornerRadius="12"/>
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title -->
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Gerenciar Categorias" FontSize="16" FontWeight="Bold"
+                           FontFamily="{StaticResource FontUIBold}"
+                           Foreground="{StaticResource NeonBlueBrush}"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="✕" Width="26" Height="26"
+                        Style="{StaticResource GhostButton}"
+                        Foreground="{StaticResource TextMutedBrush}"
+                        FontSize="12"
+                        Click="CancelClick"/>
+            </Grid>
+
+            <!-- Add category row -->
+            <Grid Grid.Row="1" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" CornerRadius="6"
+                        BorderBrush="{StaticResource BorderDefaultBrush}" BorderThickness="1"
+                        Background="{StaticResource BgCardBrush}">
+                    <TextBox x:Name="TxtNovaCategoria"
+                             Background="Transparent"
+                             BorderThickness="0" Padding="8,6"
+                             FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"
+                             CaretBrush="{StaticResource NeonBlueLightBrush}"
+                             GotFocus="Field_GotFocus" LostFocus="Field_LostFocus"/>
+                </Border>
+                <Button Grid.Column="1" Content="Adicionar" Margin="8,0,0,0"
+                        Height="32" Padding="14,0"
+                        Style="{StaticResource AccentButton}"
+                        FontSize="10"
+                        Click="AddClick"/>
+            </Grid>
+
+            <!-- Category list -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                <StackPanel x:Name="CatStackPanel"/>
+            </ScrollViewer>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                <Button Content="Cancelar" Width="90" Height="32" Margin="0,0,8,0"
+                        Background="Transparent" Foreground="{StaticResource TextMutedBrush}"
+                        BorderThickness="0" FontSize="11"
+                        Click="CancelClick"/>
+                <Button Content="Salvar" Width="90" Height="32"
+                        Style="{StaticResource AccentButton}"
+                        FontSize="11"
+                        Click="SaveClick"/>
+            </StackPanel>
         </Grid>
-        <!-- Category list -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="CatStackPanel"/>
-        </ScrollViewer>
-        <!-- Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-            <Button Content="Cancelar" Width="80" Height="28" Margin="0,0,8,0"
-                    Background="Transparent" Foreground="#8a8fa3" BorderThickness="0"
-                    Click="CancelClick"/>
-            <Button Content="Salvar" Width="80" Height="28"
-                    Background="#ff8c00" Foreground="#0d0d1a" FontWeight="Bold"
-                    BorderThickness="0"
-                    Click="SaveClick"/>
-        </StackPanel>
     </Grid>
 </Window>

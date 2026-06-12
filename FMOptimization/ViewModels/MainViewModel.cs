@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Globalization;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FMOptimization.Models;
@@ -279,12 +281,11 @@ public partial class MainViewModel : ObservableObject
     {
         System.Windows.Application.Current.Dispatcher.Invoke(() =>
         {
-            var timestamp = DateTime.Now.ToString("HH:mm:ss");
             LogEntries.Add(new LogEntry
             {
-                Message = $"$ {timestamp} {msg}",
+                Message = msg,
                 Level = level,
-                Timestamp = timestamp
+                Timestamp = DateTime.Now.ToString("HH:mm:ss")
             });
 
             if (LogEntries.Count > 500)
@@ -339,4 +340,17 @@ public class LogEntry
     public string Message { get; set; } = "";
     public LogLevel Level { get; set; }
     public string Timestamp { get; set; } = "";
+}
+
+public class IndexToDelayConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is int index)
+            return TimeSpan.FromSeconds(index * 0.04);
+        return TimeSpan.Zero;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
 }
