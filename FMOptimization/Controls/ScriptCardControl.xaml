@@ -61,7 +61,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="{Binding Nome}" FontSize="13"
+                    <TextBlock Grid.Column="0" Text="{Binding Nome}" FontSize="14"
                                FontWeight="Bold" FontFamily="{StaticResource FontUIBold}"
                                Foreground="{StaticResource TextPrimaryBrush}"
                                TextTrimming="CharacterEllipsis"
@@ -72,18 +72,34 @@
                             x:Name="StarBtn"
                             RenderTransformOrigin="0.5,0.5">
                         <Button.RenderTransform>
-                            <RotateTransform Angle="0"/>
+                            <ScaleTransform x:Name="StarScale" ScaleX="1" ScaleY="1"/>
                         </Button.RenderTransform>
+                        <Button.Triggers>
+                            <EventTrigger RoutedEvent="Button.Click">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="StarScale"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         From="1" To="1.4" Duration="0:0:0.12"
+                                                         AutoReverse="True"/>
+                                        <DoubleAnimation Storyboard.TargetName="StarScale"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         From="1" To="1.4" Duration="0:0:0.12"
+                                                         AutoReverse="True"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Button.Triggers>
                         <TextBlock Text="{Binding IsFavorito, Converter={StaticResource BoolToStar}}"
                                    FontSize="16"
                                    Foreground="{StaticResource NeonBlueBrush}"/>
                     </Button>
                 </Grid>
 
-                <TextBlock Grid.Row="1" Text="{Binding Descricao}" FontSize="10"
+                <TextBlock Grid.Row="1" Text="{Binding Descricao}" FontSize="12"
                            Foreground="{StaticResource TextMutedBrush}"
                            TextWrapping="Wrap" Margin="0,4,0,0"
-                           MaxHeight="32" LineHeight="14"/>
+                           MaxHeight="40" LineHeight="16"/>
 
                 <WrapPanel Grid.Row="2" Margin="0,6,0,0">
                     <Border Visibility="{Binding Admin, Converter={StaticResource AdminToVisibility}}"
@@ -91,7 +107,7 @@
                             BorderBrush="{StaticResource NeonBlueBrush}"
                             Background="#001a33"
                             BorderThickness="1" CornerRadius="3">
-                        <TextBlock Text="ADMIN" FontSize="7" FontWeight="Bold"
+                        <TextBlock Text="ADMIN" FontSize="9" FontWeight="Bold"
                                    Foreground="{StaticResource NeonBlueBrush}"
                                    FontFamily="{StaticResource FontUIBold}"/>
                     </Border>
@@ -99,14 +115,14 @@
                             BorderBrush="{StaticResource BorderDefaultBrush}"
                             Background="{StaticResource BgCardBrush}"
                             BorderThickness="1" CornerRadius="3">
-                        <TextBlock Text="{Binding Categoria}" FontSize="7"
+                        <TextBlock Text="{Binding Categoria}" FontSize="9"
                                    Foreground="{StaticResource TextMutedBrush}"/>
                     </Border>
                     <Border Padding="6,1,6,1" Margin="0,0,0,2"
                             BorderBrush="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
                             Background="#0a1a0a"
                             BorderThickness="1" CornerRadius="3">
-                        <TextBlock Text="{Binding TipoLabel}" FontSize="7" FontWeight="Bold"
+                        <TextBlock Text="{Binding TipoLabel}" FontSize="9" FontWeight="Bold"
                                    Foreground="{Binding Tipo, Converter={StaticResource FileTypeToColor}}"
                                    FontFamily="{StaticResource FontUIBold}"/>
                     </Border>
@@ -120,28 +136,37 @@
                     Padding="8,6,8,6">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" FontSize="9"
-                               Foreground="{StaticResource TextDimBrush}"
-                               VerticalAlignment="Center">
-                        <Run Text="{Binding IsFavorito, Converter={StaticResource BoolToOpacity}, StringFormat='{}{0:P0}'}"/>
-                    </TextBlock>
-                    <Button Grid.Column="1" Content="Detalhes" Height="26" MinWidth="64"
+                    <Button Grid.Column="0" Content="Detalhes" Height="26" MinWidth="64"
                             Style="{StaticResource OutlineButton}"
                             HorizontalAlignment="Center"
                             Command="{Binding ShowDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                             CommandParameter="{Binding}"/>
-                    <Button Grid.Column="2" Content="▶ Executar" Height="26" MinWidth="80"
-                            Background="{StaticResource GreenRunBrush}"
-                            Foreground="{StaticResource BgDeepBrush}"
-                            FontSize="9" FontWeight="Bold" Cursor="Hand"
-                            BorderThickness="0"
+                    <Button Grid.Column="1" Height="26" MinWidth="80"
+                            Cursor="Hand" BorderThickness="0"
                             RenderTransformOrigin="0.5,0.5"
                             Command="{Binding ExecuteScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                            CommandParameter="{Binding}"/>
+                            CommandParameter="{Binding}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="{StaticResource GreenRunBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource BgDeepBrush}"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Content" Value="▶ Executar"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsExecuting}" Value="True">
+                                        <Setter Property="Content" Value="⏳ Executando..."/>
+                                        <Setter Property="Background" Value="{StaticResource NeonBlueDarkBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
             </Border>
         </Grid>

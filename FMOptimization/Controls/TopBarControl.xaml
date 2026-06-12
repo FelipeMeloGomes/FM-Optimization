@@ -17,7 +17,7 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{Binding SelectedCategory, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" FontSize="16" FontWeight="Bold"
+                <TextBlock Text="{Binding SelectedCategory, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" FontSize="18" FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}"
                            FontFamily="{StaticResource FontUIBold}"
                            VerticalAlignment="Center"/>
@@ -25,7 +25,7 @@
                         Background="{StaticResource BgCardBrush}"
                         BorderBrush="{StaticResource BorderDefaultBrush}"
                         BorderThickness="1" VerticalAlignment="Center">
-                    <TextBlock FontSize="10"
+                    <TextBlock FontSize="12"
                                Foreground="{StaticResource TextMutedBrush}">
                         <Run Text="{Binding ScriptCount, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Mode=OneWay}"/>
                         <Run Text=" scripts"/>
@@ -40,7 +40,7 @@
                     BorderThickness="1" Margin="0,6,0,6"
                     x:Name="SearchBorder"
                     MouseDown="SearchBorder_MouseDown">
-                <TextBox x:Name="SearchBox" FontSize="12"
+                <TextBox x:Name="SearchBox" FontSize="14"
                          FontFamily="{StaticResource FontUI}"
                          CaretBrush="{StaticResource NeonBlueLightBrush}"
                          Foreground="{StaticResource TextPrimaryBrush}"

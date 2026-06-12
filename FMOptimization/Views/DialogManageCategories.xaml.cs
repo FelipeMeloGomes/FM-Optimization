@@ -47,7 +47,7 @@ public partial class DialogManageCategories : Window
             {
                 Text = cat,
                 Foreground = new SolidColorBrush(Color.FromRgb(0xe8, 0xea, 0xf0)),
-                FontSize = 12,
+                FontSize = 14,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
@@ -61,7 +61,7 @@ public partial class DialogManageCategories : Window
                 BorderBrush = new SolidColorBrush(Color.FromRgb(0xff, 0x17, 0x44)),
                 BorderThickness = new Thickness(1),
                 Cursor = Cursors.Hand,
-                FontSize = 10,
+                FontSize = 12,
                 Tag = cat,
             };
             removeBtn.SetValue(Button.TemplateProperty, CreateRoundedButtonTemplate(removeBtn));

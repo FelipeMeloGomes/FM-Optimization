@@ -63,15 +63,15 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" x:Name="TxtTitle"
-                           FontSize="18" FontWeight="Bold"
+                           FontSize="20" FontWeight="Bold"
                            FontFamily="{StaticResource FontUIBold}"
                            Foreground="{StaticResource NeonBlueBrush}"
                            TextTrimming="CharacterEllipsis"
                            VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="✕" Width="28" Height="28"
+                <Button Grid.Column="1" Content="✕" Width="30" Height="30"
                         Style="{StaticResource GhostButton}"
                         Foreground="{StaticResource TextMutedBrush}"
-                        FontSize="14"
+                        FontSize="16"
                         Click="CloseClick"/>
             </Grid>
 
@@ -87,9 +87,9 @@
                     MaxHeight="100">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12,8">
                     <TextBlock x:Name="TxtDescricao" TextWrapping="Wrap"
-                               FontSize="12"
+                               FontSize="14"
                                Foreground="{StaticResource TextPrimaryBrush}"
-                               LineHeight="18"/>
+                               LineHeight="20"/>
                 </ScrollViewer>
             </Border>
 
@@ -108,12 +108,12 @@
                             CornerRadius="8,8,0,0"
                             Padding="12,0,12,0">
                         <Grid>
-                            <TextBlock Text="CÓDIGO" FontSize="9" FontWeight="Bold"
+                            <TextBlock Text="CÓDIGO" FontSize="11" FontWeight="Bold"
                                        Foreground="{StaticResource GreenRunBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding Mode=OneWay}"
                                        HorizontalAlignment="Right"
-                                       FontSize="9"
+                                       FontSize="11"
                                        Foreground="{StaticResource TextDimBrush}"
                                        VerticalAlignment="Center"/>
                         </Grid>
@@ -122,7 +122,7 @@
                                   Padding="12,4" Background="Transparent">
                         <TextBox x:Name="TxtCodigo" IsReadOnly="True"
                                  FontFamily="{StaticResource FontMono}"
-                                 FontSize="11"
+                                 FontSize="13"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Foreground="{StaticResource TextPrimaryBrush}"

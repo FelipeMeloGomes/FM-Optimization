@@ -47,7 +47,7 @@ public partial class DialogDetalhes : Window
         var textBlock = new TextBlock
         {
             Text = text,
-            FontSize = 10,
+            FontSize = 12,
             FontWeight = FontWeights.Bold,
             Foreground = filled ? new SolidColorBrush(Color.FromRgb(0x07, 0x07, 0x1a)) : brush,
         };

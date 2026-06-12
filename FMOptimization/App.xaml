@@ -232,8 +232,8 @@
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FontFamily" Value="{StaticResource FontUI}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="FontSize" Value="9"/>
-                <Setter Property="Padding" Value="10,4"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="Padding" Value="12,6"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">

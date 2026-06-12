@@ -39,7 +39,12 @@ public partial class ScriptModel : ObservableObject
     public string Explicacao { get; set; } = "";
 
     /// <summary>Gets or sets whether the script is marked as a favorite.</summary>
-    public bool IsFavorito { get; set; }
+    [ObservableProperty]
+    private bool isFavorito;
+
+    /// <summary>Gets or sets whether the script is currently being executed.</summary>
+    [ObservableProperty]
+    private bool isExecuting;
 
     /// <summary>Gets the file extension in uppercase without the leading dot.</summary>
     [JsonIgnore]

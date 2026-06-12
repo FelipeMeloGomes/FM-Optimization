@@ -35,7 +35,7 @@
                               Fill="{StaticResource TextMutedBrush}" Margin="6,0,10,0"
                               Data="{Binding Name, Converter={StaticResource IconConverter}}"
                               VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
+                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13"
                                    Foreground="{StaticResource TextMutedBrush}"
                                    VerticalAlignment="Center"/>
                     </Grid>
@@ -104,7 +104,7 @@
                                       ShadowDepth="0" Color="#0044ff" Opacity="0.3"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <TextBlock x:Name="LogoSubtitle" Text="OPTIMIZATION" FontSize="9" FontWeight="Bold"
+            <TextBlock x:Name="LogoSubtitle" Text="OPTIMIZATION" FontSize="11" FontWeight="Bold"
                        Foreground="{StaticResource NeonBlueLightBrush}"
                        FontFamily="{StaticResource FontUIBold}"
                        HorizontalAlignment="Center" Margin="0,0,0,8"
@@ -126,7 +126,7 @@
                 <MouseBinding MouseAction="LeftClick"
                               Command="{Binding ManageCategoriesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
             </Border.InputBindings>
-            <TextBlock Text="⚙ Gerenciar Categorias" FontSize="10"
+            <TextBlock Text="⚙ Gerenciar Categorias" FontSize="12"
                        Foreground="{StaticResource TextDimBrush}"
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>

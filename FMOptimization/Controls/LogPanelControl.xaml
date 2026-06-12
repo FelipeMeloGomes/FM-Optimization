@@ -37,22 +37,22 @@
                                                   Color="{StaticResource GreenRun}" Opacity="0.5"/>
                             </Ellipse.Effect>
                         </Ellipse>
-                        <TextBlock Text="TERMINAL" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="TERMINAL" FontSize="11" FontWeight="Bold"
                                    Foreground="{StaticResource GreenRunBrush}"
                                    VerticalAlignment="Center"
                                    FontFamily="{StaticResource FontUIBold}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Button Content="Copiar" Style="{StaticResource GhostButton}"
-                                FontSize="10" Foreground="{StaticResource NeonBlueLightBrush}"
+                                FontSize="12" Foreground="{StaticResource NeonBlueLightBrush}"
                                 Margin="0,0,6,0"
                                 Command="{Binding CopyLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         <Button Content="Limpar" Style="{StaticResource GhostButton}"
-                                FontSize="10" Foreground="{StaticResource TextMutedBrush}"
+                                FontSize="12" Foreground="{StaticResource TextMutedBrush}"
                                 Margin="0,0,6,0"
                                 Command="{Binding ClearLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         <Button Content="▲" Style="{StaticResource GhostButton}"
-                                FontSize="8" x:Name="LogToggleBtn"
+                                FontSize="10" x:Name="LogToggleBtn"
                                 Foreground="{StaticResource TextMutedBrush}"
                                 Command="{Binding ToggleLogCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                     </StackPanel>
@@ -67,7 +67,7 @@
                                   x:Name="LogItems">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:LogEntry}">
-                                <TextBlock FontFamily="{StaticResource FontMono}" FontSize="11"
+                                <TextBlock FontFamily="{StaticResource FontMono}" FontSize="13"
                                            Padding="14,0,14,0">
                                     <Run Text="[" Foreground="{StaticResource GreenRunBrush}"/>
                                     <Run Text="{Binding Timestamp}" Foreground="{StaticResource GreenRunBrush}"/>
@@ -79,7 +79,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Text="|" FontFamily="{StaticResource FontMono}" FontSize="11"
+                    <TextBlock Text="|" FontFamily="{StaticResource FontMono}" FontSize="13"
                                Foreground="{StaticResource GreenRunBrush}"
                                Margin="14,0,0,0"
                                Opacity="1"

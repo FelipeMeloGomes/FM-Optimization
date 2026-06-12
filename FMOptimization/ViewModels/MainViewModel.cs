@@ -211,14 +211,18 @@ public partial class MainViewModel : ObservableObject
     private async Task ExecuteScript(ScriptModel? script)
     {
         if (script == null) return;
-
-        if (script.Admin && !IsAdministrator())
+        script.IsExecuting = true;
+        try
         {
-            // Ask user to continue - for now log warning
-            Log(LogMessages.AdminWarning(script.Nome), LogLevel.Warn);
-        }
+            if (script.Admin && !IsAdministrator())
+                Log(LogMessages.AdminWarning(script.Nome), LogLevel.Warn);
 
-        await _executor.ExecuteAsync(script);
+            await _executor.ExecuteAsync(script);
+        }
+        finally
+        {
+            script.IsExecuting = false;
+        }
     }
 
     /// <summary>Invokes the <see cref="OnShowDetails"/> event to display script details.</summary>
