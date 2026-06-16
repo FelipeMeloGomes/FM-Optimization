@@ -2,6 +2,8 @@
 
 **Unifique todos os scripts de otimização do Windows em um só lugar.**
 
+[![site](https://img.shields.io/badge/site-fmoptimize.vercel.app-0044ff?style=for-the-badge)](https://site-fmoptimize.vercel.app)
+
 Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tarefa de manutenção do sistema. O FM Optimize reúne **90 scripts** essenciais em uma interface gráfica moderna — tudo embutido em um único executável, sem dependências externas.
 
 ---
@@ -9,6 +11,7 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 ## Índice
 
 - [Visão Geral](#visão-geral)
+- [Site](#site)
 - [Screenshots](#screenshots)
 - [Funcionalidades](#funcionalidades)
 - [Scripts Disponíveis](#scripts-disponíveis)
@@ -37,6 +40,21 @@ O FM Optimize é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimi
 - **Sistema** — repara arquivos (SFC/DISM), limpa WinSxS, gera relatório
 - **GPU AMD/NVIDIA** — tweaks de latência e instalação limpa de drivers
 - **Energia** — ativa planos Ultimate Performance e Alto Desempenho
+
+---
+
+## Site
+
+Acesse o site oficial do FM Optimize em **[site-fmoptimize.vercel.app](https://site-fmoptimize.vercel.app)**.
+
+O site é uma landing page responsiva com tema dark neon contendo:
+- Visão geral do aplicativo
+- Lista de recursos e categorias
+- Tecnologias utilizadas
+- Galeria de screenshots
+- **Download** das versões portátil e instalável
+
+Os downloads são servidos diretamente via [GitHub Releases](https://github.com/FelipeMeloGomes/FM-Optimization/releases).
 
 ---
 

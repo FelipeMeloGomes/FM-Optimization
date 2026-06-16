@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FM Optimize — Otimização do Windows</title>
+  <meta name="description" content="Unifique todos os scripts de otimização do Windows em um só lugar. 90 scripts embutidos em interface dark neon.">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Circuit background (full page) -->
+  <div class="circuit-bg">
+    <svg class="circuit-svg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <g id="circuit-block">
+          <g class="traces-static">
+            <path d="M -20,120 L 100,120 L 150,70 L 270,70 L 320,120 L 430,120 L 480,70 L 620,70 L 670,120 L 820,120"/>
+            <path d="M 150,70 L 150,180 L 100,230 L 100,380 L 150,430"/>
+            <path d="M 270,70 L 270,180 L 320,230 L 320,330 L 270,380 L 270,520"/>
+            <path d="M 480,70 L 480,180 L 430,230 L 430,380 L 480,430 L 480,530"/>
+            <path d="M 620,70 L 620,180 L 670,230 L 670,380 L 620,430"/>
+            <path d="M 100,430 L 150,480 L 270,480 L 320,430 L 430,430 L 480,480 L 620,480 L 670,430"/>
+            <path d="M 150,70 L 150,30 L 220,30 L 270,70"/>
+            <path d="M 480,70 L 480,30 L 550,30 L 620,70"/>
+            <path d="M 320,230 L 430,230"/>
+            <path d="M 270,380 L 430,380"/>
+            <path d="M 620,430 L 620,510 L 560,570"/>
+            <path d="M 670,120 L 740,120 L 740,280"/>
+            <path d="M 100,230 L 40,230 L 40,380 L 100,380"/>
+            <path d="M 220,30 L 220,70"/>
+            <path d="M 550,30 L 550,70"/>
+            <path d="M 430,120 L 430,160 L 380,210"/>
+            <path d="M 480,530 L 560,530 L 620,470"/>
+            <path d="M 150,480 L 150,540 L 220,540"/>
+          </g>
+
+          <g class="flows">
+            <path class="flow f1" d="M -20,120 L 100,120 L 150,70 L 270,70"/>
+            <path class="flow f2" d="M 270,70 L 320,120 L 430,120 L 480,70 L 620,70"/>
+            <path class="flow f3" d="M 620,70 L 670,120 L 820,120"/>
+            <path class="flow f4" d="M 150,70 L 150,180 L 100,230 L 100,380 L 150,430"/>
+            <path class="flow f5" d="M 270,70 L 270,180 L 320,230 L 320,330 L 270,380 L 270,520"/>
+            <path class="flow f6" d="M 620,70 L 620,180 L 670,230 L 670,380 L 620,430"/>
+            <path class="flow f7" d="M 100,430 L 150,480 L 270,480 L 320,430 L 430,430 L 480,480 L 620,480 L 670,430"/>
+          </g>
+
+          <g class="nodes">
+            <circle class="node" cx="148" cy="68" r="2"/>
+            <circle class="node" cx="268" cy="68" r="2"/>
+            <circle class="node" cx="478" cy="68" r="2"/>
+            <circle class="node" cx="618" cy="68" r="2"/>
+            <circle class="node" cx="98" cy="228" r="2"/>
+            <circle class="node" cx="318" cy="228" r="2"/>
+            <circle class="node" cx="428" cy="228" r="2"/>
+            <circle class="node" cx="98" cy="378" r="2"/>
+            <circle class="node" cx="268" cy="378" r="2"/>
+            <circle class="node" cx="428" cy="378" r="2"/>
+          </g>
+
+          <g class="glow-nodes">
+            <circle class="gnode" cx="148" cy="68" r="3.5"/>
+            <circle class="gnode" cx="318" cy="228" r="3.5"/>
+            <circle class="gnode" cx="268" cy="378" r="3.5"/>
+          </g>
+        </g>
+      </defs>
+
+      <use href="#circuit-block" x="0" y="0"/>
+      <use href="#circuit-block" x="800" y="0"/>
+      <use href="#circuit-block" x="0" y="600"/>
+      <use href="#circuit-block" x="800" y="600"/>
+    </svg>
+  </div>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-logo">FM <span>OPTIMIZE</span></div>
+    <div class="nav-links">
+      <a href="#features">Recursos</a>
+      <a href="#categories">Categorias</a>
+      <a href="#tech">Tecnologias</a>
+      <a href="#download" class="btn-nav">Download</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">FM <span>OPTIMIZE</span></h1>
+      <p class="hero-subtitle">Unifique todos os scripts de otimização do Windows em um só lugar.</p>
+      <p class="hero-desc">Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tarefa de manutenção do sistema. O FM Optimize reúne 90 scripts essenciais em uma interface gráfica moderna — tudo embutido em um único executável.</p>
+      <a href="#download" class="btn-primary">Baixar Agora</a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="section">
+    <div class="container">
+      <h2 class="section-title">Recursos</h2>
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0044ff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3>90 Scripts Embutidos</h3>
+          <p>11 categorias de otimização em um único executável. Sem dependências externas.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0044ff" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Busca Instantânea</h3>
+          <p>Localize qualquer script com Ctrl+F. Filtro com debounce e destaque neon.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0044ff" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <h3>Log em Tempo Real</h3>
+          <p>Terminal scrollável com saída ao vivo, cursor piscante e botões Copiar/Limpar.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0044ff" stroke-width="2"><path d="M12 3a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0V4a1 1 0 0 1 1-1z"/><path d="M12 18a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1z"/><path d="M5.64 5.64a1 1 0 0 1 1.42 0l.7.7a1 1 0 0 1-1.42 1.42l-.7-.7a1 1 0 0 1 0-1.42z"/><path d="M16.24 16.24a1 1 0 0 1 1.42 0l.7.7a1 1 0 0 1-1.42 1.42l-.7-.7a1 1 0 0 1 0-1.42z"/><path d="M3 12a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1z"/><path d="M18 12a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2h-1a1 1 0 0 1-1-1z"/></svg>
+          </div>
+          <h3>Tema Dark Neon</h3>
+          <p>Interface escura azul neon com acentos #0044ff, ícones SVG e gradientes.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0044ff" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3>Execução Inteligente</h3>
+          <p>Suporte a .bat, .cmd, .ps1, .reg e .exe com detecção automática de admin.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0044ff" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3>Favoritos</h3>
+          <p>Marque scripts com estrela e filtre rapidamente seus preferidos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="categories" class="section section-dark">
+    <div class="container">
+      <h2 class="section-title">Categorias</h2>
+      <p class="section-subtitle">90 scripts organizados em 11 categorias</p>
+      <div class="categories-grid" id="categoriesGrid">
+        <div class="category-card fade-in" data-category="limpeza">
+          <div class="cat-badge" style="--cat-color: #22c55e">15</div>
+          <h3>Limpeza</h3>
+          <p>Remove temporários, caches, logs e bloatware</p>
+        </div>
+        <div class="category-card fade-in" data-category="desempenho">
+          <div class="cat-badge" style="--cat-color: #06b6d4">15</div>
+          <h3>Desempenho</h3>
+          <p>Otimiza serviços, inicialização, SSD e jogos</p>
+        </div>
+        <div class="category-card fade-in" data-category="rede">
+          <div class="cat-badge" style="--cat-color: #a855f7">6</div>
+          <h3>Rede</h3>
+          <p>Limpa DNS, reseta TCP/IP, bloqueia telemetria</p>
+        </div>
+        <div class="category-card fade-in" data-category="internet">
+          <div class="cat-badge" style="--cat-color: #f59e0b">10</div>
+          <h3>Internet</h3>
+          <p>Alterna DNS entre Google, Cloudflare, OpenDNS e mais</p>
+        </div>
+        <div class="category-card fade-in" data-category="privacidade">
+          <div class="cat-badge" style="--cat-color: #ef4444">11</div>
+          <h3>Privacidade</h3>
+          <p>Desativa telemetria, Defender, Cortana e Copilot</p>
+        </div>
+        <div class="category-card fade-in" data-category="sistema">
+          <div class="cat-badge" style="--cat-color: #3b82f6">11</div>
+          <h3>Sistema</h3>
+          <p>SFC, DISM, CHKDSK, TRIM SSD e relatórios</p>
+        </div>
+        <div class="category-card fade-in" data-category="gpu-amd">
+          <div class="cat-badge" style="--cat-color: #ec4899">4</div>
+          <h3>GPU - AMD</h3>
+          <p>Tweaks de latência e pré-renderização</p>
+        </div>
+        <div class="category-card fade-in" data-category="gpu-nvidia">
+          <div class="cat-badge" style="--cat-color: #10b981">2</div>
+          <h3>GPU - NVIDIA</h3>
+          <p>Instalação limpa de drivers e ajustes avançados</p>
+        </div>
+        <div class="category-card fade-in" data-category="energia">
+          <div class="cat-badge" style="--cat-color: #f97316">6</div>
+          <h3>Energia</h3>
+          <p>Planos Ultimate Performance, hibernação e USB</p>
+        </div>
+        <div class="category-card fade-in" data-category="windows11">
+          <div class="cat-badge" style="--cat-color: #8b5cf6">6</div>
+          <h3>Windows 11</h3>
+          <p>Menu clássico, widgets, chat e Copilot</p>
+        </div>
+        <div class="category-card fade-in" data-category="completos">
+          <div class="cat-badge" style="--cat-color: #14b8a6">4</div>
+          <h3>Scripts Completos</h3>
+          <p>Pacotes combinados: manutenção, game mode, privacidade</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH -->
+  <section id="tech" class="section">
+    <div class="container">
+      <h2 class="section-title">Tecnologias</h2>
+      <div class="tech-list">
+        <span class="tech-chip">C# 13</span>
+        <span class="tech-chip">.NET 9</span>
+        <span class="tech-chip">WPF / XAML</span>
+        <span class="tech-chip">CommunityToolkit.Mvvm</span>
+        <span class="tech-chip">MVVM</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENSHOTS -->
+  <section id="screenshots" class="section section-dark">
+    <div class="container">
+      <h2 class="section-title">Screenshots</h2>
+      <div class="carousel">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="carousel-slide">
+            <div class="slide-placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>main-window.png</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <div class="slide-placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>script-details.png</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <div class="slide-placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>circuit-bg.png</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <div class="slide-placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>log-panel.png</p>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-nav">
+          <button id="carouselPrev" aria-label="Anterior">&lsaquo;</button>
+          <div class="carousel-dots" id="carouselDots"></div>
+          <button id="carouselNext" aria-label="Próximo">&rsaquo;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section id="download" class="section">
+    <div class="container">
+      <h2 class="section-title">Download</h2>
+      <p class="section-subtitle">Escolha a versão ideal para você</p>
+      <div class="download-grid">
+        <div class="download-card fade-in">
+          <div class="download-header">
+            <h3>Portátil</h3>
+            <span class="download-badge">~148 MB</span>
+          </div>
+          <div class="download-body">
+            <ul>
+              <li>Standalone — sem instalação</li>
+              <li>Execute direto do pendrive</li>
+              <li>Dados salvos ao lado do .exe</li>
+            </ul>
+            <a href="#" class="btn-download" data-version="portable">Baixar .exe</a>
+          </div>
+        </div>
+        <div class="download-card fade-in">
+          <div class="download-header">
+            <h3>Instalador</h3>
+            <span class="download-badge">~46 MB</span>
+          </div>
+          <div class="download-body">
+            <ul>
+              <li>Inno Setup — instalação guiada</li>
+              <li>Integração com Program Files</li>
+              <li>Dados salvos em %APPDATA%</li>
+            </ul>
+            <a href="#" class="btn-download" data-version="installer">Baixar Setup</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>FM Optimize — Feito por <a href="https://github.com/anomalyco" target="_blank" rel="noopener noreferrer">Felipe Melo</a></p>
+      <p><a href="https://github.com/anomalyco/FM-Scripts" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+    </div>
+  </footer>
+
+  <!-- BACK TO TOP -->
+  <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo">&uarr;</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
