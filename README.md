@@ -1,8 +1,8 @@
-# FM Optimization
+# FM Optimize
 
 **Unifique todos os scripts de otimização do Windows em um só lugar.**
 
-Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tarefa de manutenção do sistema. O FM Optimization reúne **90 scripts** essenciais em uma interface gráfica moderna — tudo embutido em um único executável, sem dependências externas.
+Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tarefa de manutenção do sistema. O FM Optimize reúne **90 scripts** essenciais em uma interface gráfica moderna — tudo embutido em um único executável, sem dependências externas.
 
 ---
 
@@ -26,7 +26,7 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 
 ## Visão Geral
 
-O FM Optimization é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente.
+O FM Optimize é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente.
 
 ### O que ele faz?
 
@@ -372,13 +372,13 @@ Sugestões de captura:
 > O executável requer **Administrador** (UAC). Clique com botão direito e selecione "Executar como administrador".
 
 ```bash
-dotnet run --project FMOptimization
+dotnet run --project FMOptimize
 ```
 
 Ou execute o binário publicado diretamente:
 
 ```powershell
-.\dist\portable\FMOptimization.exe
+.\dist\portable\FMOptimize.exe
 ```
 
 ---
@@ -390,39 +390,39 @@ Ou execute o binário publicado diretamente:
 Gera um único `.exe` standalone sem instalação. Dados salvos ao lado do executável:
 
 ```powershell
-dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self-contained -o dist\portable
+dotnet publish FMOptimize/FMOptimize.csproj -c Release -r win-x64 --self-contained -o dist\portable
 ```
 
-Gera `dist/portable/FMOptimization.exe`.
+Gera `dist/portable/FMOptimize.exe`.
 
 ### Instalável (com Inno Setup)
 
 Gera um instalador que instala em `Program Files` e salva dados em `%APPDATA%`:
 
 ```powershell
-dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self-contained -o dist\installer -p:IsInstaller=true
+dotnet publish FMOptimize/FMOptimize.csproj -c Release -r win-x64 --self-contained -o dist\installer -p:IsInstaller=true
 iscc installer.iss
 ```
 
-Gera `dist/FMOptimization_Setup.exe`.
+Gera `dist/FMOptimize_Setup.exe`.
 
 ---
 
 ## Armazenamento dos Scripts
 
-O FM Optimization funciona **sem instalação** — todos os scripts estão embutidos no executável e extraídos automaticamente na inicialização.
+O FM Optimize funciona **sem instalação** — todos os scripts estão embutidos no executável e extraídos automaticamente na inicialização.
 
 ### Scripts Embutidos (Built-in)
 
 Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/ScriptRegistry.cs`). Na inicialização, o aplicativo:
 
 1. Lê o `ScriptRegistry` e decodifica cada `ConteudoB64`
-2. Extrai os arquivos para `%TEMP%\FMOptimization\scripts\`
+2. Extrai os arquivos para `%TEMP%\FMOptimize\scripts\`
 3. Executa diretamente do diretório temp quando solicitado
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   FMOptimization.exe                        │
+│                   FMOptimize.exe                        │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              ScriptRegistry.cs                        │   │
 │  │  ┌────────────────────────────────────────────────┐  │   │
@@ -439,7 +439,7 @@ Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/
 │  └──────────────────────────────────────────────────────┘   │
 │                       │                                      │
 │                       ▼                                      │
-│  %TEMP%\FMOptimization\scripts\                              │
+│  %TEMP%\FMOptimize\scripts\                              │
 │  ├── 1 Delete Temporary Files.cmd                            │
 │  ├── Liberar Memoria RAM.bat                                 │
 │  ├── Desabilitar Telemetria.bat                              │
@@ -461,7 +461,7 @@ Além dos embutidos, o usuário pode adicionar scripts próprios:
 3. O **caminho absoluto** é salvo em `scripts_data.json`
 
 ```
-FMOptimization.exe/
+FMOptimize.exe/
 ├── scripts_data.json          ◄── ao lado do executável
 ├── user_scripts/              ◄── scripts criados via código
 │   ├── MeuScript.bat
@@ -483,7 +483,7 @@ FMOptimization.exe/
 
 | Tipo | Onde fica | Definido em |
 |---|---|---|
-| **Scripts embutidos** | `%TEMP%\FMOptimization\scripts\` (sempre reextraídos) | `ScriptExtractionService.cs` — `Path.Combine(Path.GetTempPath(), "FMOptimization", entry.CaminhoRelativo)` |
+| **Scripts embutidos** | `%TEMP%\FMOptimize\scripts\` (sempre reextraídos) | `ScriptExtractionService.cs` — `Path.Combine(Path.GetTempPath(), "FMOptimize", entry.CaminhoRelativo)` |
 | **Dados do app** | Mesmo diretório do `.exe` | `DataService.cs:12` — `AppDomain.CurrentDomain.BaseDirectory` |
 | **Scripts do usuário (arquivo)** | Qualquer lugar no disco | Escolhido pelo usuário no `OpenFileDialog` |
 | **Scripts do usuário (código)** | `{BaseDirectory}\user_scripts\` | Definido pelo nome salvo |
@@ -603,7 +603,7 @@ MainViewModel.LoadData()
     └─ ScriptExtractionService.ExtrairScript() (para cada script embutido)
          │
          ├─ Busca entry no ScriptRegistry pelo nome
-         ├─ Define destino: Path.Combine(TEMP, "FMOptimization", entry.CaminhoRelativo)
+         ├─ Define destino: Path.Combine(TEMP, "FMOptimize", entry.CaminhoRelativo)
          ├─ Cria diretório se não existir
          ├─ Decodifica: Convert.FromBase64String(entry.ConteudoB64)
          ├─ Sanitiza: remove linhas "pause" e "pause >nul"
@@ -631,18 +631,18 @@ MainWindow.xaml    → View (XAML) + Code-behind (eventos, dialogs)
 
 ```
 FM-Scripts/
-├── FMOptimization.sln                    # Solução .NET 9
+├── FMOptimize.sln                    # Solução .NET 9
 ├── AGENTS.md                             # Instruções de build para agente
 ├── README.md                             # Esta documentação
 ├── assets/
 │   └── screenshots/                      # Screenshots da interface
 │
-├── FMOptimization/                       # Projeto principal WPF
+├── FMOptimize/                       # Projeto principal WPF
 │   ├── App.xaml / App.xaml.cs            # Recursos globais + DI container (com logging)
 │   ├── MainWindow.xaml / .cs             # Layout principal + code-behind
 │   ├── app.manifest                      # requireAdministrator (UAC)
 │   ├── icon.ico                          # Ícone do executável
-│   ├── FMOptimization.csproj             # .NET 9 WPF, single-file publish
+│   ├── FMOptimize.csproj             # .NET 9 WPF, single-file publish
 │   │
 │   ├── Assets/
 │   │   ├── Icons.cs                      # SVG paths para ícones de categorias
@@ -698,8 +698,8 @@ FM-Scripts/
 │       ├── DialogEditScript.xaml/.cs                  # Adicionar/editar script
 │       └── DialogManageCategories.xaml/.cs            # Gerenciar categorias
 │
-├── FMOptimization.Tests/                # Projeto de testes unitários
-│   ├── FMOptimization.Tests.csproj       # MSTest + Moq + FluentAssertions
+├── FMOptimize.Tests/                # Projeto de testes unitários
+│   ├── FMOptimize.Tests.csproj       # MSTest + Moq + FluentAssertions
 │   ├── Services/
 │   │   ├── ScriptFilterServiceTests.cs   # 6 testes (filtro por categoria + busca)
 │   │   └── DataServiceTests.cs           # 3 testes (save, load, file-not-found)
@@ -708,10 +708,10 @@ FM-Scripts/
 │
 └── dist/                               # Build publicado
     ├── portable/                       # Versão portátil (sem instalação)
-    │   └── FMOptimization.exe          # Single-file ~148 MB
+    │   └── FMOptimize.exe          # Single-file ~148 MB
     └── installer/                      # Versão para instalador
-        ├── FMOptimization.exe          # Single-file ~148 MB
-        └── FMOptimization_Setup.exe    # Instalador Inno Setup ~46 MB
+        ├── FMOptimize.exe          # Single-file ~148 MB
+        └── FMOptimize_Setup.exe    # Instalador Inno Setup ~46 MB
 ```
 
 ---
@@ -731,13 +731,13 @@ Verifique:
 
 ### "Onde estão meus scripts do usuário?"
 
-Os dados ficam no arquivo `scripts_data.json` ao lado do executável. Os scripts embutidos ficam em `%TEMP%\FMOptimization\scripts\`.
+Os dados ficam no arquivo `scripts_data.json` ao lado do executável. Os scripts embutidos ficam em `%TEMP%\FMOptimize\scripts\`.
 
 ### "Como resetar tudo?"
 
 Delete os arquivos abaixo e reinicie o aplicativo:
 ```
-%TEMP%\FMOptimization\
+%TEMP%\FMOptimize\
 {BaseDirectory}\scripts_data.json
 ```
 
@@ -762,5 +762,5 @@ Scripts embutidos (built-in) são recarregados automaticamente do `ScriptRegistr
 ---
 
 <div align="center">
-  <sub>FM Optimization — Feito por <a href="https://github.com/anomalyco">Felipe Melo</a></sub>
+  <sub>FM Optimize — Feito por <a href="https://github.com/anomalyco">Felipe Melo</a></sub>
 </div>

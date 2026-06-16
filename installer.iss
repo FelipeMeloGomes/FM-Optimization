@@ -1,10 +1,10 @@
-; Inno Setup Script for FMOptimization
+; Inno Setup Script for FMOptimize
 ; Build: iscc installer.iss
 
-#define MyAppName "FM Optimization"
+#define MyAppName "FM Optimize"
 #define MyAppVersion "1.0"
-#define MyAppPublisher "FMOptimization"
-#define MyAppExeName "FMOptimization.exe"
+#define MyAppPublisher "FMOptimize"
+#define MyAppExeName "FMOptimize.exe"
 
 [Setup]
 AppName={#MyAppName}
@@ -14,11 +14,11 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=dist\installer
-OutputBaseFilename=FMOptimization_Setup
+OutputBaseFilename=FMOptimize_Setup
 Compression=lzma2/ultra64
 SolidCompression=yes
 PrivilegesRequired=admin
-SetupIconFile=FMOptimization\icon.ico
+SetupIconFile=FMOptimize\icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 DisableProgramGroupPage=yes
 
