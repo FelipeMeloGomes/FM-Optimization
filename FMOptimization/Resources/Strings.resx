@@ -15,6 +15,8 @@
   <data name="CategoryGpuAmd" xml:space="preserve"><value>GPU - AMD</value></data>
   <data name="CategoryGpuNvidia" xml:space="preserve"><value>GPU - NVIDIA</value></data>
   <data name="CategoryWindows11" xml:space="preserve"><value>Windows 11</value></data>
+  <data name="CategoryInternet" xml:space="preserve"><value>Internet</value></data>
+  <data name="CategoryScriptsCompletos" xml:space="preserve"><value>Scripts Completos</value></data>
   <data name="EditScriptTitle" xml:space="preserve"><value>Editar Script</value></data>
   <data name="AddScriptTitle" xml:space="preserve"><value>Adicionar Script</value></data>
   <data name="RequiredFieldsMessage" xml:space="preserve"><value>Preencha nome e caminho do script.</value></data>
@@ -39,6 +41,8 @@
   <data name="IconGpu" xml:space="preserve"><value>🧠</value></data>
   <data name="IconWindows11" xml:space="preserve"><value>🪟</value></data>
   <data name="IconFavorites" xml:space="preserve"><value>★</value></data>
+  <data name="IconInternet" xml:space="preserve"><value>📡</value></data>
+  <data name="IconScriptsCompletos" xml:space="preserve"><value>📦</value></data>
   <data name="IconDefault" xml:space="preserve"><value>●</value></data>
   <data name="LogToggleCollapse" xml:space="preserve"><value>▲</value></data>
   <data name="LogToggleExpand" xml:space="preserve"><value>▼</value></data>

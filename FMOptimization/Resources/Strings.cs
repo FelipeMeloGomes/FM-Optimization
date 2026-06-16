@@ -17,6 +17,8 @@ public static class Strings
     public static string CategoryGpuAmd => _rm.GetString("CategoryGpuAmd") ?? "";
     public static string CategoryGpuNvidia => _rm.GetString("CategoryGpuNvidia") ?? "";
     public static string CategoryWindows11 => _rm.GetString("CategoryWindows11") ?? "";
+    public static string CategoryInternet => _rm.GetString("CategoryInternet") ?? "";
+    public static string CategoryScriptsCompletos => _rm.GetString("CategoryScriptsCompletos") ?? "";
     public static string EditScriptTitle => _rm.GetString("EditScriptTitle") ?? "";
     public static string AddScriptTitle => _rm.GetString("AddScriptTitle") ?? "";
     public static string RequiredFieldsMessage => _rm.GetString("RequiredFieldsMessage") ?? "";
@@ -40,6 +42,8 @@ public static class Strings
     public static string IconSistema => _rm.GetString("IconSistema") ?? "";
     public static string IconGpu => _rm.GetString("IconGpu") ?? "";
     public static string IconWindows11 => _rm.GetString("IconWindows11") ?? "";
+    public static string IconInternet => _rm.GetString("IconInternet") ?? "";
+    public static string IconScriptsCompletos => _rm.GetString("IconScriptsCompletos") ?? "";
     public static string IconFavorites => _rm.GetString("IconFavorites") ?? "";
     public static string IconDefault => _rm.GetString("IconDefault") ?? "";
     public static string LogToggleCollapse => _rm.GetString("LogToggleCollapse") ?? "";

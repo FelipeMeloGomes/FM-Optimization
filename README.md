@@ -2,7 +2,7 @@
 
 **Unifique todos os scripts de otimização do Windows em um só lugar.**
 
-Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tarefa de manutenção do sistema. O FM Optimization reúne **39 scripts** essenciais em uma interface gráfica moderna — tudo embutido em um único executável, sem dependências externas.
+Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tarefa de manutenção do sistema. O FM Optimization reúne **90 scripts** essenciais em uma interface gráfica moderna — tudo embutido em um único executável, sem dependências externas.
 
 ---
 
@@ -26,7 +26,7 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 
 ## Visão Geral
 
-O FM Optimization é um aplicativo WPF (.NET 9) que centraliza **39 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente na primeira execução.
+O FM Optimization é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente na primeira execução.
 
 ### O que ele faz?
 
@@ -56,7 +56,7 @@ Sugestões de captura:
 
 ## Funcionalidades
 
-- **39 Scripts Embutidos** em 8 categorias (Limpeza, Desempenho, Rede, Privacidade, Sistema, GPU AMD, GPU NVIDIA, Energia)
+- **90 Scripts Embutidos** em 11 categorias (Limpeza, Desempenho, Internet, Rede, Privacidade, Sistema, GPU - AMD, GPU - NVIDIA, Energia, Windows 11, Scripts Completos)
 - **Tema escuro azul neon** com acentos `#0044ff`, ícones SVG e gradientes
 - **Circuito animado no fundo** — traços de PCB com pulsos de dados fluindo (efeito neon)
 - **Interface componentizada**: Sidebar, TopBar, ScriptCard e LogPanel como UserControls independentes
@@ -118,11 +118,62 @@ Sugestões de captura:
 | 37 | NVIDIA Profile Inspector | .exe | ✗ | GPU - NVIDIA |
 | 38 | Ativar Plano de Energia Ultimate Performance | .bat | ✓ | Energia |
 | 39 | Plano de Energia Alto Desempenho | .bat | ✓ | Energia |
+| 40 | DNS - Google | .bat | ✓ | Internet |
+| 41 | DNS - Cloudflare | .bat | ✓ | Internet |
+| 42 | DNS - OpenDNS | .bat | ✓ | Internet |
+| 43 | DNS - Quad9 | .bat | ✓ | Internet |
+| 44 | DNS - AdGuard | .bat | ✓ | Internet |
+| 45 | DNS - Automatico (DHCP) | .bat | ✓ | Internet |
+| 46 | Benchmark de DNS | .bat | ✗ | Internet |
+| 47 | Flush DNS | .bat | ✓ | Internet |
+| 48 | Winsock Reset | .bat | ✓ | Internet |
+| 49 | Reset TCP/IP | .bat | ✓ | Internet |
+| 50 | Desativar Animacoes do Sistema | .bat | ✗ | Desempenho |
+| 51 | Desativar Transparencia do Windows | .bat | ✗ | Desempenho |
+| 52 | Desativar SysMain (Superfetch) | .bat | ✓ | Desempenho |
+| 53 | Desativar Windows Search | .bat | ✓ | Desempenho |
+| 54 | Desativar GameDVR (Gravacao) | .bat | ✗ | Desempenho |
+| 55 | Desativar Algoritmo Nagle | .bat | ✓ | Desempenho |
+| 56 | Desativar Core Parking | .bat | ✓ | Desempenho |
+| 57 | Otimizar Timer do Sistema | .bat | ✓ | Desempenho |
+| 58 | Desativar Localizacao | .bat | ✓ | Privacidade |
+| 59 | Desativar ID de Anuncio | .bat | ✓ | Privacidade |
+| 60 | Desativar Sugestoes no Iniciar | .bat | ✓ | Privacidade |
+| 61 | Desativar Timeline | .bat | ✓ | Privacidade |
+| 62 | Desativar Conteudo Tela Bloqueio | .bat | ✓ | Privacidade |
+| 63 | Desativar Reconhecimento de Fala | .bat | ✓ | Privacidade |
+| 64 | Desativar Hibernacao | .bat | ✓ | Energia |
+| 65 | Desativar Suspensao Automatica | .bat | ✓ | Energia |
+| 66 | Desativar Suspensao USB | .bat | ✓ | Energia |
+| 67 | Desativar Economia PCI Express | .bat | ✓ | Energia |
+| 68 | Restaurar Menu Classico | .bat | ✓ | Windows 11 |
+| 69 | Desabilitar Widgets | .bat | ✓ | Windows 11 |
+| 70 | Desabilitar Chat (Teams) | .bat | ✓ | Windows 11 |
+| 71 | Desabilitar Barra de Pesquisa | .bat | ✓ | Windows 11 |
+| 72 | Desabilitar Snap Layouts | .bat | ✓ | Windows 11 |
+| 73 | Desabilitar Copilot | .bat | ✓ | Windows 11 |
+| 74 | SFC Scannow | .bat | ✓ | Sistema |
+| 75 | DISM RestoreHealth | .bat | ✓ | Sistema |
+| 76 | CHKDSK (Verificar Disco) | .bat | ✓ | Sistema |
+| 77 | Compactar Sistema Operacional | .bat | ✓ | Sistema |
+| 78 | TRIM SSD | .bat | ✓ | Sistema |
+| 79 | Relatorio de Bateria | .bat | ✓ | Sistema |
+| 80 | Limpeza Profunda do Sistema | .bat | ✓ | Scripts Completos |
+| 81 | Limpeza de Disco (CleanMgr) | .bat | ✓ | Limpeza |
+| 82 | Limpar Prefetch | .bat | ✓ | Limpeza |
+| 83 | Limpar Cache de Miniaturas | .bat | ✗ | Limpeza |
+| 84 | Limpar Cache da Windows Store | .bat | ✗ | Limpeza |
+| 85 | Limpar Cache DirectX Shader | .bat | ✗ | Limpeza |
+| 86 | Limpar Lixeira | .bat | ✗ | Limpeza |
+| 87 | Limpar Cache de Atualizacoes | .bat | ✓ | Limpeza |
+| 88 | Pacote de Manutencao | .bat | ✓ | Scripts Completos |
+| 89 | Turbo Game Mode | .bat | ✓ | Scripts Completos |
+| 90 | Privacidade Maxima | .bat | ✓ | Scripts Completos |
 
 ### Por Categoria
 
 <details>
-<summary><b>Limpeza</b> (8 scripts)</summary>
+<summary><b>Limpeza</b> (15 scripts)</summary>
 
 | # | Nome | Descrição |
 |---|------|-----------|
@@ -134,11 +185,18 @@ Sugestões de captura:
 | 6 | **Encerrar Processos Desnecessarios** | Finaliza OneDrive, YourPhone, Xbox Game Bar e serviços em 2º plano |
 | 7 | **Limpeza de Navegadores** | Fecha Chrome, Edge, Firefox e limpa caches de cada navegador |
 | 8 | **Limpeza Completa do Sistema** | Prefetch, Lixeira, logs, cache DNS, .NET, CleanMgr, DISM |
+| 81 | **Limpeza de Disco (CleanMgr)** | Executa limpeza de disco com opções pré-selecionadas |
+| 82 | **Limpar Prefetch** | Remove arquivos de pré-carregamento do sistema |
+| 83 | **Limpar Cache de Miniaturas** | Remove cache de miniaturas do Explorer |
+| 84 | **Limpar Cache da Windows Store** | Reseta o cache da Microsoft Store via `wsreset` |
+| 85 | **Limpar Cache DirectX Shader** | Remove cache de shaders DirectX |
+| 86 | **Limpar Lixeira** | Esvazia a lixeira via linha de comando |
+| 87 | **Limpar Cache de Atualizacoes** | Remove cache de atualizações do Windows Update |
 
 </details>
 
 <details>
-<summary><b>Desempenho</b> (7 scripts)</summary>
+<summary><b>Desempenho</b> (15 scripts)</summary>
 
 | # | Nome | Descrição |
 |---|------|-----------|
@@ -149,6 +207,14 @@ Sugestões de captura:
 | 13 | **Otimizar Servicos do Windows** | Desabilita 10+ serviços não essenciais (SysMain, Search, Telemetria, etc.) |
 | 14 | **Otimizar Efeitos Visuais** | Remove animações, transparência, Aero Peek e reduz timeouts |
 | 15 | **Otimizacao para Jogos** | Ativa Game Mode, GPU Scheduling, desativa GameDVR, ajusta latência |
+| 50 | **Desativar Animacoes do Sistema** | Remove animações de janelas e menus |
+| 51 | **Desativar Transparencia do Windows** | Desliga efeitos de transparência (Aero) |
+| 52 | **Desativar SysMain (Superfetch)** | Desativa o serviço de pré-carregamento de aplicativos |
+| 53 | **Desativar Windows Search** | Desativa o serviço de busca indexada |
+| 54 | **Desativar GameDVR (Gravacao)** | Desativa gravação em segundo plano do Xbox Game Bar |
+| 55 | **Desativar Algoritmo Nagle** | Desativa Nagle para reduzir latência de rede |
+| 56 | **Desativar Core Parking** | Impede que núcleos de CPU sejam desligados |
+| 57 | **Otimizar Timer do Sistema** | Ajusta resolução do timer para 0.5ms |
 
 </details>
 
@@ -167,7 +233,25 @@ Sugestões de captura:
 </details>
 
 <details>
-<summary><b>Privacidade</b> (5 scripts)</summary>
+<summary><b>Internet</b> (10 scripts)</summary>
+
+| # | Nome | Descrição |
+|---|------|-----------|
+| 40 | **DNS - Google** | Altera DNS para Google (8.8.8.8 / 8.8.4.4) |
+| 41 | **DNS - Cloudflare** | Altera DNS para Cloudflare (1.1.1.1 / 1.0.0.1) |
+| 42 | **DNS - OpenDNS** | Altera DNS para OpenDNS (208.67.222.222 / 208.67.220.220) |
+| 43 | **DNS - Quad9** | Altera DNS para Quad9 (9.9.9.9 / 149.112.112.112) |
+| 44 | **DNS - AdGuard** | Altera DNS para AdGuard (94.140.14.14 / 94.140.15.15) |
+| 45 | **DNS - Automatico (DHCP)** | Restaura DNS para automático via DHCP |
+| 46 | **Benchmark de DNS** | Testa latência de múltiplos provedores DNS |
+| 47 | **Flush DNS** | Limpa cache DNS com `ipconfig /flushdns` |
+| 48 | **Winsock Reset** | Reseta a pilha Winsock para configuração padrão |
+| 49 | **Reset TCP/IP** | Reseta pilha TCP/IP e metadados de rede |
+
+</details>
+
+<details>
+<summary><b>Privacidade</b> (11 scripts)</summary>
 
 | # | Nome | Descrição |
 |---|------|-----------|
@@ -176,11 +260,17 @@ Sugestões de captura:
 | 24 | **Desabilitar Apps e Instalacao Forcada** | Bloqueia bloatware da Microsoft Store e instalação silenciosa |
 | 25 | **Desabilitar Telemetria e Rastreamento** | Desliga DiagTrack, localização, ID de anúncio, bloqueia hosts |
 | 26 | **Desabilitar Cortana e Copilot** | Remove Cortana, Copilot, Widgets e busca na web (Bing) |
+| 58 | **Desativar Localizacao** | Desativa serviço de localização e sensoriamento |
+| 59 | **Desativar ID de Anuncio** | Remove ID de anúncio único do usuário |
+| 60 | **Desativar Sugestoes no Iniciar** | Remove sugestões de apps no menu Iniciar |
+| 61 | **Desativar Timeline** | Desativa o histórico de atividades e Timeline |
+| 62 | **Desativar Conteudo Tela Bloqueio** | Remove dicas e sugestões da tela de bloqueio |
+| 63 | **Desativar Reconhecimento de Fala** | Desativa reconhecimento de fala online (Cortana) |
 
 </details>
 
 <details>
-<summary><b>Sistema</b> (5 scripts)</summary>
+<summary><b>Sistema</b> (11 scripts)</summary>
 
 | # | Nome | Descrição |
 |---|------|-----------|
@@ -189,6 +279,12 @@ Sugestões de captura:
 | 29 | **Prioridade CPU/GPU - Registry Guide** | Guia de caminhos do registro para prioridade em jogos |
 | 30 | **Limpeza WinSxS e Componentes** | DISM + Compact para limpar WinSxS e componentes antigos |
 | 31 | **Relatorio do Sistema** | Exporta hardware, disco, processos, serviços e bateria para `.txt` |
+| 74 | **SFC Scannow** | Verifica e repara arquivos protegidos do sistema |
+| 75 | **DISM RestoreHealth** | Repara imagem do Windows com DISM |
+| 76 | **CHKDSK (Verificar Disco)** | Verifica integridade do disco com `chkdsk /f` |
+| 77 | **Compactar Sistema Operacional** | Compacta arquivos do sistema com Compact OS |
+| 78 | **TRIM SSD** | Força operação TRIM em unidades SSD |
+| 79 | **Relatorio de Bateria** | Gera relatório detalhado de bateria (`powercfg /batteryreport`) |
 
 > **Nota sobre scripts `.txt`**: scripts com extensão `.txt` (Chris Titus, Registry Guide) são abertos com o bloco de notas, não executados. Use-os como referência ou execute manualmente os comandos.
 
@@ -217,12 +313,42 @@ Sugestões de captura:
 </details>
 
 <details>
-<summary><b>Energia</b> (2 scripts)</summary>
+<summary><b>Energia</b> (6 scripts)</summary>
 
 | # | Nome | Descrição |
 |---|------|-----------|
 | 38 | **Ativar Plano de Energia Ultimate Performance** | Ativa o plano Ultimate Performance (desktops) |
 | 39 | **Plano de Energia Alto Desempenho** | Ativa o plano Alto Desempenho |
+| 64 | **Desativar Hibernacao** | Desliga hibernação e exclui `hiberfil.sys` |
+| 65 | **Desativar Suspensao Automatica** | Impede que o sistema entre em suspensão |
+| 66 | **Desativar Suspensao USB** | Impede desconexão de dispositivos USB para economia |
+| 67 | **Desativar Economia PCI Express** | Desliga gerenciamento de energia de links PCI Express |
+
+</details>
+
+<details>
+<summary><b>Windows 11</b> (6 scripts)</summary>
+
+| # | Nome | Descrição |
+|---|------|-----------|
+| 68 | **Restaurar Menu Classico** | Restaura menu de contexto clássico do Windows 10 |
+| 69 | **Desabilitar Widgets** | Desativa o painel de Widgets do Windows 11 |
+| 70 | **Desabilitar Chat (Teams)** | Remove o botão do Chat / Teams da barra de tarefas |
+| 71 | **Desabilitar Barra de Pesquisa** | Remove a barra de pesquisa da barra de tarefas |
+| 72 | **Desabilitar Snap Layouts** | Desativa o recurso Snap Layouts ao passar o mouse |
+| 73 | **Desabilitar Copilot** | Desativa o Microsoft Copilot integrado |
+
+</details>
+
+<details>
+<summary><b>Scripts Completos</b> (3 scripts)</summary>
+
+| # | Nome | Descrição |
+|---|------|-----------|
+| 80 | **Limpeza Profunda do Sistema** | Combina DISM, SFC, CleanMgr, prefetch, temp e logs |
+| 88 | **Pacote de Manutencao** | Combina limpeza, reparo de sistema e otimização de disco |
+| 89 | **Turbo Game Mode** | Combina 8 otimizações de desempenho para jogos |
+| 90 | **Privacidade Maxima** | Combina telemetria, localização, anúncios, Cortana e diagnóstico |
 
 </details>
 
@@ -288,7 +414,7 @@ O FM Optimization funciona **sem instalação** — todos os scripts estão embu
 
 ### Scripts Embutidos (Built-in)
 
-Os 39 scripts vêm codificados em **Base64** dentro do código fonte (`Services/ScriptRegistry.cs`). Na inicialização, o aplicativo:
+Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/ScriptRegistry.cs`). Na inicialização, o aplicativo:
 
 1. Lê o `ScriptRegistry` e decodifica cada `ConteudoB64`
 2. Extrai os arquivos para `%TEMP%\FMOptimization\scripts\`
@@ -300,8 +426,8 @@ Os 39 scripts vêm codificados em **Base64** dentro do código fonte (`Services/
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              ScriptRegistry.cs                        │   │
 │  │  ┌────────────────────────────────────────────────┐  │   │
-│  │  │ 39 entradas com Nome, Categoria, Tipo,         │  │   │
-│  │  │ Admin, ConteudoB64 (Base64)                    │  │   │
+ │  │  │ 90 entradas com Nome, Categoria, Tipo,         │  │   │
+ │  │  │ Admin, ConteudoB64 (Base64)                    │  │   │
 │  │  └────────────────────────────────────────────────┘  │   │
 │  │                       │                                │
 │  │                       ▼                                │
@@ -318,7 +444,7 @@ Os 39 scripts vêm codificados em **Base64** dentro do código fonte (`Services/
 │  ├── Liberar Memoria RAM.bat                                 │
 │  ├── Desabilitar Telemetria.bat                              │
 │  ├── NVCleanstall_1.19.0.exe                                 │
-│  └── ... (39 arquivos)                                       │
+│  └── ... (90 arquivos)                                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -345,7 +471,7 @@ FMOptimization.exe/
 **scripts_data.json**:
 ```json
 {
-  "Categorias": ["Limpeza", "Desempenho", "Rede", "Privacidade", "Sistema", "GPU - AMD", "GPU - NVIDIA", "Energia"],
+  "Categorias": ["Limpeza", "Desempenho", "Internet", "Rede", "Privacidade", "Sistema", "GPU - AMD", "GPU - NVIDIA", "Energia", "Windows 11", "Scripts Completos"],
   "Favoritos": ["Liberar Memoria RAM"],
   "Scripts": [
     { "Nome": "Meu Script", "Descricao": "...", "Categoria": "Desempenho", "Caminho": "D:\\scripts\\otimizar.bat", "Tipo": ".bat" }
@@ -444,7 +570,7 @@ App.xaml.cs
                  ├─ Carrega scripts_data.json (DataService)
                  ├─ Popula Profile (nome, máquina, primeiro uso)
                  ├─ Constrói categorias (Todas, Favoritos + salvas)
-                 ├─ Itera ScriptRegistry.Entries (39 built-in)
+                 ├─ Itera ScriptRegistry.Entries (90 built-in)
                  │   └─ Cria ScriptModel + ExtrairScript() → Base64 → TEMP
                  ├─ Itera _data.Scripts (scripts do usuário)
                  ├─ Aplica filtro inicial
@@ -563,7 +689,7 @@ FM-Scripts/
 │   ├── Services/
 │   │   ├── DataService.cs / IDataService.cs          # Persistência JSON
 │   │   ├── ScriptExecutionService.cs / IScriptExecutionService.cs  # Execução
-│   │   └── ScriptRegistry.cs                          # 39 scripts em Base64
+│   │   └── ScriptRegistry.cs                          # 90 scripts em Base64
 │   │
 │   ├── ViewModels/
 │   │   └── MainViewModel.cs                           # VM principal (~450 linhas)

@@ -447,6 +447,8 @@ public partial class MainViewModel : ObservableObject
         "Sistema" => Strings.IconSistema,
         "GPU - AMD" or "GPU - NVIDIA" => Strings.IconGpu,
         "Windows 11" => Strings.IconWindows11,
+        "Internet" => Strings.IconInternet,
+        "Scripts Completos" => Strings.IconScriptsCompletos,
         "Favoritos" => Strings.IconFavorites,
         _ => Strings.IconDefault,
     };

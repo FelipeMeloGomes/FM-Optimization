@@ -18,6 +18,8 @@ public static class Icons
         ["GPU - AMD"] = "M4,4 L20,4 L20,16 L4,16 Z M6,6 L18,6 L18,14 L6,14 Z M8,8 L16,8 L16,12 L8,12 Z M14,18 L18,20 L14,22 Z",
         ["GPU - NVIDIA"] = "M4,4 L20,4 L20,16 L4,16 Z M6,6 L18,6 L18,14 L6,14 Z M8,8 L16,8 L16,12 L8,12 Z M10,18 L14,18 L14,22 L10,22 Z",
         ["Windows 11"] = "M3,2 L11,2 L11,11 L3,11 Z M13,2 L21,2 L21,11 L13,11 Z M3,13 L11,13 L11,22 L3,22 Z M13,13 L21,13 L21,22 L13,22 Z",
+        ["Internet"] = "M12,2 A10,10 0 1,1 2,12 A10,10 0 0,1 12,2 Z M4,12 Q12,6 20,12 M4,12 Q12,18 20,12 M12,4 Q14,12 12,20 M12,4 Q10,12 12,20",
+        ["Scripts Completos"] = "M4,2 L20,2 L22,6 L22,22 L2,22 L2,6 Z M6,8 L18,8 L18,12 L6,12 Z M8,14 L16,14 L16,18 L8,18 Z",
     };
 
     public static Geometry GetPath(string category)
