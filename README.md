@@ -710,7 +710,8 @@ FM-Scripts/
     ├── portable/                       # Versão portátil (sem instalação)
     │   └── FMOptimization.exe          # Single-file ~148 MB
     └── installer/                      # Versão para instalador
-        └── FMOptimization.exe          # Single-file ~148 MB
+        ├── FMOptimization.exe          # Single-file ~148 MB
+        └── FMOptimization_Setup.exe    # Instalador Inno Setup ~46 MB
 ```
 
 ---

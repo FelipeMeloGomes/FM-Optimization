@@ -15,7 +15,7 @@ dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self
 & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" installer.iss
 ```
 
-Gera `dist\FMOptimization_Setup.exe` (~50-70 MB com compressão). Dados salvos em `%APPDATA%\FMOptimization\`.
+Gera `dist\installer\FMOptimization_Setup.exe` (~46 MB com compressão). Dados salvos em `%APPDATA%\FMOptimization\`.
 
 # Commit
 
