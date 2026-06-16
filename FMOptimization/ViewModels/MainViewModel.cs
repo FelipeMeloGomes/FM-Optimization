@@ -134,14 +134,14 @@ public partial class MainViewModel : ObservableObject
         AllScripts = new ObservableCollection<ScriptModel>(scripts);
         ApplyFilter();
 
-        if (_data.Categorias.Count == 0)
-        {
-            var cats = new HashSet<string>();
-            foreach (var s in ScriptRegistry.Entries)
-                _ = cats.Add(s.Categoria);
-            _data.Categorias = [.. cats];
-            _dataService.Salvar(_data);
-        }
+        var scriptCats = new HashSet<string>();
+        foreach (var s in ScriptRegistry.Entries)
+            _ = scriptCats.Add(s.Categoria);
+
+        var merged = new HashSet<string>(_data.Categorias);
+        merged.UnionWith(scriptCats);
+        _data.Categorias = [.. merged];
+        _dataService.Salvar(_data);
 
         RefreshCategories();
 
