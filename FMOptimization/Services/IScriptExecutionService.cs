@@ -10,8 +10,9 @@ public interface IScriptExecutionService
 
     /// <summary>Executes the specified script asynchronously.</summary>
     /// <param name="script">The <see cref="ScriptModel"/> containing script metadata and path.</param>
+    /// <param name="cancellationToken">Token to cancel execution.</param>
     /// <returns>A task that represents the asynchronous execution.</returns>
-    Task ExecuteAsync(ScriptModel script);
+    Task ExecuteAsync(ScriptModel script, CancellationToken cancellationToken = default);
 
     /// <summary>Cancels the execution of the specified script by killing its process.</summary>
     /// <param name="script">The script whose process to kill.</param>

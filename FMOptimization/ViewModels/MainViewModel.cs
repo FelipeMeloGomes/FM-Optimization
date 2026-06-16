@@ -8,6 +8,8 @@ using FMOptimization.Helpers;
 using FMOptimization.Models;
 using FMOptimization.Resources;
 using FMOptimization.Services;
+using Microsoft.Extensions.Logging;
+using LogLevel = FMOptimization.Models.LogLevel;
 
 namespace FMOptimization.ViewModels;
 
@@ -16,6 +18,9 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IScriptExecutionService _executor;
     private readonly IDataService _dataService;
+    private readonly IScriptExtractionService _extractor;
+    private readonly IScriptFilterService _filterService;
+    private readonly ILogger<MainViewModel> _logger;
     private AppData _data = new();
     private string _searchText = "";
     private CancellationTokenSource? _searchCts;
@@ -62,10 +67,21 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Initializes a new instance of the <see cref="MainViewModel"/> class.</summary>
     /// <param name="dataService">The data service for loading and saving application data.</param>
     /// <param name="executor">The script execution service.</param>
-    public MainViewModel(IDataService dataService, IScriptExecutionService executor)
+    /// <param name="extractor">The script extraction service.</param>
+    /// <param name="filterService">The script filter service.</param>
+    /// <param name="logger">The logger.</param>
+    public MainViewModel(
+        IDataService dataService,
+        IScriptExecutionService executor,
+        IScriptExtractionService extractor,
+        IScriptFilterService filterService,
+        ILogger<MainViewModel> logger)
     {
         _dataService = dataService;
         _executor = executor;
+        _extractor = extractor;
+        _filterService = filterService;
+        _logger = logger;
         _executor.OnLog += OnScriptLog;
         LoadData();
     }
@@ -129,63 +145,9 @@ public partial class MainViewModel : ObservableObject
 
         RefreshCategories();
 
-        foreach (var script in AllScripts)
-        {
-            if (script.IsEmbedded)
-                ExtrairScript(script);
-        }
-
-        ExtrairScriptsUsuario();
-    }
-
-    private static void ExtrairScript(ScriptModel script)
-    {
-        try
-        {
-            var entry = ScriptRegistry.Entries.FirstOrDefault(e => e.Nome == script.Nome);
-            if (entry == null) return;
-
-            var dst = script.Caminho;
-            var dir = Path.GetDirectoryName(dst);
-            if (dir != null) Directory.CreateDirectory(dir);
-
-            if (!File.Exists(dst))
-            {
-                var data = Convert.FromBase64String(entry.ConteudoB64);
-                File.WriteAllBytes(dst, data);
-                File.SetAttributes(dst, FileAttributes.Normal);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(
-                $"[ExtrairScript] Erro ao extrair '{script.Nome}': {ex.Message}");
-        }
-    }
-
-    private void ExtrairScriptsUsuario()
-    {
+        _extractor.ExtrairScripts(AllScripts);
         foreach (var sd in _data.Scripts)
-        {
-            if (string.IsNullOrEmpty(sd.Conteudo)) continue;
-
-            try
-            {
-                var dst = sd.Caminho;
-                var dir = Path.GetDirectoryName(dst);
-                if (dir != null) Directory.CreateDirectory(dir);
-
-                if (!File.Exists(dst))
-                {
-                    File.WriteAllText(dst, sd.Conteudo);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[ExtrairScriptsUsuario] Erro ao extrair '{sd.Nome}': {ex.Message}");
-            }
-        }
+            _extractor.ExtrairScriptUsuario(sd);
     }
 
     /// <summary>Called when <see cref="SelectedCategory"/> changes; updates the active state on category items.</summary>
@@ -256,6 +218,11 @@ public partial class MainViewModel : ObservableObject
                 Log(LogMessages.AdminWarning(script.Nome), LogLevel.Warn);
 
             await _executor.ExecuteAsync(script);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro inesperado ao executar script {ScriptName}", script.Nome);
+            Log(LogMessages.ExecutionError(script.Nome, ex.Message), LogLevel.Error);
         }
         finally
         {
@@ -353,20 +320,8 @@ public partial class MainViewModel : ObservableObject
 
     private void ApplyFilter()
     {
-        var busca = SearchText?.Trim().ToLower() ?? "";
-        IEnumerable<ScriptModel> source = AllScripts;
-
-        if (SelectedCategory == Strings.CategoryFavorites)
-            source = source.Where(s => s.IsFavorito);
-        else if (SelectedCategory != Strings.CategoryAll)
-            source = source.Where(s => s.Categoria == SelectedCategory);
-
-        if (!string.IsNullOrEmpty(busca))
-            source = source.Where(s =>
-                s.Nome.ToLower().Contains(busca) ||
-                s.Descricao.ToLower().Contains(busca));
-
-        FilteredScripts = new ObservableCollection<ScriptModel>(source);
+        FilteredScripts = new ObservableCollection<ScriptModel>(
+            _filterService.ApplyFilter(AllScripts, SearchText, SelectedCategory));
     }
 
     private async void DebouncedSearch()

@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using FMOptimization.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FMOptimization;
 
@@ -12,8 +13,16 @@ public partial class App : Application
     {
         var sc = new ServiceCollection();
 
+        sc.AddLogging(builder =>
+        {
+            builder.AddDebug();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
+
         sc.AddSingleton<IDataService, DataService>();
         sc.AddTransient<IScriptExecutionService, ScriptExecutionService>();
+        sc.AddTransient<IScriptExtractionService, ScriptExtractionService>();
+        sc.AddSingleton<IScriptFilterService, ScriptFilterService>();
         sc.AddTransient<ViewModels.MainViewModel>();
         sc.AddTransient<MainWindow>();
 

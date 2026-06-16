@@ -1,16 +1,22 @@
-using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using FMOptimization.Models;
 using FMOptimization.Resources;
+using Microsoft.Extensions.Logging;
 
 namespace FMOptimization.Services;
 
 /// <summary>Loads and saves application data as JSON to a local file.</summary>
 public class DataService : IDataService
 {
-    private readonly string DataFile = Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory, "scripts_data.json");
+    private readonly string _dataFile;
+    private readonly ILogger<DataService> _logger;
+
+    public DataService(ILogger<DataService> logger)
+    {
+        _logger = logger;
+        _dataFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts_data.json");
+    }
 
     /// <summary>Loads <see cref="AppData"/> from the local JSON file, or returns a new instance if the file is missing or corrupt.</summary>
     /// <returns>The deserialized <see cref="AppData"/> or a new default instance.</returns>
@@ -18,16 +24,16 @@ public class DataService : IDataService
     {
         try
         {
-            if (File.Exists(DataFile))
+            if (File.Exists(_dataFile))
             {
-                var json = File.ReadAllText(DataFile);
+                var json = File.ReadAllText(_dataFile);
                 var data = JsonSerializer.Deserialize<AppData>(json);
                 if (data != null) return data;
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[DataService.Carregar] {LogMessages.LoadError(ex.Message)}");
+            _logger.LogError(ex, "Falha ao carregar dados de {Path}", _dataFile);
         }
         return new AppData();
     }
@@ -42,11 +48,11 @@ public class DataService : IDataService
             {
                 WriteIndented = true
             });
-            File.WriteAllText(DataFile, json);
+            File.WriteAllText(_dataFile, json);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[DataService.Salvar] {LogMessages.SaveError(ex.Message)}");
+            _logger.LogError(ex, "Falha ao salvar dados em {Path}", _dataFile);
         }
     }
 }

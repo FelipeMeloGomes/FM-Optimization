@@ -1,40 +1,49 @@
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using FMOptimization.Helpers;
 using FMOptimization.Models;
 using FMOptimization.Resources;
+using Microsoft.Extensions.Logging;
+using LogLevel = FMOptimization.Models.LogLevel;
 
 namespace FMOptimization.Services;
 
 public class ScriptExecutionService : IScriptExecutionService
 {
-    private readonly Dictionary<string, Process> _runningProcesses = new();
+    private readonly ConcurrentDictionary<string, Process> _runningProcesses = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ILogger<ScriptExecutionService> _logger;
+
+    public ScriptExecutionService(ILogger<ScriptExecutionService> logger)
+    {
+        _logger = logger;
+    }
 
     public event Action<string, LogLevel>? OnLog;
 
     public void Cancel(ScriptModel script)
     {
-        if (_runningProcesses.TryGetValue(script.Nome, out var process))
+        if (_runningProcesses.TryRemove(script.Nome, out var process))
         {
             try
             {
                 if (!process.HasExited)
-                {
                     process.Kill(entireProcessTree: true);
-                    Log(LogMessages.ScriptCancelled(script.Nome), LogLevel.Warn);
-                }
+                Log(LogMessages.ScriptCancelled(script.Nome), LogLevel.Warn);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Erro ao cancelar script {ScriptName}", script.Nome);
+            }
             finally
             {
-                _runningProcesses.Remove(script.Nome);
                 process.Dispose();
             }
         }
     }
 
-    public async Task ExecuteAsync(ScriptModel script)
+    public async Task ExecuteAsync(ScriptModel script, CancellationToken cancellationToken = default)
     {
         var caminho = script.Caminho;
         var nome = script.Nome;
@@ -73,23 +82,31 @@ public class ScriptExecutionService : IScriptExecutionService
 
         try
         {
-            await RunProcess(caminho, nome, tipo);
+            await RunProcess(caminho, nome, tipo, cancellationToken);
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 5)
         {
             Log(LogMessages.ExecutionError(nome, "Acesso negado. Tente executar o programa como administrador."), LogLevel.Error);
+            _logger.LogWarning(ex, "Script {ScriptName} falhou por acesso negado", nome);
         }
         catch (UnauthorizedAccessException ex)
         {
             Log(LogMessages.ExecutionError(nome, $"Permissão insuficiente: {ex.Message}"), LogLevel.Error);
+            _logger.LogWarning(ex, "Script {ScriptName} falhou por permissao", nome);
+        }
+        catch (OperationCanceledException)
+        {
+            Log(LogMessages.ScriptCancelled(nome), LogLevel.Warn);
+            _logger.LogInformation("Script {ScriptName} cancelado via CancellationToken", nome);
         }
         catch (Exception ex)
         {
             Log(LogMessages.ExecutionError(nome, ex.Message), LogLevel.Error);
+            _logger.LogError(ex, "Erro ao executar script {ScriptName}", nome);
         }
     }
 
-    private async Task RunProcess(string caminho, string nome, string tipo)
+    private async Task RunProcess(string caminho, string nome, string tipo, CancellationToken ct)
     {
         var psi = tipo switch
         {
@@ -110,27 +127,40 @@ public class ScriptExecutionService : IScriptExecutionService
         process.Start();
         _runningProcesses[nome] = process;
 
+        using var registration = ct.Register(() =>
+        {
+            try
+            {
+                if (!process.HasExited)
+                    process.Kill(entireProcessTree: true);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or Win32Exception)
+            {
+                _logger.LogWarning(ex, "Erro ao cancelar script {ScriptName} via CancellationToken (processo já finalizou?)", nome);
+            }
+        });
+
         try
         {
-            var outputTask = ReadStreamAsync(process.StandardOutput);
-            var errorTask = ReadStreamAsync(process.StandardError);
+            var outputTask = ReadStreamAsync(process.StandardOutput, ct);
+            var errorTask = ReadStreamAsync(process.StandardError, ct);
 
             await Task.WhenAll(outputTask, errorTask);
-            await process.WaitForExitAsync();
+            await process.WaitForExitAsync(ct);
 
             Log(LogMessages.ScriptFinished(nome, process.ExitCode), LogLevel.End);
         }
         finally
         {
-            _runningProcesses.Remove(nome);
+            _runningProcesses.TryRemove(nome, out _);
             process.Dispose();
         }
     }
 
-    private async Task ReadStreamAsync(StreamReader reader)
+    private async Task ReadStreamAsync(StreamReader reader, CancellationToken ct)
     {
         string? line;
-        while ((line = await reader.ReadLineAsync()) != null)
+        while ((line = await reader.ReadLineAsync(ct)) != null)
         {
             if (!string.IsNullOrWhiteSpace(line))
                 Log(line, LogLevel.Info);

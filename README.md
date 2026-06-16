@@ -26,7 +26,7 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 
 ## Visão Geral
 
-O FM Optimization é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente na primeira execução.
+O FM Optimization é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente.
 
 ### O que ele faz?
 
@@ -67,7 +67,6 @@ Sugestões de captura:
 - **Cancelamento**: botão "■ Parar" vermelho substitui o "▶ Executar" durante execução — kill completo da árvore de processos
 - **Gerenciamento**: adicione por arquivo ou código direto, edite ou remova scripts e categorias
 - **Elevação UAC**: executável requer administrador automaticamente na abertura
-- **Perfil do usuário**: nome editável exibido no topo, salvo em `scripts_data.json`
 - **Animações escalonadas**: cards com fade-in e scale sequenciais (IndexToDelayConverter)
 - **Badges visuais**: cores distintas por tipo de arquivo (BAT=verde, PS1=ciano, EXE/REG=laranja)
 
@@ -362,6 +361,7 @@ Sugestões de captura:
 | **WPF / XAML** | Interface gráfica com animações nativas (Storyboard, DoubleAnimation) |
 | **CommunityToolkit.Mvvm 8.4.2** | Padrão MVVM com source generators (`[ObservableProperty]`, `[RelayCommand]`) |
 | **Microsoft.Extensions.DependencyInjection 10.0.9** | Injeção de dependência |
+| **Microsoft.Extensions.Logging 10.0.9** | Logging estruturado (ILogger&lt;T&gt;) |
 | **System.Text.Json 10.0.9** | Serialização JSON |
 | **Windows API** | Detecção de privilégios de administrador |
 
@@ -410,7 +410,7 @@ dotnet publish FMOptimization -c Release -r win-x64 --self-contained -o dist `
 
 ## Armazenamento dos Scripts
 
-O FM Optimization funciona **sem instalação** — todos os scripts estão embutidos no executável e extraídos automaticamente na primeira execução.
+O FM Optimization funciona **sem instalação** — todos os scripts estão embutidos no executável e extraídos automaticamente na inicialização.
 
 ### Scripts Embutidos (Built-in)
 
@@ -432,9 +432,9 @@ Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/
 │  │                       │                                │
 │  │                       ▼                                │
 │  │  ┌────────────────────────────────────────────────┐  │   │
-│  │  │  MainViewModel.LoadData()                      │  │   │
-│  │  │  └─ ExtrairScript() → decodifica Base64        │  │   │
-│  │  │     e salva em disco se não existir             │  │   │
+│  │  │  ScriptExtractionService.ExtrairScript()        │  │   │
+│  │  │  └─ Convert.FromBase64String + sanitiza         │  │   │
+│  │  │     (remove pause) + salva em disco             │  │   │
 │  │  └────────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                       │                                      │
@@ -448,9 +448,9 @@ Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/
 └─────────────────────────────────────────────────────────────┘
 ```
 
-- A extração só ocorre **uma vez** (se o arquivo já existe, pula)
+- Scripts são **sempre reextraídos** na inicialização (garante que correções como remoção de `pause` sejam aplicadas)
+- Na extração, linhas com `pause` ou `pause >nul` são **removidas automaticamente** para execução não-interativa
 - O diretório `%TEMP%` é limpo pelo Windows periodicamente
-- Cada execução regenera os arquivos se necessário
 
 ### Scripts do Usuário
 
@@ -475,13 +475,7 @@ FMOptimization.exe/
   "Favoritos": ["Liberar Memoria RAM"],
   "Scripts": [
     { "Nome": "Meu Script", "Descricao": "...", "Categoria": "Desempenho", "Caminho": "D:\\scripts\\otimizar.bat", "Tipo": ".bat" }
-  ],
-  "Profile": {
-    "NomeExibicao": "Felipe",
-    "UserName": "Canuto",
-    "MachineName": "FELIPEMELO",
-    "PrimeiroUso": "2026-06-12T18:08:24.299-03:00"
-  }
+  ]
 }
 ```
 
@@ -489,7 +483,7 @@ FMOptimization.exe/
 
 | Tipo | Onde fica | Definido em |
 |---|---|---|
-| **Scripts embutidos** | `%TEMP%\FMOptimization\scripts\` | `MainViewModel.cs:104` — `Path.Combine(Path.GetTempPath(), "FMOptimization", entry.CaminhoRelativo)` |
+| **Scripts embutidos** | `%TEMP%\FMOptimization\scripts\` (sempre reextraídos) | `ScriptExtractionService.cs` — `Path.Combine(Path.GetTempPath(), "FMOptimization", entry.CaminhoRelativo)` |
 | **Dados do app** | Mesmo diretório do `.exe` | `DataService.cs:12` — `AppDomain.CurrentDomain.BaseDirectory` |
 | **Scripts do usuário (arquivo)** | Qualquer lugar no disco | Escolhido pelo usuário no `OpenFileDialog` |
 | **Scripts do usuário (código)** | `{BaseDirectory}\user_scripts\` | Definido pelo nome salvo |
@@ -505,7 +499,7 @@ A interface é dividida em 3 colunas:
 ```
 ┌─────────┬──┬──────────────────────────────────────┐
 │         │  │  TopBarControl                       │
-│ Sidebar │  │  (título + badge + busca + perfil)   │
+│ Sidebar │  │  (título + badge + busca)            │
 │ Control │G │──────────────────────────────────────│
 │         │r │                                      │
 │ Catego- │i │  ScriptCards (WrapPanel)             │
@@ -526,7 +520,7 @@ A interface é dividida em 3 colunas:
 | Control | Arquivo | Descrição |
 |---|---|---|
 | **SidebarControl** | `Controls/SidebarControl.xaml` | Logo FM/OPTIMIZATION pulsante, lista de categorias com ícones SVG, destaque ativo com glow, botões "Adicionar Script" e "Gerenciar Categorias" |
-| **TopBarControl** | `Controls/TopBarControl.xaml` | Título da categoria ativa + badge de contagem, campo de busca com glow neon no foco, popup de perfil com nome editável |
+| **TopBarControl** | `Controls/TopBarControl.xaml` | Título da categoria ativa + badge de contagem, campo de busca com glow neon no foco |
 | **ScriptCardControl** | `Controls/ScriptCardControl.xaml` | Card de 320px com animação fade-in/scale, nome, descrição, badges (ADMIN, categoria, tipo), botões Detalhes/Editar/Remover/Executar/Parar, estrela de favorito com animação |
 | **LogPanelControl** | `Controls/LogPanelControl.xaml` | Terminal com log em fonte monospace, cursor piscante, botões Copiar/Limpar com animação, toggle expandir/recolher |
 | **CircuitBackground** | `Controls/CircuitBackground.xaml` | Fundo animado de circuito PCB com 7 traços de fluxo, 10 nós pulsantes e 3 nós de junção com glow |
@@ -558,6 +552,8 @@ App.xaml.cs
   ├─ ServiceCollection (DI)
   │   ├─ IDataService → DataService (Singleton)
   │   ├─ IScriptExecutionService → ScriptExecutionService (Transient)
+  │   ├─ IScriptExtractionService → ScriptExtractionService (Singleton)
+  │   ├─ IScriptFilterService → ScriptFilterService (Singleton)
   │   ├─ MainViewModel (Transient)
   │   └─ MainWindow (Transient)
   │
@@ -568,12 +564,12 @@ App.xaml.cs
             └─ LoadData()
                  │
                  ├─ Carrega scripts_data.json (DataService)
-                 ├─ Popula Profile (nome, máquina, primeiro uso)
                  ├─ Constrói categorias (Todas, Favoritos + salvas)
                  ├─ Itera ScriptRegistry.Entries (90 built-in)
-                 │   └─ Cria ScriptModel + ExtrairScript() → Base64 → TEMP
+                 │   ├─ Cria ScriptModel
+                 │   └─ ScriptExtractionService.ExtrairScript() → Base64 → TEMP (sanitizado)
                  ├─ Itera _data.Scripts (scripts do usuário)
-                 ├─ Aplica filtro inicial
+                 ├─ Aplica filtro inicial (ScriptFilterService)
                  └─ Salva categorias se primeira execução
 ```
 
@@ -604,26 +600,27 @@ Botão "▶ Executar"
 ```
 MainViewModel.LoadData()
     │
-    └─ ExtrairScript() (para cada script embutido)
+    └─ ScriptExtractionService.ExtrairScript() (para cada script embutido)
          │
          ├─ Busca entry no ScriptRegistry pelo nome
          ├─ Define destino: Path.Combine(TEMP, "FMOptimization", entry.CaminhoRelativo)
          ├─ Cria diretório se não existir
-         ├─ Se arquivo não existe:
-         │   ├─ Convert.FromBase64String(entry.ConteudoB64)
-         │   └─ File.WriteAllBytes(dst, data)
-         └─ Se arquivo já existe: pula (extração única)
+         ├─ Decodifica: Convert.FromBase64String(entry.ConteudoB64)
+         ├─ Sanitiza: remove linhas "pause" e "pause >nul"
+         ├─ Salva: File.WriteAllBytes(dst, data) (sempre sobrescreve)
+         └─ Retorna caminho do arquivo extraído
 ```
 
 ### Camadas do Projeto
 
 ```
-App.xaml.cs        → DI Container (ServiceProvider)
+App.xaml.cs        → DI Container (ServiceProvider) com logging configurado
 MainWindow.xaml    → View (XAML) + Code-behind (eventos, dialogs)
 ├─ Controls/       → UserControls reutilizáveis (Sidebar, TopBar, ScriptCard, LogPanel, CircuitBackground)
 ├─ ViewModels/     → MainViewModel (~450 linhas, lógica central)
-├─ Services/       → DataService (JSON), ScriptExecutionService (Process), ScriptRegistry (Base64)
-├─ Models/         → ScriptModel, AppData, UserProfile, ScriptData, CategoryItem, LogEntry
+├─ Services/       → 5 serviços: DataService, ScriptExecutionService, ScriptRegistry,
+│                    ScriptExtractionService, ScriptFilterService
+├─ Models/         → ScriptModel, AppData, ScriptData, CategoryItem, LogEntry, LogLevel
 ├─ Converters/     → 8 converters (cor, opacidade, visibilidade, índice → tempo, etc.)
 └─ Helpers/        → SecurityHelper (verificação de admin)
 ```
@@ -641,7 +638,7 @@ FM-Scripts/
 │   └── screenshots/                      # Screenshots da interface
 │
 ├── FMOptimization/                       # Projeto principal WPF
-│   ├── App.xaml / App.xaml.cs            # Recursos globais + DI container
+│   ├── App.xaml / App.xaml.cs            # Recursos globais + DI container (com logging)
 │   ├── MainWindow.xaml / .cs             # Layout principal + code-behind
 │   ├── app.manifest                      # requireAdministrator (UAC)
 │   ├── icon.ico                          # Ícone do executável
@@ -661,7 +658,7 @@ FM-Scripts/
 │   │   ├── LogPanelControl.xaml/.cs      # Terminal com log scrollável
 │   │   ├── ScriptCardControl.xaml/.cs    # Card de script
 │   │   ├── SidebarControl.xaml/.cs       # Sidebar com categorias
-│   │   └── TopBarControl.xaml/.cs        # Topo: título, busca, perfil
+│   │   └── TopBarControl.xaml/.cs        # Topo: título, busca, ações
 │   │
 │   ├── Converters/
 │   │   ├── AdminToVisibilityConverter.cs      # bool admin → Visibility
@@ -680,16 +677,18 @@ FM-Scripts/
 │   │   ├── CategoryItem.cs                    # Categoria com nome e ícone
 │   │   ├── LogEntry.cs                        # Entrada de log
 │   │   ├── LogLevel.cs                        # Enum: Info, Start, End, Error, Warn
-│   │   └── ScriptModel.cs                    # ScriptModel + AppData + Profile + ScriptData
+│   │   └── ScriptModel.cs                    # ScriptModel + AppData + ScriptData
 │   │
 │   ├── Resources/
 │   │   ├── LogMessages.cs / .resx             # Textos PT-BR para log
 │   │   └── Strings.cs / .resx                 # Textos PT-BR para interface
 │   │
 │   ├── Services/
-│   │   ├── DataService.cs / IDataService.cs          # Persistência JSON
-│   │   ├── ScriptExecutionService.cs / IScriptExecutionService.cs  # Execução
-│   │   └── ScriptRegistry.cs                          # 90 scripts em Base64
+│   │   ├── DataService.cs / IDataService.cs             # Persistência JSON
+│   │   ├── ScriptExecutionService.cs / IScriptExecutionService.cs  # Execução de processos
+│   │   ├── ScriptExtractionService.cs / IScriptExtractionService.cs  # Extração Base64→TEMP
+│   │   ├── ScriptFilterService.cs / IScriptFilterService.cs        # Filtro por categoria + busca
+│   │   └── ScriptRegistry.cs                             # 90 scripts em Base64
 │   │
 │   ├── ViewModels/
 │   │   └── MainViewModel.cs                           # VM principal (~450 linhas)
@@ -698,6 +697,14 @@ FM-Scripts/
 │       ├── DialogDetalhes.xaml/.cs                    # Detalhes do script
 │       ├── DialogEditScript.xaml/.cs                  # Adicionar/editar script
 │       └── DialogManageCategories.xaml/.cs            # Gerenciar categorias
+│
+├── FMOptimization.Tests/                # Projeto de testes unitários
+│   ├── FMOptimization.Tests.csproj       # MSTest + Moq + FluentAssertions
+│   ├── Services/
+│   │   ├── ScriptFilterServiceTests.cs   # 6 testes (filtro por categoria + busca)
+│   │   └── DataServiceTests.cs           # 3 testes (save, load, file-not-found)
+│   │
+│   └── Usings.cs                         # Global usings
 │
 └── dist/                               # Build publicado
     ├── FMOptimization.exe              # Single-file ~148 MB
