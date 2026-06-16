@@ -44,10 +44,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool logExpanded = true;
 
-    /// <summary>Gets or sets the user profile information.</summary>
-    [ObservableProperty]
-    private UserProfile profile = new();
-
     /// <summary>Gets or sets whether the view model is currently loading data.</summary>
     [ObservableProperty]
     private bool isLoading;
@@ -78,18 +74,6 @@ public partial class MainViewModel : ObservableObject
     public void LoadData()
     {
         _data = _dataService.Carregar();
-
-        Profile = _data.Profile;
-
-        if (string.IsNullOrEmpty(Profile.UserName))
-        {
-            Profile.UserName = Environment.UserName;
-            Profile.MachineName = Environment.MachineName;
-            Profile.PrimeiroUso = DateTime.Now;
-            if (string.IsNullOrEmpty(Profile.NomeExibicao))
-                Profile.NomeExibicao = Environment.UserName;
-            _dataService.Salvar(_data);
-        }
 
         var allCats = new List<string> { Strings.CategoryAll, Strings.CategoryFavorites };
         allCats.AddRange(_data.Categorias);
@@ -330,17 +314,6 @@ public partial class MainViewModel : ObservableObject
     private void ManageCategories()
     {
         OnManageCategories?.Invoke();
-    }
-
-    /// <summary>Updates the profile display name and persists to disk.</summary>
-    /// <param name="nome">The new display name to save.</param>
-    [RelayCommand]
-    private void SaveProfileName(string? nome)
-    {
-        if (string.IsNullOrWhiteSpace(nome)) return;
-        Profile.NomeExibicao = nome;
-        _data.Profile = Profile;
-        _dataService.Salvar(_data);
     }
 
     /// <summary>Copies all log messages to the system clipboard as a newline-separated string.</summary>

@@ -49,9 +49,7 @@
             <controls:TopBarControl Grid.Row="0" x:Name="TopBar"
                 SelectedCategory="{Binding SelectedCategory}"
                 ScriptCount="{Binding FilteredScripts.Count}"
-                SearchText="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Profile="{Binding Profile}"
-                SaveProfileNameCommand="{Binding SaveProfileNameCommand}"/>
+                SearchText="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                           Padding="8,8,8,0"
