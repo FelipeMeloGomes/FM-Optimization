@@ -567,16 +567,6 @@ a:hover { color: var(--accent-hover); }
 .fade-in:nth-child(5) { transition-delay: .4s; }
 .fade-in:nth-child(6) { transition-delay: .5s; }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .fade-in { opacity: 1; transform: none; transition: none; }
-  .fade-in.visible { opacity: 1; transform: none; }
-  .fade-in:nth-child(n) { transition-delay: 0s; }
-  .flow, .node, .gnode { animation: none !important; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-}
-
 /* Responsive */
 @media (max-width: 900px) {
   .features-grid { grid-template-columns: repeat(2, 1fr); }
