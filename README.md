@@ -184,7 +184,7 @@ Sugestões de captura:
 | 6 | **Encerrar Processos Desnecessarios** | Finaliza OneDrive, YourPhone, Xbox Game Bar e serviços em 2º plano |
 | 7 | **Limpeza de Navegadores** | Fecha Chrome, Edge, Firefox e limpa caches de cada navegador |
 | 8 | **Limpeza Completa do Sistema** | Prefetch, Lixeira, logs, cache DNS, .NET, CleanMgr, DISM |
-| 81 | **Limpeza de Disco (CleanMgr)** | Executa limpeza de disco com opções pré-selecionadas |
+| 81 | **Limpeza de Disco (CleanMgr)** | Abre a ferramenta nativa do Windows para escolher o disco e limpar |
 | 82 | **Limpar Prefetch** | Remove arquivos de pré-carregamento do sistema |
 | 83 | **Limpar Cache de Miniaturas** | Remove cache de miniaturas do Explorer |
 | 84 | **Limpar Cache da Windows Store** | Reseta o cache da Microsoft Store via `wsreset` |
