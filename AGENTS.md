@@ -12,10 +12,10 @@ Gera `dist\portable\FMOptimization.exe`. Dados salvos ao lado do executável.
 
 ```powershell
 dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self-contained -o dist\installer -p:IsInstaller=true
-iscc installer.iss
+& "C:\Program Files (x86)\Inno Setup 6\iscc.exe" installer.iss
 ```
 
-Gera `dist\FMOptimization_Setup.exe`. Dados salvos em `%APPDATA%\FMOptimization\`.
+Gera `dist\FMOptimization_Setup.exe` (~50-70 MB com compressão). Dados salvos em `%APPDATA%\FMOptimization\`.
 
 # Commit
 
