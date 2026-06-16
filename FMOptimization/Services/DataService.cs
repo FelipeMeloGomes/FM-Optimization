@@ -15,7 +15,13 @@ public class DataService : IDataService
     public DataService(ILogger<DataService> logger)
     {
         _logger = logger;
-        _dataFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts_data.json");
+#if INSTALLER
+        var baseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FMOptimization");
+        Directory.CreateDirectory(baseDir);
+#else
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+        _dataFile = Path.Combine(baseDir, "scripts_data.json");
     }
 
     /// <summary>Loads <see cref="AppData"/> from the local JSON file, or returns a new instance if the file is missing or corrupt.</summary>

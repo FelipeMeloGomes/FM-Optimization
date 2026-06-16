@@ -378,33 +378,33 @@ dotnet run --project FMOptimization
 Ou execute o binário publicado diretamente:
 
 ```powershell
-.\dist\FMOptimization.exe
+.\dist\portable\FMOptimization.exe
 ```
 
 ---
 
 ## Publicar Executável
 
-### Portátil (self-contained, ~148 MB)
+### Portátil (standalone, ~148 MB)
 
-Gera um único `.exe` standalone sem dependência do .NET Runtime:
-
-```powershell
-dotnet publish FMOptimization -c Release -r win-x64 --self-contained -o dist
-```
-
-O executável será gerado em `dist/FMOptimization.exe` (~148 MB).
-
-### Com compressão (alternativa, ~68 MB)
-
-Adicione as flags de compressão para reduzir o tamanho:
+Gera um único `.exe` standalone sem instalação. Dados salvos ao lado do executável:
 
 ```powershell
-dotnet publish FMOptimization -c Release -r win-x64 --self-contained -o dist `
-  -p:PublishSingleFile=true `
-  -p:IncludeNativeLibrariesForSelfExtract=true `
-  -p:EnableCompressionInSingleFile=true
+dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self-contained -o dist\portable
 ```
+
+Gera `dist/portable/FMOptimization.exe`.
+
+### Instalável (com Inno Setup)
+
+Gera um instalador que instala em `Program Files` e salva dados em `%APPDATA%`:
+
+```powershell
+dotnet publish FMOptimization/FMOptimization.csproj -c Release -r win-x64 --self-contained -o dist\installer -p:IsInstaller=true
+iscc installer.iss
+```
+
+Gera `dist/FMOptimization_Setup.exe`.
 
 ---
 
@@ -707,9 +707,10 @@ FM-Scripts/
 │   └── Usings.cs                         # Global usings
 │
 └── dist/                               # Build publicado
-    ├── FMOptimization.exe              # Single-file ~148 MB
-    ├── scripts_data.json               # Dados do usuário
-    └── user_scripts/                   # Scripts criados via código
+    ├── portable/                       # Versão portátil (sem instalação)
+    │   └── FMOptimization.exe          # Single-file ~148 MB
+    └── installer/                      # Versão para instalador
+        └── FMOptimization.exe          # Single-file ~148 MB
 ```
 
 ---
