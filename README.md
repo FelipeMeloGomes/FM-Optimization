@@ -51,8 +51,9 @@ O site é uma landing page responsiva com tema dark neon contendo:
 - Visão geral do aplicativo
 - Lista de recursos e categorias
 - Tecnologias utilizadas
-- Galeria de screenshots
-- **Download** das versões portátil e instalável
+  - Galeria de screenshots
+  - Vídeo de demonstração incorporado
+  - **Download** das versões portátil e instalável
 
 Os downloads são servidos diretamente via [GitHub Releases](https://github.com/FelipeMeloGomes/FM-Optimization/releases).
 
