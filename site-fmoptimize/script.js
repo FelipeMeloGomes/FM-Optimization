@@ -6,6 +6,11 @@ if (saved) html.dataset.theme = saved;
 else html.dataset.theme = 'dark';
 if (themeMeta) themeMeta.content = themeMeta.dataset[html.dataset.theme];
 
+// Service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
