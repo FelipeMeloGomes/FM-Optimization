@@ -79,6 +79,20 @@ Os downloads são servidos diretamente via [GitHub Releases](https://github.com/
   <p><em>Terminal com log scrollável, saída ao vivo e botões Copiar/Limpar</em></p>
 </div>
 
+<br>
+
+<div align="center">
+  <a href="assets/new_category.png"><img src="assets/new_category.png" alt="Criação de nova categoria" width="600"></a>
+  <p><em>Dialog de criação de nova categoria personalizada</em></p>
+</div>
+
+<br>
+
+<div align="center">
+  <a href="assets/new_script.png"><img src="assets/new_script.png" alt="Adicionar novo script" width="600"></a>
+  <p><em>Dialog de edição e adição de scripts por arquivo ou código direto</em></p>
+</div>
+
 ---
 
 ## Funcionalidades
@@ -664,7 +678,9 @@ FM-Scripts/
 ├── assets/
 │   ├── main.png                          # Screenshot da interface principal
 │   ├── script_details.png                # Screenshot de detalhes de script
-│   └── terminal_log.png                  # Screenshot do painel de log
+│   ├── terminal_log.png                  # Screenshot do painel de log
+│   ├── new_category.png                  # Screenshot de criação de categoria
+│   └── new_script.png                    # Screenshot de adição de script
 │
 ├── FMOptimize/                       # Projeto principal WPF
 │   ├── App.xaml / App.xaml.cs            # Recursos globais + DI container (com logging)
