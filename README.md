@@ -61,35 +61,35 @@ Os downloads são servidos diretamente via [GitHub Releases](https://github.com/
 ## Screenshots
 
 <div align="center">
-  <a href="assets/screenshots/main.png"><img src="assets/screenshots/main.png" alt="Janela principal do FM Optimize" width="600"></a>
+  <a href="assets/screenshots/main.webp"><img src="assets/screenshots/main.webp" alt="Janela principal do FM Optimize" width="600"></a>
   <p><em>Janela principal com sidebar, cards de scripts e painel de log</em></p>
 </div>
 
 <br>
 
 <div align="center">
-  <a href="assets/screenshots/script_details.png"><img src="assets/screenshots/script_details.png" alt="Detalhes de um script" width="600"></a>
+  <a href="assets/screenshots/script_details.webp"><img src="assets/screenshots/script_details.webp" alt="Detalhes de um script" width="600"></a>
   <p><em>Dialog de detalhes de um script com código-fonte e badges</em></p>
 </div>
 
 <br>
 
 <div align="center">
-  <a href="assets/screenshots/terminal_log.png"><img src="assets/screenshots/terminal_log.png" alt="Painel de log em tempo real" width="600"></a>
+  <a href="assets/screenshots/terminal_log.webp"><img src="assets/screenshots/terminal_log.webp" alt="Painel de log em tempo real" width="600"></a>
   <p><em>Terminal com log scrollável, saída ao vivo e botões Copiar/Limpar</em></p>
 </div>
 
 <br>
 
 <div align="center">
-  <a href="assets/screenshots/new_category.png"><img src="assets/screenshots/new_category.png" alt="Criação de nova categoria" width="600"></a>
+  <a href="assets/screenshots/new_category.webp"><img src="assets/screenshots/new_category.webp" alt="Criação de nova categoria" width="600"></a>
   <p><em>Dialog de criação de nova categoria personalizada</em></p>
 </div>
 
 <br>
 
 <div align="center">
-  <a href="assets/screenshots/new_script.png"><img src="assets/screenshots/new_script.png" alt="Adicionar novo script" width="600"></a>
+  <a href="assets/screenshots/new_script.webp"><img src="assets/screenshots/new_script.webp" alt="Adicionar novo script" width="600"></a>
   <p><em>Dialog de edição e adição de scripts por arquivo ou código direto</em></p>
 </div>
 
