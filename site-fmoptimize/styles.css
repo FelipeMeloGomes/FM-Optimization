@@ -147,9 +147,10 @@ a:hover { color: var(--accent-hover); }
   font-size: 0.85rem;
   transition: background .2s, box-shadow .2s;
 }
-.btn-nav:hover {
+.nav-links .btn-nav:hover {
   background: var(--accent-hover);
   box-shadow: 0 0 20px var(--accent-glow);
+  color: #fff;
 }
 
 /* Theme toggle */
