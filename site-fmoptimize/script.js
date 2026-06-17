@@ -190,4 +190,21 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(next);
     localStorage.setItem('theme', next);
   });
+
+  // Demo video
+  const demoPoster = document.getElementById('demoPoster');
+  const demoEmbed = document.getElementById('demoEmbed');
+  if (demoPoster) {
+    const play = () => {
+      demoPoster.style.opacity = '0';
+      setTimeout(() => {
+        demoPoster.hidden = true;
+        demoEmbed.hidden = false;
+      }, 300);
+    };
+    demoPoster.addEventListener('click', play);
+    demoPoster.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); }
+    });
+  }
 });

@@ -871,6 +871,59 @@ a:hover { color: var(--accent-hover); }
 .fade-in:nth-child(5) { transition-delay: .4s; }
 .fade-in:nth-child(6) { transition-delay: .5s; }
 
+/* Demo */
+.demo-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.demo-poster {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: opacity .3s;
+}
+.demo-poster img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.demo-play {
+  position: absolute;
+  width: 64px; height: 64px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s, background .2s;
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+.demo-poster:hover .demo-play {
+  transform: scale(1.08);
+  background: var(--accent-hover);
+}
+.demo-play svg {
+  width: 48px; height: 48px;
+  margin-left: 3px;
+}
+.demo-embed {
+  position: absolute;
+  inset: 0;
+}
+.demo-embed iframe {
+  width: 100%; height: 100%;
+  border: none;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .features-grid { grid-template-columns: repeat(2, 1fr); }
