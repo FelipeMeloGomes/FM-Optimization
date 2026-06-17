@@ -1,4 +1,21 @@
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(assets/fonts/Inter.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(assets/fonts/JetBrainsMono.woff2) format('woff2');
+}
+
 :root {
+  color-scheme: dark;
   --bg-primary: #0a0a0f;
   --bg-secondary: #12121a;
   --bg-card: #161622;
@@ -589,6 +606,78 @@ a:hover { color: var(--accent-hover); }
   color: var(--accent);
 }
 
+/* FAQ */
+.faq-list {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .3s;
+}
+.faq-item[open] { border-color: var(--accent); }
+
+.faq-item summary {
+  padding: 18px 24px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "+";
+  font-size: 1.2rem;
+  color: var(--accent);
+  transition: transform .2s;
+}
+.faq-item[open] summary::after { content: "–"; }
+
+.faq-item p {
+  padding: 0 24px 18px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Counter animation */
+.counter { font-variant-numeric: tabular-nums; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s, visibility .3s, transform .3s;
+  z-index: 300;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Fade-in animation */
 .fade-in {
   opacity: 0;
@@ -617,5 +706,7 @@ a:hover { color: var(--accent-hover); }
   .features-grid { grid-template-columns: 1fr; }
   .categories-grid { grid-template-columns: 1fr; }
   .download-grid { grid-template-columns: 1fr; }
+  .faq-item summary { font-size: 0.85rem; padding: 14px 18px; }
+  .faq-item p { font-size: 0.82rem; padding: 0 18px 14px; }
   .nav-links a:not(.btn-nav) { display: none; }
 }

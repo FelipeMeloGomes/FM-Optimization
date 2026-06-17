@@ -70,18 +70,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') lightbox.classList.remove('open');
   });
 
-  // Download links (placeholder)
-  const downloadBtns = document.querySelectorAll('.btn-download');
-  downloadBtns.forEach((btn) => {
-    const version = btn.dataset.version;
-    btn.href = '#';
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const urls = {
-        portable: 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest/download/FMOptimize.exe',
-        installer: 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest/download/FMOptimize_Setup.exe'
-      };
-      window.open(urls[version], '_blank');
+  // Download toast
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  document.body.appendChild(toast);
+
+  document.querySelectorAll('.btn-download').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      toast.textContent = 'Redirecionando para o download\u2026';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
     });
   });
+
+  // Counter animation
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.dataset.target);
+        if (!target) return;
+        let current = 0;
+        const step = Math.ceil(target / 40);
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = current;
+        }, 30);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.counter').forEach((el) => counterObserver.observe(el));
 });

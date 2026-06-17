@@ -1,0 +1,13 @@
+{
+  "name": "FM Optimize",
+  "short_name": "FM Optimize",
+  "description": "Otimização do Windows — 90 scripts em interface dark neon",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    { "src": "assets/favicon.ico", "sizes": "48x48", "type": "image/x-icon" },
+    { "src": "assets/favicon.ico", "sizes": "96x96", "type": "image/x-icon" }
+  ]
+}
