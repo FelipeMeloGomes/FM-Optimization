@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dot = document.createElement('button');
     dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
     dot.setAttribute('aria-label', 'Ir para slide ' + (i + 1));
-    dot.addEventListener('click', () => goToSlide(i));
+    dot.addEventListener('click', () => handleManualNav(() => goToSlide(i)));
     dotsContainer.appendChild(dot);
   });
 
@@ -41,13 +41,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  prevBtn.addEventListener('click', () => {
-    goToSlide(Math.max(0, currentSlide - 1));
-  });
+  // Autoplay
+  let autoplayTimer, resumeTimer;
+  function startAutoplay() {
+    stopAutoplay();
+    autoplayTimer = setInterval(() => {
+      goToSlide((currentSlide + 1) % slides.length);
+    }, 4000);
+  }
+  function stopAutoplay() { clearInterval(autoplayTimer); }
+  function pauseAutoplay() {
+    stopAutoplay();
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(startAutoplay, 8000);
+  }
+  startAutoplay();
 
-  nextBtn.addEventListener('click', () => {
-    goToSlide(Math.min(slides.length - 1, currentSlide + 1));
-  });
+  const carouselEl = document.querySelector('.carousel');
+  carouselEl.addEventListener('mouseenter', stopAutoplay);
+  carouselEl.addEventListener('mouseleave', startAutoplay);
+  carouselEl.addEventListener('focusin', stopAutoplay);
+  carouselEl.addEventListener('focusout', startAutoplay);
+
+  function handleManualNav(fn) {
+    fn();
+    pauseAutoplay();
+  }
+
+  prevBtn.addEventListener('click', () => handleManualNav(() => goToSlide(Math.max(0, currentSlide - 1))));
+  nextBtn.addEventListener('click', () => handleManualNav(() => goToSlide(Math.min(slides.length - 1, currentSlide + 1))));
 
   // GitHub badges
   const badgeVersion = document.getElementById('badgeVersion');
