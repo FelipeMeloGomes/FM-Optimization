@@ -1,3 +1,11 @@
+// Theme
+const html = document.documentElement;
+const saved = localStorage.getItem('theme');
+const themeMeta = document.querySelector('meta[name="theme-color"]');
+if (saved) html.dataset.theme = saved;
+else html.dataset.theme = 'dark';
+if (themeMeta) themeMeta.content = themeMeta.dataset[html.dataset.theme];
+
 document.addEventListener('DOMContentLoaded', () => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -106,4 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { threshold: 0.5 });
 
   document.querySelectorAll('.counter').forEach((el) => counterObserver.observe(el));
+
+  // Theme toggle
+  const themeBtn = document.getElementById('themeToggle');
+  function applyTheme(theme) {
+    html.dataset.theme = theme;
+    if (themeMeta) themeMeta.content = themeMeta.dataset[theme];
+  }
+  themeBtn.addEventListener('click', () => {
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+  });
 });

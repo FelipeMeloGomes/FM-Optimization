@@ -33,6 +33,30 @@
   --nav-height: 64px;
 }
 
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-primary: #f4f4f9;
+  --bg-secondary: #eaeaef;
+  --bg-card: #ffffff;
+  --border: #d0d0da;
+  --border-hover: #b0b0c0;
+  --accent: #0044ff;
+  --accent-hover: #0033dd;
+  --accent-glow: rgba(0, 68, 255, 0.15);
+  --text-primary: #1a1a2e;
+  --text-secondary: #555577;
+  --text-muted: #8888aa;
+}
+
+[data-theme="light"] .section { background: rgba(244, 244, 249, 0.85); }
+[data-theme="light"] .section-dark { background: rgba(244, 244, 249, 0.92); }
+[data-theme="light"] .navbar { background: rgba(244, 244, 249, 0.85); }
+[data-theme="light"] .footer { background: rgba(244, 244, 249, 0.85); }
+[data-theme="light"] .circuit-bg { background: none; }
+[data-theme="light"] .circuit-svg { opacity: 0.12; }
+[data-theme="light"] .traces-static path { opacity: 0.04; }
+[data-theme="light"] .flow { opacity: 0.06; }
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
@@ -125,6 +149,29 @@ a:hover { color: var(--accent-hover); }
   background: var(--accent-hover);
   box-shadow: 0 0 20px var(--accent-glow);
 }
+
+/* Theme toggle */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .2s, color .2s;
+  line-height: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.theme-toggle .sun-icon { display: block; }
+.theme-toggle .moon-icon { display: none; }
+[data-theme="light"] .theme-toggle .sun-icon { display: none; }
+[data-theme="light"] .theme-toggle .moon-icon { display: block; }
 
 /* Hero */
 .hero {
@@ -709,4 +756,5 @@ a:hover { color: var(--accent-hover); }
   .faq-item summary { font-size: 0.85rem; padding: 14px 18px; }
   .faq-item p { font-size: 0.82rem; padding: 0 18px 14px; }
   .nav-links a:not(.btn-nav) { display: none; }
+  .theme-toggle { display: flex; }
 }
