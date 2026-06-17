@@ -194,17 +194,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Demo video
   const demoPoster = document.getElementById('demoPoster');
   const demoEmbed = document.getElementById('demoEmbed');
-  const demoIframe = document.getElementById('demoIframe');
   if (demoPoster) {
     let loading = false;
     const play = () => {
       if (loading) return;
       loading = true;
-      demoIframe.src = 'https://www.youtube-nocookie.com/embed/_MQE54Anyv0?autoplay=1&vq=hd1080&rel=0';
+      demoEmbed.hidden = false;
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('title', 'Demonstração do FM Optimize');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.src = 'https://www.youtube.com/embed/_MQE54Anyv0?autoplay=1&vq=hd1080&rel=0';
+      demoEmbed.append(iframe);
       demoPoster.style.opacity = '0';
       setTimeout(() => {
         demoPoster.hidden = true;
-        demoEmbed.hidden = false;
       }, 300);
     };
     demoPoster.addEventListener('click', play);
