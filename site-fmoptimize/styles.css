@@ -933,6 +933,8 @@ a:hover { color: var(--accent-hover); }
 @media (max-width: 640px) {
   .hero-title { font-size: 2.2rem; }
   .hero-subtitle { font-size: 1rem; }
+  .stats-grid { gap: 24px; }
+  .stat-number { font-size: 1.8rem; }
   .features-grid { grid-template-columns: 1fr; }
   .categories-grid { grid-template-columns: 1fr; }
   .download-grid { grid-template-columns: 1fr; }
