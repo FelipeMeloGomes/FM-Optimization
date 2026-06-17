@@ -60,15 +60,24 @@ Os downloads são servidos diretamente via [GitHub Releases](https://github.com/
 
 ## Screenshots
 
-> **Adicione aqui prints da interface** — os screenshots devem ser salvos em `assets/screenshots/`.
+<div align="center">
+  <a href="assets/main.png"><img src="assets/main.png" alt="Janela principal do FM Optimize" width="600"></a>
+  <p><em>Janela principal com sidebar, cards de scripts e painel de log</em></p>
+</div>
 
-Sugestões de captura:
-| Tela | Descrição |
-|------|-----------|
-| `main-window.png` | Interface principal com sidebar, cards e painel de log |
-| `script-details.png` | Dialog de detalhes de um script |
-| `circuit-bg.png` | Fundo animado de circuito PCB neon |
-| `log-panel.png` | Terminal com log scrollável e cursor piscante |
+<br>
+
+<div align="center">
+  <a href="assets/script_details.png"><img src="assets/script_details.png" alt="Detalhes de um script" width="600"></a>
+  <p><em>Dialog de detalhes de um script com código-fonte e badges</em></p>
+</div>
+
+<br>
+
+<div align="center">
+  <a href="assets/terminal_log.png"><img src="assets/terminal_log.png" alt="Painel de log em tempo real" width="600"></a>
+  <p><em>Terminal com log scrollável, saída ao vivo e botões Copiar/Limpar</em></p>
+</div>
 
 ---
 
@@ -653,7 +662,9 @@ FM-Scripts/
 ├── AGENTS.md                             # Instruções de build para agente
 ├── README.md                             # Esta documentação
 ├── assets/
-│   └── screenshots/                      # Screenshots da interface
+│   ├── main.png                          # Screenshot da interface principal
+│   ├── script_details.png                # Screenshot de detalhes de script
+│   └── terminal_log.png                  # Screenshot do painel de log
 │
 ├── FMOptimize/                       # Projeto principal WPF
 │   ├── App.xaml / App.xaml.cs            # Recursos globais + DI container (com logging)
