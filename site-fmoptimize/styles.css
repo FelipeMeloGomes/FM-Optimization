@@ -48,8 +48,8 @@
   --text-muted: #7880a0;
 }
 
-[data-theme="light"] .section { background: rgba(238, 241, 247, 0.85); }
-[data-theme="light"] .section-dark { background: rgba(238, 241, 247, 0.92); }
+[data-theme="light"] .section { background: rgba(238, 241, 247, 0.6); }
+[data-theme="light"] .section-dark { background: rgba(238, 241, 247, 0.72); }
 [data-theme="light"] .navbar { background: rgba(238, 241, 247, 0.85); }
 [data-theme="light"] .footer { background: rgba(238, 241, 247, 0.85); }
 [data-theme="light"] .circuit-bg { background: radial-gradient(circle at 20% 50%, rgba(0,51,187,0.07) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,51,187,0.05) 0%, transparent 50%); }
