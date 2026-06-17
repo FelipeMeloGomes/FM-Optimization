@@ -191,29 +191,4 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('theme', next);
   });
 
-  // Demo video
-  const demoPoster = document.getElementById('demoPoster');
-  const demoEmbed = document.getElementById('demoEmbed');
-  if (demoPoster) {
-    let loading = false;
-    const play = () => {
-      if (loading) return;
-      loading = true;
-      demoEmbed.hidden = false;
-      const iframe = document.createElement('iframe');
-      iframe.setAttribute('title', 'Demonstração do FM Optimize');
-      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-      iframe.setAttribute('allowfullscreen', '');
-      iframe.src = 'https://www.youtube.com/embed/_MQE54Anyv0?autoplay=1&vq=hd1080&rel=0';
-      demoEmbed.append(iframe);
-      demoPoster.style.opacity = '0';
-      setTimeout(() => {
-        demoPoster.hidden = true;
-      }, 300);
-    };
-    demoPoster.addEventListener('click', play);
-    demoPoster.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); }
-    });
-  }
 });
