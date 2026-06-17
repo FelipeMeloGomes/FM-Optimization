@@ -194,8 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Demo video
   const demoPoster = document.getElementById('demoPoster');
   const demoEmbed = document.getElementById('demoEmbed');
+  const demoIframe = document.getElementById('demoIframe');
   if (demoPoster) {
     const play = () => {
+      demoIframe.src = 'https://www.youtube-nocookie.com/embed/_MQE54Anyv0?autoplay=1&rel=0&modestbranding=1';
       demoPoster.style.opacity = '0';
       setTimeout(() => {
         demoPoster.hidden = true;
