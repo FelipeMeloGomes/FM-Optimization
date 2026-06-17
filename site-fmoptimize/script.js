@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const play = () => {
       if (loading) return;
       loading = true;
-      demoIframe.src = 'https://www.youtube-nocookie.com/embed/_MQE54Anyv0?autoplay=1&rel=0&modestbranding=1';
+      demoIframe.src = 'https://www.youtube-nocookie.com/embed/_MQE54Anyv0?autoplay=1&vq=hd1080&rel=0&modestbranding=1';
       demoPoster.style.opacity = '0';
       setTimeout(() => {
         demoPoster.hidden = true;
