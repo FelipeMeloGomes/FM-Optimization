@@ -44,6 +44,23 @@ document.addEventListener('DOMContentLoaded', () => {
     dotsContainer.querySelectorAll('.carousel-dot').forEach((d, i) => {
       d.classList.toggle('active', i === index);
     });
+    document.getElementById('carouselCounter').textContent = (index + 1) + ' / ' + slides.length;
+    document.getElementById('carouselFadeLeft').style.opacity = index > 0 ? '1' : '0';
+    document.getElementById('carouselFadeRight').style.opacity = index < slides.length - 1 ? '1' : '0';
+    preloadAdjacent(index);
+  }
+
+  function preloadAdjacent(index) {
+    [index - 1, index + 1].forEach(i => {
+      if (i >= 0 && i < slides.length) {
+        const img = slides[i].querySelector('img');
+        if (img && !img.dataset.preloaded) {
+          img.dataset.preloaded = '1';
+          const p = new Image();
+          p.src = img.src;
+        }
+      }
+    });
   }
 
   // Autoplay
@@ -114,23 +131,75 @@ document.addEventListener('DOMContentLoaded', () => {
   // Lightbox
   const lightbox = document.createElement('div');
   lightbox.className = 'lightbox';
-  lightbox.innerHTML = '<button class="lightbox-close" aria-label="Fechar">&times;</button><img class="lightbox-img" alt="">';
+  lightbox.innerHTML = '<button class="lightbox-close" aria-label="Fechar">&times;</button><button class="lightbox-prev" aria-label="Anterior">&lsaquo;</button><button class="lightbox-next" aria-label="Próximo">&rsaquo;</button><img class="lightbox-img" alt="">';
   document.body.appendChild(lightbox);
 
   const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const lightboxPrev = lightbox.querySelector('.lightbox-prev');
+  const lightboxNext = lightbox.querySelector('.lightbox-next');
+  const carouselImgs = document.querySelectorAll('.carousel-img');
+  let lightboxIndex = 0;
+  let lightboxZoom = 1;
 
-  document.querySelectorAll('.carousel-img').forEach((img) => {
-    img.addEventListener('click', () => {
-      lightboxImg.src = img.src;
-      lightboxImg.alt = img.alt;
-      lightbox.classList.add('open');
-    });
+  function resetLightbox() {
+    lightboxZoom = 1;
+    lightboxImg.style.transform = '';
+    lightboxImg.style.transition = '';
+  }
+
+  function openLightbox(index) {
+    lightboxIndex = index;
+    resetLightbox();
+    const img = carouselImgs[index];
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightbox.classList.add('open');
+    lightboxPrev.style.display = index > 0 ? '' : 'none';
+    lightboxNext.style.display = index < carouselImgs.length - 1 ? '' : 'none';
+  }
+
+  function navLightbox(delta) {
+    const i = lightboxIndex + delta;
+    if (i >= 0 && i < carouselImgs.length) openLightbox(i);
+  }
+
+  carouselImgs.forEach((img, i) => {
+    img.addEventListener('click', () => openLightbox(i));
   });
 
-  lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
+  lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); navLightbox(-1); });
+  lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); navLightbox(1); });
+
+  lightboxImg.addEventListener('click', (e) => e.stopPropagation());
+  lightboxImg.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    lightboxZoom = Math.max(1, Math.min(5, lightboxZoom - e.deltaY * 0.002));
+    lightboxImg.style.transition = 'none';
+    lightboxImg.style.transform = 'scale(' + lightboxZoom + ')';
+  }, { passive: false });
+
+  lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('open');
+    resetLightbox();
+  });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') lightbox.classList.remove('open');
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') { lightbox.classList.remove('open'); resetLightbox(); }
+    if (e.key === 'ArrowLeft') navLightbox(-1);
+    if (e.key === 'ArrowRight') navLightbox(1);
   });
+
+  // Swipe down to close lightbox
+  let lightboxTouchY = 0;
+  lightbox.addEventListener('touchstart', (e) => {
+    lightboxTouchY = e.changedTouches[0].clientY;
+  }, { passive: true });
+  lightbox.addEventListener('touchend', (e) => {
+    if (e.changedTouches[0].clientY - lightboxTouchY > 80) {
+      lightbox.classList.remove('open');
+      resetLightbox();
+    }
+  }, { passive: true });
 
   // Carousel keyboard
   const carouselSection = document.getElementById('screenshots');
