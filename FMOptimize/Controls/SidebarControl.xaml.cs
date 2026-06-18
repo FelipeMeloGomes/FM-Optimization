@@ -27,6 +27,14 @@ public partial class SidebarControl
         DependencyProperty.Register(nameof(AddScriptCommand), typeof(ICommand), typeof(SidebarControl),
             new PropertyMetadata(null));
 
+    public static readonly DependencyProperty NavigateToDashboardCommandProperty =
+        DependencyProperty.Register(nameof(NavigateToDashboardCommand), typeof(ICommand), typeof(SidebarControl),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty IsDashboardProperty =
+        DependencyProperty.Register(nameof(IsDashboard), typeof(bool), typeof(SidebarControl),
+            new PropertyMetadata(false));
+
     public IEnumerable Categories
     {
         get => (IEnumerable)GetValue(CategoriesProperty);
@@ -55,6 +63,18 @@ public partial class SidebarControl
     {
         get => (ICommand?)GetValue(AddScriptCommandProperty);
         set => SetValue(AddScriptCommandProperty, value);
+    }
+
+    public ICommand? NavigateToDashboardCommand
+    {
+        get => (ICommand?)GetValue(NavigateToDashboardCommandProperty);
+        set => SetValue(NavigateToDashboardCommandProperty, value);
+    }
+
+    public bool IsDashboard
+    {
+        get => (bool)GetValue(IsDashboardProperty);
+        set => SetValue(IsDashboardProperty, value);
     }
 
     public SidebarControl()

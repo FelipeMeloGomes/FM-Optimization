@@ -38,8 +38,9 @@ O FM Optimize é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimi
 - **Rede** — limpa DNS, reseta TCP/IP, testa latência, bloqueia telemetria
 - **Privacidade** — desativa telemetria, Defender, Cortana, Copilot e Windows Update
 - **Sistema** — repara arquivos (SFC/DISM), limpa WinSxS, gera relatório
-- **GPU AMD/NVIDIA** — tweaks de latência e instalação limpa de drivers
+- **GPU AMD/NVIDIA/Intel** — tweaks de latência e instalação limpa de drivers
 - **Energia** — ativa planos Ultimate Performance e Alto Desempenho
+
 
 ---
 
@@ -117,6 +118,8 @@ Os downloads são servidos diretamente via [GitHub Releases](https://github.com/
 ## Scripts Disponíveis
 
 ### Tabela Resumo
+
+Abaixo os 90 scripts disponíveis em 11 categorias.
 
 | # | Nome | Tipo | Admin | Categoria |
 |---|------|------|-------|-----------|
@@ -563,7 +566,7 @@ A interface é dividida em 3 colunas:
 |---|---|---|
 | **SidebarControl** | `Controls/SidebarControl.xaml` | Logo FM/OPTIMIZATION pulsante, lista de categorias com ícones SVG, destaque ativo com glow, botões "Adicionar Script" e "Gerenciar Categorias" |
 | **TopBarControl** | `Controls/TopBarControl.xaml` | Título da categoria ativa + badge de contagem, campo de busca com glow neon no foco |
-| **ScriptCardControl** | `Controls/ScriptCardControl.xaml` | Card de 320px com animação fade-in/scale, nome, descrição, badges (ADMIN, categoria, tipo), botões Detalhes/Editar/Remover/Executar/Parar, estrela de favorito com animação |
+| **ScriptCardControl** | `Controls/ScriptCardControl.xaml` | Card de 280px com animação fade-in/scale, nome, descrição, badges (ADMIN, categoria, tipo), botões Detalhes/Editar/Remover/Executar/Parar, estrela de favorito com animação |
 | **LogPanelControl** | `Controls/LogPanelControl.xaml` | Terminal com log em fonte monospace, cursor piscante, botões Copiar/Limpar com animação, toggle expandir/recolher |
 | **CircuitBackground** | `Controls/CircuitBackground.xaml` | Fundo animado de circuito PCB com 7 traços de fluxo, 10 nós pulsantes e 3 nós de junção com glow |
 
@@ -799,11 +802,8 @@ Scripts embutidos (built-in) são recarregados automaticamente do `ScriptRegistr
 
 ## Roadmap
 
-- [ ] **Categoria "Windows 11"** — já preparada no código (`GetCatIcon` reconhece o ícone), aguardando scripts específicos
-- [ ] **Execução agendada** — permitir agendar scripts para execução periódica
 - [ ] **Perfis de otimização** — combinar múltiplos scripts em um único clique
 - [ ] **Backup automático** — salvar `scripts_data.json` com timestamp antes de alterações
-- [ ] **Temas adicionais** — suporte a temas claros e customizados
 
 ---
 

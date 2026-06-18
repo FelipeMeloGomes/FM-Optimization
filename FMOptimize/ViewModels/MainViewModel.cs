@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FMOptimize.Converters;
 using FMOptimize.Helpers;
 using FMOptimize.Models;
 using FMOptimize.Resources;
@@ -20,9 +20,29 @@ public partial class MainViewModel : ObservableObject
     private readonly IDataService _dataService;
     private readonly IScriptExtractionService _extractor;
     private readonly IScriptFilterService _filterService;
+    private readonly ISystemInfoService _systemInfoService;
     private readonly ILogger<MainViewModel> _logger;
     private AppData _data = new();
     private string _searchText = "";
+
+    /// <summary>Gets or sets the dashboard system info data.</summary>
+    [ObservableProperty]
+    private DashboardData? dashboardData;
+
+    private static readonly string[] CategoryOrder =
+    [
+        "Limpeza",
+        "Desempenho",
+        "Energia",
+        "Privacidade",
+        "Rede",
+        "Internet",
+        "Sistema",
+        "GPU - AMD",
+        "GPU - NVIDIA",
+        "Windows 11",
+        "Scripts Completos",
+    ];
     private CancellationTokenSource? _searchCts;
 
     /// <summary>Gets or sets the currently selected category name used to filter scripts.</summary>
@@ -53,6 +73,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool isLoading;
 
+    /// <summary>Gets or sets whether the dashboard view is active.</summary>
+    [ObservableProperty]
+    private bool isDashboard;
+
     /// <summary>Gets or sets the search text used to filter scripts by name or description.</summary>
     public string SearchText
     {
@@ -69,18 +93,21 @@ public partial class MainViewModel : ObservableObject
     /// <param name="executor">The script execution service.</param>
     /// <param name="extractor">The script extraction service.</param>
     /// <param name="filterService">The script filter service.</param>
+    /// <param name="systemInfoService">The system info service for dashboard data.</param>
     /// <param name="logger">The logger.</param>
     public MainViewModel(
         IDataService dataService,
         IScriptExecutionService executor,
         IScriptExtractionService extractor,
         IScriptFilterService filterService,
+        ISystemInfoService systemInfoService,
         ILogger<MainViewModel> logger)
     {
         _dataService = dataService;
         _executor = executor;
         _extractor = extractor;
         _filterService = filterService;
+        _systemInfoService = systemInfoService;
         _logger = logger;
         _executor.OnLog += OnScriptLog;
         LoadData();
@@ -164,7 +191,28 @@ public partial class MainViewModel : ObservableObject
     {
         if (SelectedCategory == category) return;
         SelectedCategory = category;
+        IsDashboard = false;
         ApplyFilter();
+    }
+
+    /// <summary>Navigates to the dashboard view, loading system info on first access.</summary>
+    [RelayCommand]
+    private async Task NavigateToDashboard()
+    {
+        if (IsDashboard) return;
+        IsDashboard = true;
+        if (DashboardData == null)
+        {
+            IsLoading = true;
+            try
+            {
+                DashboardData = await _systemInfoService.GetSystemInfoAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
     }
 
     private void UpdateCategoryActive()
@@ -175,8 +223,10 @@ public partial class MainViewModel : ObservableObject
 
     private void RefreshCategories()
     {
+        var order = CategoryOrder.Select((name, idx) => (name, idx))
+            .ToDictionary(x => x.name, x => x.idx);
         var allCats = new List<string> { Strings.CategoryAll, Strings.CategoryFavorites };
-        allCats.AddRange(_data.Categorias);
+        allCats.AddRange(_data.Categorias.OrderBy(c => order.TryGetValue(c, out var i) ? i : int.MaxValue));
         Categories = new ObservableCollection<CategoryItem>(
             allCats.Select(c => new CategoryItem { Name = c, Icon = GetCatIcon(c) }));
         UpdateCategoryActive();

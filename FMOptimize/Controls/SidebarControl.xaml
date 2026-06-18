@@ -118,6 +118,41 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="2">
+            <Rectangle Height="1" Fill="{StaticResource BorderDefaultBrush}" Margin="12,0"/>
+
+            <Border Height="40" Cursor="Hand"
+                    BorderBrush="{StaticResource BorderDefaultBrush}"
+                    BorderThickness="0" x:Name="DashboardBtn">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1a1a3e"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="{Binding NavigateToDashboardCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                </Border.InputBindings>
+                <Grid Margin="20,0,12,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                          Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                          VerticalAlignment="Center"
+                          Data="M3,3 L17,3 L17,17 L3,17 Z M5,5 L15,5 L15,15 L5,15 Z"/>
+                    <TextBlock Grid.Column="1" Text="Dashboard" FontSize="13"
+                               Foreground="{StaticResource NeonBlueBrush}"
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"/>
+                </Grid>
+            </Border>
+
             <Border Height="40" Cursor="Hand"
                     BorderBrush="{StaticResource BorderDefaultBrush}"
                     BorderThickness="0" x:Name="AddScriptBtn">

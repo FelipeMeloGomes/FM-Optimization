@@ -23,6 +23,7 @@ public partial class App : Application
         sc.AddTransient<IScriptExecutionService, ScriptExecutionService>();
         sc.AddTransient<IScriptExtractionService, ScriptExtractionService>();
         sc.AddSingleton<IScriptFilterService, ScriptFilterService>();
+        sc.AddSingleton<ISystemInfoService, SystemInfoService>();
         sc.AddTransient<ViewModels.MainViewModel>();
         sc.AddTransient<MainWindow>();
 

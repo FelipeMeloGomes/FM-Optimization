@@ -34,6 +34,7 @@
             <Color x:Key="GreenRun">#00e676</Color>
             <Color x:Key="GreenDark">#00c853</Color>
             <Color x:Key="RedError">#ff1744</Color>
+            <Color x:Key="OrangeWarn">#ff9100</Color>
 
             <!-- Brushes -->
             <SolidColorBrush x:Key="BgDeepBrush" Color="{StaticResource BgDeep}"/>
@@ -54,6 +55,7 @@
             <SolidColorBrush x:Key="NeonBlueDarkBrush" Color="{StaticResource NeonBlueDark}"/>
             <SolidColorBrush x:Key="GreenRunBrush" Color="{StaticResource GreenRun}"/>
             <SolidColorBrush x:Key="RedErrorBrush" Color="{StaticResource RedError}"/>
+            <SolidColorBrush x:Key="OrangeWarnBrush" Color="{StaticResource OrangeWarn}"/>
 
             <!-- Gradient Brushes -->
             <LinearGradientBrush x:Key="SidebarGradient" StartPoint="0,0" EndPoint="0,1">
@@ -131,6 +133,8 @@
             <conv:BoolToStarConverter x:Key="BoolToStar"/>
             <conv:AdminToVisibilityConverter x:Key="AdminToVisibility"/>
             <conv:LogLevelToColorConverter x:Key="LogLevelToColor"/>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
 
             <!-- Global Styles -->
             <Style TargetType="Window" x:Key="DarkWindowStyle">
