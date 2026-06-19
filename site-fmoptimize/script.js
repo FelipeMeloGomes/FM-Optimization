@@ -260,4 +260,39 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('theme', next);
   });
 
+  // Releases / Docs
+  const releasesContainer = document.getElementById('releasesContainer');
+  if (releasesContainer) {
+    fetch('https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(releases => {
+        if (!releases.length) {
+          releasesContainer.innerHTML = '<p class="releases-error" style="color:var(--text-muted)">Nenhuma release encontrada.</p>';
+          return;
+        }
+        const html = releases.map(r => {
+          const date = new Date(r.created_at);
+          const dateStr = date.toLocaleDateString('pt-BR', {
+            day: 'numeric', month: 'long', year: 'numeric'
+          });
+          const bodyHtml = marked.parse(r.body || '');
+          return `
+            <div class="release-card fade-in">
+              <div class="release-header">
+                <span class="release-tag">${r.tag_name}</span>
+                <span class="release-date">${dateStr}</span>
+              </div>
+              <div class="release-name">${r.name}</div>
+              <div class="release-body">${bodyHtml}</div>
+            </div>
+          `;
+        }).join('');
+        releasesContainer.innerHTML = html;
+        document.querySelectorAll('#releasesContainer .fade-in').forEach(el => observer.observe(el));
+      })
+      .catch(() => {
+        releasesContainer.innerHTML = '<p class="releases-error">Não foi possível carregar o changelog. Tente novamente mais tarde.</p>';
+      });
+  }
+
 });
