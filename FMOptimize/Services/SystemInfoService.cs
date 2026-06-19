@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.IO;
 using System.Management;
+using System.Text.Json;
 using FMOptimize.Models;
 using Microsoft.Win32;
 
@@ -365,6 +367,165 @@ public class SystemInfoService : ISystemInfoService
         return "HDD";
     }
 
+    public async Task<(bool Success, string Message)> CreateRestorePointAsync(string description)
+    {
+        var proc = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "powershell",
+                Arguments = $"-NoProfile -Command \"Checkpoint-Computer -Description '{description.Replace("'", "''")}' -RestorePointType MODIFY_SETTINGS -ErrorAction Stop\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+            }
+        };
+        try
+        {
+            proc.Start();
+
+            var readError = proc.StandardError.ReadToEndAsync();
+            _ = proc.StandardOutput.ReadToEndAsync();
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+            await proc.WaitForExitAsync(cts.Token);
+
+            var err = (await readError).Trim();
+
+            if (proc.ExitCode == 0)
+                return (true, "Ponto de restauração criado com sucesso!");
+
+            var msg = string.IsNullOrEmpty(err)
+                ? "Falha ao criar ponto de restauração. Verifique se a Proteção do Sistema está ativada (Painel de Controle > Sistema > Proteção do Sistema)."
+                : err;
+            return (false, msg);
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Backup cancelado (tempo limite de 2 min excedido).");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Erro ao criar backup: {ex.Message}");
+        }
+        finally
+        {
+            proc.Dispose();
+        }
+    }
+
+    public async Task<List<RestorePointEntry>> GetRestorePointsAsync()
+    {
+        var proc = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "powershell",
+                Arguments = "-NoProfile -Command \"Get-CimInstance -Namespace root/default -ClassName SystemRestore | Select-Object Description, CreationTime, SequenceNumber, @{N='RestorePointType';E={switch([int]$_.RestorePointType){1{'App Install'};7{'Cancelado'};10{'Driver'};12{'Manual'};13{'Sistema'};default{'Outro'}}}} | ConvertTo-Json\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+            }
+        };
+        try
+        {
+            proc.Start();
+            var readOut = proc.StandardOutput.ReadToEndAsync();
+            var readErr = proc.StandardError.ReadToEndAsync();
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            await proc.WaitForExitAsync(cts.Token);
+            var json = (await readOut).Trim();
+            if (string.IsNullOrWhiteSpace(json))
+                return [];
+
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+            var list = System.Text.Json.JsonSerializer.Deserialize<List<RestorePointEntry>>(json, options);
+            if (list != null)
+            {
+                for (var i = 0; i < list.Count; i++)
+                {
+                    var e = list[i];
+                    try
+                    {
+                        var dt = ManagementDateTimeConverter.ToDateTime(e.DataCriacao);
+                        list[i] = e with { DataCriacao = dt.ToString("yyyy-MM-dd HH:mm") };
+                    }
+                    catch { }
+                }
+            }
+            return list ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+        finally
+        {
+            proc.Dispose();
+        }
+    }
+
+    public async Task<(bool Success, string Message)> DeleteRestorePointAsync(int sequenceNumber)
+    {
+        try
+        {
+            var result = await Task.Run(() => NativeMethods.SRRemoveRestorePoint(sequenceNumber));
+            if (result == 0)
+                return (true, "Ponto de restauração excluído com sucesso!");
+            return (false, $"Falha ao excluir. Código: {result}");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Erro ao excluir: {ex.Message}");
+        }
+    }
+
+    public async Task<(bool Success, string Message)> RestoreSystemAsync(int sequenceNumber)
+    {
+        var proc = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "powershell",
+                Arguments = $"-NoProfile -Command \"Restore-Computer -RestorePoint {sequenceNumber} -ErrorAction Stop\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+            }
+        };
+        try
+        {
+            proc.Start();
+            var readError = proc.StandardError.ReadToEndAsync();
+            _ = proc.StandardOutput.ReadToEndAsync();
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+            await proc.WaitForExitAsync(cts.Token);
+            var err = (await readError).Trim();
+            if (proc.ExitCode == 0)
+                return (true, "Restauração iniciada. O sistema será reiniciado automaticamente.");
+            var msg = string.IsNullOrEmpty(err) ? "Falha ao iniciar restauração." : err;
+            return (false, msg);
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Restauração cancelada (tempo limite excedido).");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Erro ao restaurar: {ex.Message}");
+        }
+        finally
+        {
+            proc.Dispose();
+        }
+    }
+
     private static List<TweakInfo> GetTweakStatuses()
     {
         var tweaks = new List<TweakInfo>();
@@ -425,4 +586,10 @@ public class SystemInfoService : ISystemInfoService
 
         return tweaks;
     }
+}
+
+internal static class NativeMethods
+{
+    [System.Runtime.InteropServices.DllImport("srclient.dll", SetLastError = true)]
+    internal static extern int SRRemoveRestorePoint(int dwSequenceNumber);
 }

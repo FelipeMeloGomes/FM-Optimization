@@ -333,6 +333,59 @@ public partial class MainViewModel : ObservableObject
         OnManageCategories?.Invoke();
     }
 
+    /// <summary>Creates a Windows System Restore Point via PowerShell.</summary>
+    [RelayCommand]
+    private async Task CreateBackup()
+    {
+        IsLoading = true;
+        try
+        {
+            var result = await _systemInfoService.CreateRestorePointAsync("FM Optimize - Backup manual");
+            var icon = result.Success ? "✓" : "✗";
+            var caption = result.Success ? "Backup concluído" : "Falha no backup";
+            Log($"{icon} {result.Message}", result.Success ? LogLevel.End : LogLevel.Error);
+            _ = MessageBox.Show(result.Message, caption, MessageBoxButton.OK,
+                result.Success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            Log($"Erro ao criar backup: {ex.Message}", LogLevel.Error);
+            _ = MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>Shows existing System Restore Points in a styled dialog.</summary>
+    [RelayCommand]
+    private async Task ViewRestores()
+    {
+        IsLoading = true;
+        try
+        {
+            var entries = await _systemInfoService.GetRestorePointsAsync();
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var dialog = new DialogRestorePoints(entries, _systemInfoService)
+                {
+                    Owner = Application.Current.MainWindow,
+                };
+                _ = dialog.ShowDialog();
+            });
+        }
+        catch (Exception ex)
+        {
+            Log($"Erro ao listar restores: {ex.Message}", LogLevel.Error);
+            _ = MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     /// <summary>Copies all log messages to the system clipboard as a newline-separated string.</summary>
     [RelayCommand]
     private void CopyLog()

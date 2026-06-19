@@ -93,7 +93,10 @@
             <!-- Dashboard View -->
             <controls:DashboardControl
                 Visibility="{Binding DataContext.IsDashboard, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BoolToVis}}"
-                DataContext="{Binding DashboardData}"/>
+                DataContext="{Binding DashboardData}"
+                CreateBackupCommand="{Binding DataContext.CreateBackupCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                IsBackingUp="{Binding DataContext.IsLoading, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                ViewRestoresCommand="{Binding DataContext.ViewRestoresCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
         </Grid>
     </Grid>
 </Window>

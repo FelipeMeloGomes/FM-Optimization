@@ -44,6 +44,16 @@ public record TweakInfo(
     string Nome,
     bool Ativo);
 
+public record RestorePointEntry(
+    [property: System.Text.Json.Serialization.JsonPropertyName("Description")]
+    string Descricao,
+    [property: System.Text.Json.Serialization.JsonPropertyName("CreationTime")]
+    string DataCriacao,
+    [property: System.Text.Json.Serialization.JsonPropertyName("SequenceNumber")]
+    int SequenceNumber,
+    [property: System.Text.Json.Serialization.JsonPropertyName("RestorePointType")]
+    string Tipo);
+
 public class DashboardData
 {
     public CpuInfo? Cpu { get; init; }
