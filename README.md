@@ -99,16 +99,19 @@ Os downloads são servidos diretamente via [GitHub Releases](https://github.com/
 
 ## Funcionalidades
 
+- **Dashboard** — visão geral do sistema: CPU (modelo/núcleos), GPU (modelo/VRAM), Memória (total/tipo DDR), Sistema (OS/versão), Armazenamento (disco primário/total)
+- **Restore Points** — criar, listar, restaurar e excluir pontos de restauração do Windows com confirmação e status
+- **Settings** — tela de configurações
 - **90 Scripts Embutidos** em 11 categorias (Limpeza, Desempenho, Internet, Rede, Privacidade, Sistema, GPU - AMD, GPU - NVIDIA, Energia, Windows 11, Scripts Completos)
 - **Tema escuro azul neon** com acentos `#0044ff`, ícones SVG e gradientes
 - **Circuito animado no fundo** — traços de PCB com pulsos de dados fluindo (efeito neon)
-- **Interface componentizada**: Sidebar, TopBar, ScriptCard e LogPanel como UserControls independentes
+- **Interface componentizada**: Sidebar, TopBar, ScriptCard, Dashboard, Restore Points, Settings e LogPanel como UserControls independentes
 - **Busca instantânea** (Ctrl+F) com glow neon no foco e debounce de 150ms
 - **Favoritos**: marque scripts com estrela e filtre rapidamente
 - **Log em tempo real** com terminal scrollável, cursor piscante e botões Copiar/Limpar
 - **Execução inteligente**: `.bat`, `.cmd`, `.ps1`, `.reg`, `.exe` com detecção de admin
 - **Cancelamento**: botão "■ Parar" vermelho substitui o "▶ Executar" durante execução — kill completo da árvore de processos
-- **Gerenciamento**: adicione por arquivo ou código direto, edite ou remova scripts e categorias
+- **Gerenciamento**: adicione por arquivo ou código direto, edite ou remova scripts e categorias (identificados por ID único)
 - **Elevação UAC**: executável requer administrador automaticamente na abertura
 - **Animações escalonadas**: cards com fade-in e scale sequenciais (IndexToDelayConverter)
 - **Badges visuais**: cores distintas por tipo de arquivo (BAT=verde, PS1=ciano, EXE/REG=laranja)
@@ -539,44 +542,47 @@ FMOptimize.exe/
 
 ### Layout Principal
 
-A interface é dividida em 3 colunas:
+A interface é dividida em sidebar (200px) + conteúdo principal, navegando entre seções:
 
 ```
-┌─────────┬──┬──────────────────────────────────────┐
-│         │  │  TopBarControl                       │
-│ Sidebar │  │  (título + badge + busca)            │
-│ Control │G │──────────────────────────────────────│
-│         │r │                                      │
-│ Catego- │i │  ScriptCards (WrapPanel)             │
-│ rias    │d │  ● Fade-in + scale animados          │
-│ com     │S │  ● Badges de tipo e admin            │
-│ ícones  │p │  ● Estrela de favorito               │
-│ SVG     │l │  ● Botão Executar / Parar            │
-│         │i │                                      │
-│ [Add]   │t │──────────────────────────────────────│
-│ [Manage]│t │  LogPanelControl                     │
-│         │e │  (terminal scrollável com cursor      │
-│         │r │   piscante + Copiar/Limpar)          │
-└─────────┴──┴──────────────────────────────────────┘
+┌──────────┬───────────────────────────────────────────┐
+│          │  Dashboard / Restore Points / Settings     │
+│  Sidebar │  ou                                        │
+│          │  TopBar (título + badge + busca)           │
+│  Categor │  ScriptCards (WrapPanel)                   │
+│  ias     │  ● Fade-in + scale animados                │
+│  com     │  ● Badges de tipo e admin                  │
+│  ícones  │  ● Estrela de favorito                     │
+│  SVG     │  ● Botão Executar / Parar                  │
+│          │────────────────────────────────────────────│
+│  [Novo]  │  LogPanelControl                           │
+│  [Geren] │  (terminal scrollável + Copiar/Limpar)     │
+│          │                                            │
+│ ──────── │                                            │
+│ Config   │                                            │
+└──────────┴───────────────────────────────────────────┘
 ```
 
 ### UserControls
 
 | Control | Arquivo | Descrição |
-|---|---|---|
-| **SidebarControl** | `Controls/SidebarControl.xaml` | Logo FM/OPTIMIZATION pulsante, lista de categorias com ícones SVG, destaque ativo com glow, botões "Adicionar Script" e "Gerenciar Categorias" |
+|---|---|---|---|
+| **SidebarControl** | `Controls/SidebarControl.xaml` | Logo FM/OPTIMIZATION pulsante, lista de categorias com ícones SVG, destaque ativo com glow, botões "Adicionar Script" e "Gerenciar Categorias", Configurações fixo no rodapé |
 | **TopBarControl** | `Controls/TopBarControl.xaml` | Título da categoria ativa + badge de contagem, campo de busca com glow neon no foco |
 | **ScriptCardControl** | `Controls/ScriptCardControl.xaml` | Card de 280px com animação fade-in/scale, nome, descrição, badges (ADMIN, categoria, tipo), botões Detalhes/Editar/Remover/Executar/Parar, estrela de favorito com animação |
+| **DashboardControl** | `Controls/DashboardControl.xaml` | Visão geral do sistema: CPU, GPU, memória, SO, armazenamento — auto-carregada na inicialização |
+| **RestorePointsControl** | `Controls/RestorePointsControl.xaml` | Gerenciamento de pontos de restauração: criar, listar, restaurar e excluir com loading, retry e dedup |
+| **SettingsControl** | `Controls/SettingsControl.xaml` | Tela de configurações do aplicativo |
 | **LogPanelControl** | `Controls/LogPanelControl.xaml` | Terminal com log em fonte monospace, cursor piscante, botões Copiar/Limpar com animação, toggle expandir/recolher |
 | **CircuitBackground** | `Controls/CircuitBackground.xaml` | Fundo animado de circuito PCB com 7 traços de fluxo, 10 nós pulsantes e 3 nós de junção com glow |
 
 ### Dialogs
 
 | Dialog | Arquivo | Descrição |
-|---|---|---|
+|---|---|---|---|
 | **Detalhes do Script** | `Views/DialogDetalhes.xaml` | Exibe nome, descrição detalhada, código-fonte do script, badges de tipo e admin |
 | **Editar/Adicionar Script** | `Views/DialogEditScript.xaml` | Adiciona ou edita script por seleção de arquivo ou colagem de código |
-| **Gerenciar Categorias** | `Views/DialogManageCategories.xaml` | Adiciona ou remove categorias personalizadas |
+| **Restaurar/Excluir Restore Point** | `Views/DialogRestorePoints.xaml` | Confirmação e execução de restauração ou exclusão de ponto de restauração |
 
 ### Atalhos de Teclado
 
@@ -661,11 +667,13 @@ MainViewModel.LoadData()
 ```
 App.xaml.cs        → DI Container (ServiceProvider) com logging configurado
 MainWindow.xaml    → View (XAML) + Code-behind (eventos, dialogs)
-├─ Controls/       → UserControls reutilizáveis (Sidebar, TopBar, ScriptCard, LogPanel, CircuitBackground)
-├─ ViewModels/     → MainViewModel (~450 linhas, lógica central)
-├─ Services/       → 5 serviços: DataService, ScriptExecutionService, ScriptRegistry,
-│                    ScriptExtractionService, ScriptFilterService
-├─ Models/         → ScriptModel, AppData, ScriptData, CategoryItem, LogEntry, LogLevel
+├─ Controls/       → UserControls reutilizáveis (8 controles: Sidebar, TopBar, ScriptCard,
+│                    DashboardControl, RestorePointsControl, SettingsControl, LogPanel, CircuitBackground)
+├─ ViewModels/     → MainViewModel (~480 linhas, lógica central)
+├─ Services/       → 6 serviços: DataService, SystemInfoService, ScriptExecutionService,
+│                    ScriptRegistry, ScriptExtractionService, ScriptFilterService
+├─ Models/         → ScriptModel, AppData, ScriptData, DashboardModels (CPU, GPU, RAM, SO, disco),
+│                    RestorePointEntry, TweakInfo, LogEntry, LogLevel
 ├─ Converters/     → 8 converters (cor, opacidade, visibilidade, índice → tempo, etc.)
 └─ Helpers/        → SecurityHelper (verificação de admin)
 ```
@@ -704,8 +712,11 @@ FM-Scripts/
 │   │
 │   ├── Controls/
 │   │   ├── CircuitBackground.xaml/.cs    # Fundo animado circuito PCB neon
+│   │   ├── DashboardControl.xaml/.cs     # Dashboard com info do sistema
 │   │   ├── LogPanelControl.xaml/.cs      # Terminal com log scrollável
+│   │   ├── RestorePointsControl.xaml/.cs # Gerenciamento de restore points
 │   │   ├── ScriptCardControl.xaml/.cs    # Card de script
+│   │   ├── SettingsControl.xaml/.cs      # Tela de configurações
 │   │   ├── SidebarControl.xaml/.cs       # Sidebar com categorias
 │   │   └── TopBarControl.xaml/.cs        # Topo: título, busca, ações
 │   │
@@ -737,15 +748,16 @@ FM-Scripts/
 │   │   ├── ScriptExecutionService.cs / IScriptExecutionService.cs  # Execução de processos
 │   │   ├── ScriptExtractionService.cs / IScriptExtractionService.cs  # Extração Base64→TEMP
 │   │   ├── ScriptFilterService.cs / IScriptFilterService.cs        # Filtro por categoria + busca
-│   │   └── ScriptRegistry.cs                             # 90 scripts em Base64
+│   │   ├── ScriptRegistry.cs                             # 90 scripts em Base64
+│   │   └── SystemInfoService.cs / ISystemInfoService.cs  # Informações do sistema (CPU, GPU, RAM, restore points)
 │   │
 │   ├── ViewModels/
-│   │   └── MainViewModel.cs                           # VM principal (~450 linhas)
+│   │   └── MainViewModel.cs                           # VM principal (~480 linhas)
 │   │
-│   └── Views/
-│       ├── DialogDetalhes.xaml/.cs                    # Detalhes do script
-│       ├── DialogEditScript.xaml/.cs                  # Adicionar/editar script
-│       └── DialogManageCategories.xaml/.cs            # Gerenciar categorias
+    │   └── Views/
+    │       ├── DialogDetalhes.xaml/.cs                    # Detalhes do script
+    │       ├── DialogEditScript.xaml/.cs                  # Adicionar/editar script
+    │       └── DialogRestorePoints.xaml/.cs               # Dialog restaurar/excluir restore point
 │
 ├── FMOptimize.Tests/                # Projeto de testes unitários
 │   ├── FMOptimize.Tests.csproj       # MSTest + Moq + FluentAssertions
@@ -802,8 +814,9 @@ Scripts embutidos (built-in) são recarregados automaticamente do `ScriptRegistr
 
 ## Roadmap
 
+- [ ] **Agendamento de tarefas** — executar scripts em horário agendado
 - [ ] **Perfis de otimização** — combinar múltiplos scripts em um único clique
-- [ ] **Backup automático** — salvar `scripts_data.json` com timestamp antes de alterações
+- [ ] **Relatório de impacto** — mostrar o que cada script altera antes de executar
 
 ---
 

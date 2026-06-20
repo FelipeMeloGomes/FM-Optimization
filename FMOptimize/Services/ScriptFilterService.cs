@@ -19,6 +19,6 @@ public class ScriptFilterService : IScriptFilterService
                 s.Nome.ToLower().Contains(busca) ||
                 s.Descricao.ToLower().Contains(busca));
 
-        return source;
+        return source.OrderByDescending(s => s.IsFavorito);
     }
 }

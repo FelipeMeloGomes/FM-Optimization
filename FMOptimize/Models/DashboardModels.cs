@@ -17,10 +17,7 @@ public record GpuInfo(
 
 public record MemoryInfo(
     string Total,
-    string Usado,
-    string Livre,
-    double PercentualUso,
-    string Slots);
+    string TipoMemoria);
 
 public record SystemInfoBasic(
     string VersaoWindows,
@@ -60,7 +57,6 @@ public class DashboardData
     public GpuInfo? Gpu { get; init; }
     public MemoryInfo? Memory { get; init; }
     public SystemInfoBasic? System { get; init; }
-    public List<StorageDrive> Storage { get; init; } = [];
-    public List<TweakInfo> Tweaks { get; init; } = [];
-    public string NomeUsuario { get; init; } = "";
+    public string PrimaryDisk { get; init; } = "";
+    public string PrimaryDiskTotal { get; init; } = "";
 }

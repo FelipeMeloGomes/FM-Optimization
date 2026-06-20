@@ -31,6 +31,10 @@ public partial class ScriptModel : ObservableObject
     [ObservableProperty]
     private bool isEmbedded;
 
+    /// <summary>Gets or sets the unique identifier.</summary>
+    [ObservableProperty]
+    private string id = "";
+
     /// <summary>Gets or sets whether the script requires administrator privileges.</summary>
     [ObservableProperty]
     private bool admin;
@@ -81,6 +85,9 @@ public class AppData
 /// <summary>Represents a serializable script entry stored in application data.</summary>
 public class ScriptData
 {
+    /// <summary>Gets or sets the unique identifier.</summary>
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
     /// <summary>Gets or sets the script name.</summary>
     public string Nome { get; set; } = "";
 

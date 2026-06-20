@@ -26,24 +26,54 @@
         </Grid.ColumnDefinitions>
 
         <controls:SidebarControl Grid.Column="0"
-            Categories="{Binding Categories}"
-            SelectedCategory="{Binding SelectedCategory}"
-            SelectCategoryCommand="{Binding SelectCategoryCommand}"
-            ManageCategoriesCommand="{Binding ManageCategoriesCommand}"
-            AddScriptCommand="{Binding AddScriptCommand}"
+            IsDashboard="{Binding IsDashboard}"
+            IsTweaks="{Binding IsTweaks}"
+            IsUtilities="{Binding IsUtilities}"
+            IsCleaner="{Binding IsCleaner}"
+            IsRestorePoints="{Binding IsRestorePoints}"
+            IsDnsManager="{Binding IsDnsManager}"
+            IsApps="{Binding IsApps}"
+            IsSettings="{Binding IsSettings}"
             NavigateToDashboardCommand="{Binding NavigateToDashboardCommand}"
-            IsDashboard="{Binding IsDashboard}"/>
+            NavigateToTweaksCommand="{Binding NavigateToTweaksCommand}"
+            NavigateToUtilitiesCommand="{Binding NavigateToUtilitiesCommand}"
+            NavigateToCleanerCommand="{Binding NavigateToCleanerCommand}"
+            NavigateToRestorePointsCommand="{Binding NavigateToRestorePointsCommand}"
+            NavigateToDnsManagerCommand="{Binding NavigateToDnsManagerCommand}"
+            NavigateToAppsCommand="{Binding NavigateToAppsCommand}"
+            NavigateToSettingsCommand="{Binding NavigateToSettingsCommand}"/>
 
         <GridSplitter Grid.Column="1" Width="4" Background="Transparent"
                       HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
         <Grid Grid.Column="2" Background="{StaticResource BgPrimaryBrush}">
-
             <Rectangle Grid.RowSpan="3" Fill="{StaticResource BgGridTexture}" Opacity="0.15"/>
             <controls:CircuitBackground/>
 
-            <!-- Scripts View -->
-            <Grid Visibility="{Binding IsDashboard, Converter={StaticResource InverseBoolToVis}}">
+            <!-- Scripts View (Tweaks, Utilities, Cleaner, DNS Manager, Apps) -->
+            <Grid x:Name="ScriptsGrid">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentSection}" Value="Tweaks">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentSection}" Value="Utilities">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentSection}" Value="Cleaner">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentSection}" Value="DNS Manager">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentSection}" Value="Apps">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -51,7 +81,7 @@
                 </Grid.RowDefinitions>
 
                 <controls:TopBarControl Grid.Row="0" x:Name="TopBar"
-                    SelectedCategory="{Binding SelectedCategory}"
+                    SelectedCategory="{Binding CurrentSection}"
                     ScriptCount="{Binding FilteredScripts.Count}"
                     SearchText="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
@@ -93,10 +123,15 @@
             <!-- Dashboard View -->
             <controls:DashboardControl
                 Visibility="{Binding DataContext.IsDashboard, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BoolToVis}}"
-                DataContext="{Binding DashboardData}"
-                CreateBackupCommand="{Binding DataContext.CreateBackupCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                IsBackingUp="{Binding DataContext.IsLoading, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                ViewRestoresCommand="{Binding DataContext.ViewRestoresCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                DataContext="{Binding DashboardData}"/>
+
+            <!-- Restore Points View -->
+            <controls:RestorePointsControl
+                Visibility="{Binding IsRestorePoints, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- Settings View -->
+            <controls:SettingsControl
+                Visibility="{Binding IsSettings, Converter={StaticResource BoolToVis}}"/>
         </Grid>
     </Grid>
 </Window>

@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Input;
-using FMOptimize.Models;
 using FMOptimize.Resources;
 using FMOptimize.ViewModels;
 
@@ -19,7 +18,6 @@ public partial class MainWindow : Window
         _vm.OnShowDetails += ShowDetailsDialog;
         _vm.OnEditScript += OpenEditDialog;
         _vm.OnAddScript += OpenAddDialog;
-        _vm.OnManageCategories += OpenCategoryDialog;
 
         KeyDown += OnKeyDown;
     }
@@ -41,13 +39,13 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ShowDetailsDialog(ScriptModel script)
+    private void ShowDetailsDialog(Models.ScriptModel script)
     {
         var dialog = new DialogDetalhes(script) { Owner = this };
         dialog.ShowDialog();
     }
 
-    private void OpenEditDialog(ScriptModel script)
+    private void OpenEditDialog(Models.ScriptModel script)
     {
         var dialog = new DialogEditScript(script) { Owner = this };
         if (dialog.ShowDialog() == true)
@@ -57,17 +55,6 @@ public partial class MainWindow : Window
     private void OpenAddDialog()
     {
         var dialog = new DialogEditScript(null) { Owner = this };
-        if (dialog.ShowDialog() == true)
-            _vm.LoadData();
-    }
-
-    private void OpenCategoryDialog()
-    {
-        var cats = _vm.Categories
-            .Select(c => c.Name)
-            .Where(c => c != Strings.CategoryAll && c != Strings.CategoryFavorites)
-            .ToList();
-        var dialog = new DialogManageCategories(cats) { Owner = this };
         if (dialog.ShowDialog() == true)
             _vm.LoadData();
     }

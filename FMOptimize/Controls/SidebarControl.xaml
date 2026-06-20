@@ -3,90 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:vm="clr-namespace:FMOptimize.ViewModels"
-             xmlns:models="clr-namespace:FMOptimize.Models"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="200">
     <UserControl.Resources>
-        <DataTemplate x:Key="CategoryTemplate" DataType="{x:Type models:CategoryItem}">
-            <Border Height="36" Margin="8,1,8,1" Padding="0"
-                    Background="Transparent" Cursor="Hand"
-                    CornerRadius="6"
-                    x:Name="CatBorder">
-                <Border.InputBindings>
-                    <MouseBinding MouseAction="LeftClick"
-                                  Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                  CommandParameter="{Binding Name}"/>
-                </Border.InputBindings>
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1a1a3e"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Rectangle Width="3" Height="20" HorizontalAlignment="Left" RadiusX="1.5" RadiusY="1.5"
-                               Fill="{StaticResource NeonBlueLightBrush}"
-                               Opacity="0" Margin="0,0,0,0" x:Name="CatAccent">
-                        <Rectangle.Effect>
-                            <DropShadowEffect BlurRadius="10" ShadowDepth="0"
-                                              Color="{StaticResource NeonBlueLight}" Opacity="0.5"/>
-                        </Rectangle.Effect>
-                    </Rectangle>
-                    <Border x:Name="ActiveFill" CornerRadius="6" Opacity="0"
-                            Background="{StaticResource NeonBlueBrush}"
-                            Margin="0,0,0,0"/>
-                    <Grid Margin="20,0,12,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
-                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
-                              Data="{Binding Name, Converter={StaticResource IconConverter}}"
-                              VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13"
-                                   Foreground="{StaticResource TextMutedBrush}"
-                                   VerticalAlignment="Center"/>
-                    </Grid>
-                </Grid>
-            </Border>
-            <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsActive}" Value="True">
-                    <DataTrigger.EnterActions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="CatAccent"
-                                                 Storyboard.TargetProperty="Opacity"
-                                                 To="1" Duration="0:0:0.2"/>
-                                <ColorAnimation Storyboard.TargetName="CatAccent"
-                                                Storyboard.TargetProperty="Fill.(SolidColorBrush.Color)"
-                                                To="{StaticResource NeonBlueLight}" Duration="0:0:0.2"/>
-                                <DoubleAnimation Storyboard.TargetName="ActiveFill"
-                                                 Storyboard.TargetProperty="Opacity"
-                                                 To="0.12" Duration="0:0:0.2"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </DataTrigger.EnterActions>
-                    <DataTrigger.ExitActions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="CatAccent"
-                                                 Storyboard.TargetProperty="Opacity"
-                                                 To="0" Duration="0:0:0.2"/>
-                                <DoubleAnimation Storyboard.TargetName="ActiveFill"
-                                                 Storyboard.TargetProperty="Opacity"
-                                                 To="0" Duration="0:0:0.2"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </DataTrigger.ExitActions>
-                </DataTrigger>
-            </DataTemplate.Triggers>
-        </DataTemplate>
+        <Style x:Key="SidebarItemStyle" TargetType="Border">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1a1a3e"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource SidebarGradient}">
@@ -97,37 +26,22 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Height="52" BorderBrush="{StaticResource BorderDefaultBrush}"
-                BorderThickness="0,0,0,1" Margin="0,0,0,0">
+                BorderThickness="0,0,0,1">
             <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
                 <TextBlock Text="FM" FontSize="24" FontWeight="Bold"
                            FontFamily="{StaticResource FontLogo}"
-                           Foreground="{StaticResource NeonBlueBrush}"
-                           Height="26"/>
-                <TextBlock Text="OPTIMIZATION" FontSize="10" FontWeight="Bold"
+                           Foreground="{StaticResource NeonBlueBrush}" Height="26"/>
+                <TextBlock Text="OPTIMIZE" FontSize="10" FontWeight="Bold"
                            Foreground="{StaticResource NeonBlueLightBrush}"
                            FontFamily="{StaticResource FontUIBold}"
-                           Margin="0,-2,0,0"
-                           TextOptions.TextRenderingMode="ClearType"/>
+                           Margin="0,-2,0,0"/>
             </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                      Background="Transparent">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="Transparent">
             <StackPanel>
-
-                <Border Height="40" Cursor="Hand"
-                        BorderBrush="{StaticResource BorderDefaultBrush}"
-                        BorderThickness="0" x:Name="DashboardBtn">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#1a1a3e"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
+                <!-- Dashboard -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="DashboardBtn">
                     <Border.InputBindings>
                         <MouseBinding MouseAction="LeftClick"
                                       Command="{Binding NavigateToDashboardCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
@@ -139,83 +53,160 @@
                         </Grid.ColumnDefinitions>
                         <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
                               Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
-                              VerticalAlignment="Center"
-                              Data="M2,2 L7,2 L7,7 L2,7 Z M9,2 L14,2 L14,7 L9,7 Z M2,9 L7,9 L7,14 L2,14 Z M9,9 L14,9 L14,14 L9,14 Z"/>
+                              Data="{Binding DashboardIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="Dashboard" FontSize="13"
                                    Foreground="{StaticResource NeonBlueBrush}"
-                                   VerticalAlignment="Center"
-                                   FontWeight="Bold"/>
+                                   VerticalAlignment="Center" FontWeight="Bold"/>
                     </Grid>
                 </Border>
 
-                <Rectangle Height="1" Fill="{StaticResource BorderDefaultBrush}" Margin="12,4"/>
+                <!-- Tweaks -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="TweaksBtn">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding NavigateToTweaksCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                    </Border.InputBindings>
+                    <Grid Margin="20,0,12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                              Data="{Binding TweaksIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Tweaks" FontSize="13"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Utilities -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="UtilitiesBtn">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding NavigateToUtilitiesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                    </Border.InputBindings>
+                    <Grid Margin="20,0,12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                              Data="{Binding UtilitiesIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Utilities" FontSize="13"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Cleaner -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="CleanerBtn">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding NavigateToCleanerCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                    </Border.InputBindings>
+                    <Grid Margin="20,0,12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                              Data="{Binding CleanerIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Cleaner" FontSize="13"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
 
-                <ItemsControl ItemsSource="{Binding Categories, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                              ItemTemplate="{StaticResource CategoryTemplate}"/>
+                <!-- Restore Points -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="RestorePointsBtn">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding NavigateToRestorePointsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                    </Border.InputBindings>
+                    <Grid Margin="20,0,12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                              Data="{Binding RestorePointsIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Restore Points" FontSize="13"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                <!-- DNS Manager -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="DnsManagerBtn">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding NavigateToDnsManagerCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                    </Border.InputBindings>
+                    <Grid Margin="20,0,12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                              Data="{Binding DnsManagerIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="DNS Manager" FontSize="13"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Apps -->
+                <Border Style="{StaticResource SidebarItemStyle}" x:Name="AppsBtn">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding NavigateToAppsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                    </Border.InputBindings>
+                    <Grid Margin="20,0,12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                              Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                              Data="{Binding AppsIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Apps" FontSize="13"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
             </StackPanel>
         </ScrollViewer>
 
-        <StackPanel Grid.Row="2">
-            <Border Height="40" Cursor="Hand"
-                    BorderBrush="{StaticResource BorderDefaultBrush}"
-                    BorderThickness="0" x:Name="AddScriptBtn">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1a1a3e"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Border.InputBindings>
-                    <MouseBinding MouseAction="LeftClick"
-                                  Command="{Binding AddScriptCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
-                </Border.InputBindings>
-                <Grid Margin="20,0,12,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="+" FontSize="18" FontWeight="Bold"
-                               Foreground="{StaticResource NeonBlueBrush}"
-                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Grid.Column="1" Text="Adicionar Script" FontSize="12"
-                               Foreground="{StaticResource TextDimBrush}"
-                               VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-            <Border Height="40" Cursor="Hand"
-                    BorderBrush="{StaticResource BorderDefaultBrush}"
-                    BorderThickness="0,1,0,0" x:Name="ManageBtn">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1a1a3e"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Border.InputBindings>
-                    <MouseBinding MouseAction="LeftClick"
-                                  Command="{Binding ManageCategoriesCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
-                </Border.InputBindings>
-                <Grid Margin="20,0,12,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="⚙" FontSize="14"
-                               Foreground="{StaticResource TextDimBrush}"
-                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Grid.Column="1" Text="Gerenciar Categorias" FontSize="12"
-                               Foreground="{StaticResource TextDimBrush}"
-                               VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-        </StackPanel>
+        <!-- Settings (pinned to bottom) -->
+        <Border Grid.Row="2" Style="{StaticResource SidebarItemStyle}" x:Name="SettingsBtn"
+                BorderBrush="{StaticResource BorderDefaultBrush}"
+                BorderThickness="0,1,0,0">
+            <Border.InputBindings>
+                <MouseBinding MouseAction="LeftClick"
+                              Command="{Binding NavigateToSettingsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+            </Border.InputBindings>
+            <Grid Margin="20,0,12,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                      Fill="{StaticResource TextMutedBrush}" Margin="0,0,10,0"
+                      Data="{Binding SettingsIcon, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                      VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="Settings" FontSize="13"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

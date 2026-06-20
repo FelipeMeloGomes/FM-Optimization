@@ -7,10 +7,6 @@
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="900">
     <UserControl.Resources>
-        <local:PctToStarConverter x:Key="PctToStar"/>
-        <local:PctToStarOppositeConverter x:Key="PctToStarOpp"/>
-        <local:StorageColorConverter x:Key="StorageColor"/>
-
         <Style x:Key="DashCard" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
@@ -19,11 +15,6 @@
             <Setter Property="Margin" Value="0,0,0,12"/>
             <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
         </Style>
-
-        <LinearGradientBrush x:Key="ProgressGreen" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#00e676" Offset="0"/>
-            <GradientStop Color="#00c853" Offset="1"/>
-        </LinearGradientBrush>
     </UserControl.Resources>
 
     <Grid Background="Transparent">
@@ -44,36 +35,6 @@
                            FontFamily="{StaticResource FontUIBold}"
                            Foreground="{StaticResource NeonBlueBrush}"
                            VerticalAlignment="Center"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                            HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Height="30" MinWidth="90" Margin="0,0,6,0"
-                            Command="{Binding CreateBackupCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
-                                <Setter Property="Content" Value="⬇ Backup"/>
-                                <Setter Property="IsEnabled" Value="True"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsBackingUp, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" Value="True">
-                                        <Setter Property="Content" Value="⏳ Backup..."/>
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button Height="30" MinWidth="80" Margin="0,0,12,0"
-                            Content="📋 Restores"
-                            Style="{StaticResource OutlineButton}"
-                            Command="{Binding ViewRestoresCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
-                    <TextBlock Text="●" FontSize="10"
-                               Foreground="{StaticResource GreenRunBrush}"
-                               VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBlock Text="{Binding NomeUsuario}"
-                               FontSize="16" FontWeight="Bold"
-                               FontFamily="{StaticResource FontUIBold}"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
             </Grid>
         </Border>
 
@@ -111,12 +72,8 @@
                                        TextWrapping="Wrap"/>
                             <TextBlock FontSize="11" Margin="0,4,0,0"
                                        Foreground="{StaticResource TextMutedBrush}">
-                                <Run Text="{Binding Cpu.CoresFisicas}"/><Run Text=" físicos / "/><Run Text="{Binding Cpu.CoresLogicas}"/><Run Text=" lógicos"/>
+                                <Run Text="{Binding Cpu.CoresFisicas}"/><Run Text=" núcleos"/>
                             </TextBlock>
-                            <TextBlock Text="{Binding Cpu.Frequencia, StringFormat='Freq: {0}'}" FontSize="11"
-                                       Foreground="{StaticResource TextDimBrush}"/>
-                            <TextBlock Text="{Binding Cpu.Cache}" FontSize="11"
-                                       Foreground="{StaticResource TextDimBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -142,11 +99,6 @@
                                        TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding Gpu.Vram, StringFormat='VRAM: {0}'}" FontSize="11" Margin="0,4,0,0"
                                        Foreground="{StaticResource TextMutedBrush}"/>
-                            <TextBlock Text="{Binding Gpu.DriverVersao, StringFormat='Driver: {0}'}" FontSize="11"
-                                       Foreground="{StaticResource TextDimBrush}"/>
-                            <TextBlock FontSize="11" Foreground="{StaticResource TextDimBrush}">
-                                <Run Text="{Binding Gpu.Resolucao}"/><Run Text=" @ "/><Run Text="{Binding Gpu.RefreshRate}"/>
-                            </TextBlock>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -169,23 +121,8 @@
                         <StackPanel Grid.Row="1" Margin="0,6,0,0">
                             <TextBlock Text="{Binding Memory.Total, StringFormat='Total: {0}'}" FontSize="12"
                                        Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock FontSize="11" Margin="0,4,0,0"
-                                       Foreground="{StaticResource TextMutedBrush}">
-                                <Run Text="{Binding Memory.Usado}"/><Run Text=" usado / "/><Run Text="{Binding Memory.Livre}"/><Run Text=" livre"/>
-                            </TextBlock>
-                            <TextBlock Text="{Binding Memory.Slots, StringFormat='Slots: {0}'}" FontSize="11"
-                                       Foreground="{StaticResource TextDimBrush}"/>
-                            <Border Height="5" CornerRadius="2.5" Background="{StaticResource BgSurfaceBrush}" Margin="0,6,0,0">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="{Binding Memory.PercentualUso, Converter={StaticResource PctToStar}}"/>
-                                        <ColumnDefinition Width="{Binding Memory.PercentualUso, Converter={StaticResource PctToStarOpp}}"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Rectangle Grid.Column="0" Fill="{StaticResource ProgressGreen}" RadiusX="2.5" RadiusY="2.5"/>
-                                </Grid>
-                            </Border>
-                            <TextBlock Text="{Binding Memory.PercentualUso, StringFormat={}{0:F1}% em uso}"
-                                       FontSize="10" Foreground="{StaticResource TextDimBrush}" Margin="0,1,0,0"/>
+                            <TextBlock Text="{Binding Memory.TipoMemoria, StringFormat='Tipo: {0}'}" FontSize="11" Margin="0,4,0,0"
+                                       Foreground="{StaticResource TextMutedBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -208,13 +145,8 @@
                         <StackPanel Grid.Row="1" Margin="0,6,0,0">
                             <TextBlock Text="{Binding System.VersaoWindows}" FontSize="12"
                                        Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding System.Build, StringFormat='Build {0}'}" FontSize="11" Margin="0,4,0,0"
+                            <TextBlock Text="{Binding System.Build, StringFormat='Versão {0}'}" FontSize="11" Margin="0,4,0,0"
                                        Foreground="{StaticResource TextMutedBrush}"/>
-                            <TextBlock FontSize="11" Foreground="{StaticResource TextDimBrush}">
-                                <Run Text="{Binding System.NomePC}"/><Run Text=" • "/><Run Text="{Binding System.NomeUsuario}"/>
-                            </TextBlock>
-                            <TextBlock Text="{Binding System.Uptime, StringFormat='Ativo há {0}'}" FontSize="11"
-                                       Foreground="{StaticResource TextDimBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -234,112 +166,12 @@
                                        Foreground="{StaticResource NeonBlueLightBrush}"
                                        FontFamily="{StaticResource FontUIBold}" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding Storage}" Margin="0,6,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0,0,0,6">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Letra}"
-                                                       FontSize="12" FontWeight="Bold"
-                                                       Foreground="{StaticResource NeonBlueLightBrush}"
-                                                       VerticalAlignment="Center" MinWidth="24"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Rotulo}" FontSize="11"
-                                                       Foreground="{StaticResource TextMutedBrush}"
-                                                       VerticalAlignment="Center"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="2" FontSize="10" FontWeight="Bold"
-                                                       VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="SSD"/>
-                                                        <Setter Property="Foreground" Value="{StaticResource NeonBlueLightBrush}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Tipo}" Value="HDD">
-                                                                <Setter Property="Text" Value="HDD"/>
-                                                                <Setter Property="Foreground" Value="{StaticResource OrangeWarnBrush}"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding Tipo}" Value="NVMe">
-                                                                <Setter Property="Text" Value="NVMe"/>
-                                                                <Setter Property="Foreground" Value="{StaticResource GreenRunBrush}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                            <TextBlock Grid.Column="3" FontSize="11"
-                                                       Foreground="{StaticResource TextDimBrush}"
-                                                       VerticalAlignment="Center">
-                                                <Run Text="{Binding Usado}"/><Run Text="/"/><Run Text="{Binding Total}"/>
-                                            </TextBlock>
-                                        </Grid>
-                                        <Border Height="4" CornerRadius="2"
-                                                Background="{StaticResource BgSurfaceBrush}" Margin="0,3,0,0">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="{Binding PercentualUso, Converter={StaticResource PctToStar}}"/>
-                                                    <ColumnDefinition Width="{Binding PercentualUso, Converter={StaticResource PctToStarOpp}}"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Rectangle Grid.Column="0" RadiusX="2" RadiusY="2"
-                                                           Fill="{Binding PercentualUso, Converter={StaticResource StorageColor}}"/>
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Grid>
-                </Border>
-
-                <!-- Tweaks Card -->
-                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource DashCard}" Padding="16" Margin="8,0,0,0">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <Path Width="20" Height="20" Stretch="Uniform"
-                                  Fill="{StaticResource NeonBlueBrush}" VerticalAlignment="Center"
-                                  Data="M12,2 A3,3 0 1,1 12,8 A3,3 0 0,1 12,2 Z M8,10 L16,10 L16,12 L8,12 Z M8,14 L16,14 L16,16 L8,16 Z M10,18 L14,18 L14,22 L10,22 Z"/>
-                            <TextBlock Text="TWEAKS" FontSize="13" FontWeight="Bold" Margin="8,0,0,0"
-                                       Foreground="{StaticResource NeonBlueLightBrush}"
-                                       FontFamily="{StaticResource FontUIBold}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Row="1" Margin="0,6,0,0">
+                            <TextBlock Text="{Binding PrimaryDisk}" FontSize="12"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding PrimaryDiskTotal, StringFormat='Espaço total: {0}'}" FontSize="11" Margin="0,4,0,0"
+                                       Foreground="{StaticResource TextMutedBrush}"/>
                         </StackPanel>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding Tweaks}" Margin="0,6,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,0,0,3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Nome}"
-                                                   FontSize="11" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Grid.Column="1" FontSize="11" FontWeight="Bold"
-                                                   FontFamily="{StaticResource FontUIBold}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{StaticResource GreenRunBrush}"/>
-                                                    <Setter Property="Text" Value="●"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Ativo}" Value="False">
-                                                            <Setter Property="Foreground" Value="{StaticResource TextDimBrush}"/>
-                                                            <Setter Property="Text" Value="✗"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
                     </Grid>
                 </Border>
             </Grid>

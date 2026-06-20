@@ -11,15 +11,17 @@ public class SystemInfoService : ISystemInfoService
 {
     public Task<DashboardData> GetSystemInfoAsync()
     {
+        var storage = GetStorageInfo();
+        var primary = storage.FirstOrDefault(d => d.Letra == "C:");
+
         var data = new DashboardData
         {
             Cpu = GetCpuInfo(),
             Gpu = GetGpuInfo(),
             Memory = GetMemoryInfo(),
             System = GetSystemInfoBasic(),
-            Storage = GetStorageInfo(),
-            Tweaks = GetTweakStatuses(),
-            NomeUsuario = Environment.UserName,
+            PrimaryDisk = primary != null ? $"{primary.Letra} ({primary.Rotulo})" : "N/A",
+            PrimaryDiskTotal = primary?.Total ?? "N/A",
         };
         return Task.FromResult(data);
     }
@@ -77,45 +79,33 @@ public class SystemInfoService : ISystemInfoService
         try
         {
             long totalFisico = 0;
-            int slotsUsados = 0;
-            int slotsTotais = 0;
+            string tipoMemoria = "N/A";
 
             using var mos = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
             foreach (var mo in mos.Get().Cast<ManagementObject>())
             {
                 totalFisico += Convert.ToInt64(mo["Capacity"] ?? 0);
-                slotsUsados++;
-            }
 
-            try
-            {
-                using var mos2 = new ManagementObjectSearcher("SELECT MemoryDevices FROM Win32_ComputerSystem");
-                foreach (var mo in mos2.Get().Cast<ManagementObject>())
-                    slotsTotais = Convert.ToInt32(mo["MemoryDevices"] ?? 0);
+                if (mo["SMBIOSMemoryType"] != null)
+                {
+                    var typeCode = Convert.ToInt32(mo["SMBIOSMemoryType"]);
+                    tipoMemoria = typeCode switch
+                    {
+                        20 => "DDR",
+                        21 => "DDR2",
+                        22 => "DDR2 FB-DIMM",
+                        24 => "DDR3",
+                        26 => "DDR4",
+                        34 => "DDR5",
+                        _ => $"Tipo {typeCode}"
+                    };
+                }
             }
-            catch { slotsTotais = slotsUsados; }
 
             var totalGb = totalFisico / (1024.0 * 1024 * 1024);
-
-            long livreBytes = 0;
-            using var mos3 = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-            foreach (var mo in mos3.Get().Cast<ManagementObject>())
-            {
-                livreBytes = Convert.ToInt64(mo["FreePhysicalMemory"] ?? 0) * 1024;
-            }
-
-            var usadoBytes = totalFisico - livreBytes;
             var totalStr = totalGb >= 1000 ? $"{totalGb / 1024:F1} TB" : $"{totalGb:F0} GB";
-            var usadoStr = usadoBytes / (1024.0 * 1024 * 1024) >= 1000
-                ? $"{usadoBytes / (1024.0 * 1024 * 1024 * 1024):F1} TB"
-                : $"{usadoBytes / (1024.0 * 1024 * 1024):F1} GB";
-            var livreStr = livreBytes / (1024.0 * 1024 * 1024) >= 1000
-                ? $"{livreBytes / (1024.0 * 1024 * 1024 * 1024):F1} TB"
-                : $"{livreBytes / (1024.0 * 1024 * 1024):F1} GB";
-            var pctUso = totalFisico > 0 ? (double)usadoBytes / totalFisico * 100 : 0;
-            var slots = $"{slotsUsados}/{slotsTotais} slots";
 
-            return new MemoryInfo(totalStr, usadoStr, livreStr, pctUso, slots);
+            return new MemoryInfo(totalStr, tipoMemoria);
         }
         catch { }
         return null;
@@ -422,7 +412,7 @@ public class SystemInfoService : ISystemInfoService
             StartInfo = new ProcessStartInfo
             {
                 FileName = "powershell",
-                Arguments = "-NoProfile -Command \"Get-CimInstance -Namespace root/default -ClassName SystemRestore | Select-Object Description, CreationTime, SequenceNumber, @{N='RestorePointType';E={switch([int]$_.RestorePointType){1{'App Install'};7{'Cancelado'};10{'Driver'};12{'Manual'};13{'Sistema'};default{'Outro'}}}} | ConvertTo-Json\"",
+                Arguments = "-NoProfile -Command \"@(Get-CimInstance -Namespace root/default -ClassName SystemRestore) | Select-Object Description, CreationTime, SequenceNumber, @{N='RestorePointType';E={switch([int]$_.RestorePointType){1{'App Install'};7{'Cancelado'};10{'Driver'};12{'Manual'};13{'Sistema'};default{'Outro'}}}} | ConvertTo-Json\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
@@ -444,7 +434,20 @@ public class SystemInfoService : ISystemInfoService
             {
                 PropertyNameCaseInsensitive = true,
             };
-            var list = System.Text.Json.JsonSerializer.Deserialize<List<RestorePointEntry>>(json, options);
+
+            List<RestorePointEntry>? list = null;
+            try
+            {
+                list = System.Text.Json.JsonSerializer.Deserialize<List<RestorePointEntry>>(json, options);
+            }
+            catch (System.Text.Json.JsonException)
+            {
+            }
+
+            list ??= System.Text.Json.JsonSerializer.Deserialize<RestorePointEntry>(json, options) is { } single
+                ? [single]
+                : null;
+
             if (list != null)
             {
                 for (var i = 0; i < list.Count; i++)
