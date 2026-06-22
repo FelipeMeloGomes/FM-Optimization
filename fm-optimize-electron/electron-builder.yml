@@ -19,9 +19,9 @@ win:
       arch:
         - x64
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: fm-optimize-setup.${ext}
   shortcutName: FM Optimize
   uninstallDisplayName: FM Optimize
   createDesktopShortcut: always
 portable:
-  artifactName: ${name}-${version}-portable.${ext}
+  artifactName: fm-optimize-portable.${ext}
