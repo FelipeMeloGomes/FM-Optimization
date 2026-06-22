@@ -431,6 +431,30 @@ public partial class MainViewModel : ObservableObject
         Log("Toggle Theme - coming soon", LogLevel.Info);
     }
 
+    [RelayCommand]
+    private void CopyLog()
+    {
+        var text = string.Join(Environment.NewLine,
+            LogEntries.Select(e => $"[{e.Timestamp}] {e.Message}"));
+        if (!string.IsNullOrEmpty(text))
+        {
+            try { Clipboard.SetText(text); }
+            catch { }
+        }
+    }
+
+    [RelayCommand]
+    private void ClearLog()
+    {
+        LogEntries.Clear();
+    }
+
+    [RelayCommand]
+    private void ToggleLog()
+    {
+        LogExpanded = !LogExpanded;
+    }
+
     public event Action<Models.ScriptModel>? OnShowDetails;
     public event Action<Models.ScriptModel>? OnEditScript;
     public event Action? OnAddScript;
