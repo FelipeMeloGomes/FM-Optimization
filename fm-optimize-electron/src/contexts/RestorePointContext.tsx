@@ -25,7 +25,7 @@ export function RestorePointProvider({ children }: { children: ReactNode }) {
     window.electronAPI
       .getRestorePoints()
       .then(setRestorePoints)
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(typeof e === 'string' ? e : e.message))
       .finally(() => setLoading(false))
   }, [])
 

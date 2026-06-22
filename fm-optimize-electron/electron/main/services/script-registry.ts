@@ -8,7 +8,7 @@ let scriptsCache: ScriptEntry[] | null = null
 function getResourcesPath(): string {
   return app.isPackaged
     ? resolve(process.resourcesPath, 'scripts.json')
-    : resolve(__dirname, '../../../resources/scripts.json')
+    : resolve(__dirname, '../../resources/scripts.json')
 }
 
 export function loadScripts(): ScriptEntry[] {

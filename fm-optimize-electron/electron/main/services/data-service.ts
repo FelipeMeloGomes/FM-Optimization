@@ -16,8 +16,8 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 function getDataDir(): string {
   return app.isPackaged
-    ? resolve(app.getPath('appData'), 'FMOptimize')
-    : resolve(__dirname, '../../../data')
+    ? resolve(app.getPath('appData'), 'fm-optimize')
+    : resolve(__dirname, '../../data')
 }
 
 function getDataFilePath(): string {

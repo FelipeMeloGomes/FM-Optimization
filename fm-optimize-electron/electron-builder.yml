@@ -3,6 +3,12 @@ productName: FM Optimize
 directories:
   buildResources: resources
   output: dist
+extraResources:
+  - from: resources/
+    to: ./
+    filter:
+      - "*.json"
+      - "*.ico"
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -19,6 +25,8 @@ win:
       arch:
         - x64
 nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
   artifactName: fm-optimize-setup.${ext}
   shortcutName: FM Optimize
   uninstallDisplayName: FM Optimize

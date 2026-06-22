@@ -35,7 +35,7 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
     window.electronAPI
       .getScripts()
       .then(setScripts)
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(typeof e === 'string' ? e : e.message))
       .finally(() => setLoading(false))
   }, [])
 

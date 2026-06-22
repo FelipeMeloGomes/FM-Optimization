@@ -21,7 +21,7 @@ export function SystemProvider({ children }: { children: ReactNode }) {
     window.electronAPI
       .getSystemInfo()
       .then(setData)
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(typeof e === 'string' ? e : e.message))
       .finally(() => setLoading(false))
   }, [])
 

@@ -1,9 +1,15 @@
 import { app, BrowserWindow, shell } from 'electron'
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc-handlers'
 
 let mainWindow: BrowserWindow | null = null
+
+function iconPath(): string {
+  return app.isPackaged
+    ? resolve(process.resourcesPath, 'icon.ico')
+    : join(__dirname, '../../resources/icon.ico')
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -13,7 +19,7 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     title: 'FM Optimize',
-    icon: join(__dirname, '../../resources/icon.ico'),
+    icon: iconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,

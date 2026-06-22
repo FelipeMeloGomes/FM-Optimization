@@ -20,12 +20,12 @@ export default function App() {
               <Routes>
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<DashboardPage />} />
-                  <Route path="/tweaks" element={<ScriptsPage category="Tweaks / Desempenho" />} />
-                  <Route path="/utilities" element={<ScriptsPage category="Sistema / Utilities" />} />
+                  <Route path="/tweaks" element={<ScriptsPage category="Tweaks" />} />
+                  <Route path="/utilities" element={<ScriptsPage category="Utilities" />} />
                   <Route path="/cleaner" element={<ScriptsPage category="Cleaner" />} />
                   <Route path="/restore-points" element={<RestorePointsPage />} />
-                  <Route path="/dns" element={<ScriptsPage category="Rede / Internet" />} />
-                  <Route path="/apps" element={<ScriptsPage category="Privacidade / Apps" />} />
+                  <Route path="/dns" element={<ScriptsPage category="DNS Manager" />} />
+                  <Route path="/apps" element={<ScriptsPage category="Apps" />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>
