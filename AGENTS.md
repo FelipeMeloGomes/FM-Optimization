@@ -1,23 +1,45 @@
-# Build
+# Build (Electron)
 
-## Portable (standalone .exe sem instalação)
-
-```powershell
-dotnet publish FMOptimize/FMOptimize.csproj -c Release -r win-x64 --self-contained -o dist\portable
-```
-
-Gera `dist\portable\FMOptimize.exe`. Dados salvos ao lado do executável.
-
-## Instalável (com Inno Setup)
+## Dev
 
 ```powershell
-dotnet publish FMOptimize/FMOptimize.csproj -c Release -r win-x64 --self-contained -o dist\installer -p:IsInstaller=true
-& "C:\Program Files (x86)\Inno Setup 6\iscc.exe" installer.iss
-Remove-Item -LiteralPath "dist\installer\FMOptimize.exe" -ErrorAction SilentlyContinue
+npm run dev
 ```
 
-Gera `dist\installer\FMOptimize_Setup.exe` (~46 MB com compressão). Dados salvos em `%APPDATA%\FMOptimize\`.
+## Build
+
+```powershell
+npm run build
+```
+
+Gera em `fm-optimize-electron/out/`.
+
+## Typecheck
+
+```powershell
+npm run typecheck
+```
+
+## Portable (standalone .exe)
+
+```powershell
+npx electron-builder --win portable
+```
+
+Gera `dist/fm-optimize-*-portable.exe`.
+
+## Instalável (NSIS)
+
+```powershell
+npx electron-builder --win nsis
+```
+
+Gera `dist/fm-optimize-*-setup.exe`.
+
+Dados salvos em `%APPDATA%\fm-optimize\`.
 
 # Commit
 
 Antes de commitar, verificar se o README.md foi atualizado com as últimas mudanças para manter sincronizado.
+
+Trabalhar sempre dentro de `fm-optimize-electron/`.

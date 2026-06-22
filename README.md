@@ -29,7 +29,7 @@ Chega de pesquisar na internet por scripts .bat, .cmd, .reg e .ps1 para cada tar
 
 ## Visão Geral
 
-O FM Optimize é um aplicativo WPF (.NET 9) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente.
+O FM Optimize é um aplicativo desktop (Electron + React) que centraliza **90 scripts de otimização do Windows** em uma interface gráfica moderna com tema escuro azul neon. Os scripts são embutidos diretamente no executável e extraídos automaticamente.
 
 ### O que ele faz?
 
@@ -105,15 +105,14 @@ Os downloads são servidos diretamente via [GitHub Releases](https://github.com/
 - **90 Scripts Embutidos** em 11 categorias (Limpeza, Desempenho, Internet, Rede, Privacidade, Sistema, GPU - AMD, GPU - NVIDIA, Energia, Windows 11, Scripts Completos)
 - **Tema escuro azul neon** com acentos `#0044ff`, ícones SVG e gradientes
 - **Circuito animado no fundo** — traços de PCB com pulsos de dados fluindo (efeito neon)
-- **Interface componentizada**: Sidebar, TopBar, ScriptCard, Dashboard, Restore Points, Settings e LogPanel como UserControls independentes
+- **Interface componentizada**: Sidebar, TopBar, ScriptCard, Dashboard, Restore Points, Settings e LogPanel como componentes React independentes
 - **Busca instantânea** (Ctrl+F) com glow neon no foco e debounce de 150ms
 - **Favoritos**: marque scripts com estrela e filtre rapidamente
 - **Log em tempo real** com terminal scrollável, cursor piscante e botões Copiar/Limpar
 - **Execução inteligente**: `.bat`, `.cmd`, `.ps1`, `.reg`, `.exe` com detecção de admin
 - **Cancelamento**: botão "■ Parar" vermelho substitui o "▶ Executar" durante execução — kill completo da árvore de processos
 - **Gerenciamento**: adicione por arquivo ou código direto, edite ou remova scripts e categorias (identificados por ID único)
-- **Elevação UAC**: executável requer administrador automaticamente na abertura
-- **Animações escalonadas**: cards com fade-in e scale sequenciais (IndexToDelayConverter)
+- **Elevação UAC**: scripts com escudo solicitam admin automaticamente via PowerShell
 - **Badges visuais**: cores distintas por tipo de arquivo (BAT=verde, PS1=ciano, EXE/REG=laranja)
 
 ---
@@ -405,54 +404,60 @@ Abaixo os 90 scripts disponíveis em 11 categorias.
 
 | Tecnologia | Finalidade |
 |---|---|
-| **C# 13 / .NET 9.0** | Linguagem e runtime |
-| **WPF / XAML** | Interface gráfica com animações nativas (Storyboard, DoubleAnimation) |
-| **CommunityToolkit.Mvvm 8.4.2** | Padrão MVVM com source generators (`[ObservableProperty]`, `[RelayCommand]`) |
-| **Microsoft.Extensions.DependencyInjection 10.0.9** | Injeção de dependência |
-| **Microsoft.Extensions.Logging 10.0.9** | Logging estruturado (ILogger&lt;T&gt;) |
-| **System.Text.Json 10.0.9** | Serialização JSON |
-| **Windows API** | Detecção de privilégios de administrador |
+| **Electron 35** | Runtime desktop multiplataforma |
+| **React 19** | Interface de usuário |
+| **TypeScript** | Tipagem estática |
+| **Vite (electron-vite)** | Build tool e dev server |
+| **Tailwind CSS 4** | Estilização utilitária |
+| **shadcn/ui** | Componentes base |
+| **React Router 7** | Navegação entre páginas |
+| **Lucide React** | Ícones SVG |
+| **Node.js** | Processo principal (main process) |
+| **Windows API (PowerShell/WMI)** | Detecção de hardware e sistema |
 
 ---
 
 ## Como Executar
 
-> O executável requer **Administrador** (UAC). Clique com botão direito e selecione "Executar como administrador".
-
 ```bash
-dotnet run --project FMOptimize
+cd fm-optimize-electron
+npm run dev
 ```
 
-Ou execute o binário publicado diretamente:
+Requires **Node.js** e **npm**. O modo dev abre janela do Electron com hot reload.
 
-```powershell
-.\dist\portable\FMOptimize.exe
+Para build de produção:
+
+```bash
+npm run build
+npx electron-builder --win portable
 ```
 
 ---
 
 ## Publicar Executável
 
-### Portátil (standalone, ~148 MB)
+### Portátil (standalone)
 
-Gera um único `.exe` standalone sem instalação. Dados salvos ao lado do executável:
-
-```powershell
-dotnet publish FMOptimize/FMOptimize.csproj -c Release -r win-x64 --self-contained -o dist\portable
-```
-
-Gera `dist/portable/FMOptimize.exe`.
-
-### Instalável (com Inno Setup)
-
-Gera um instalador que instala em `Program Files` e salva dados em `%APPDATA%`:
+Gera um único `.exe` standalone sem instalação:
 
 ```powershell
-dotnet publish FMOptimize/FMOptimize.csproj -c Release -r win-x64 --self-contained -o dist\installer -p:IsInstaller=true
-iscc installer.iss
+cd fm-optimize-electron
+npm run build
+npx electron-builder --win portable
 ```
 
-Gera `dist/FMOptimize_Setup.exe`.
+Gera `dist/fm-optimize-*-portable.exe`.
+
+### Instalável (NSIS)
+
+```powershell
+cd fm-optimize-electron
+npm run build
+npx electron-builder --win nsis
+```
+
+Gera `dist/fm-optimize-*-setup.exe`. Dados salvos em `%APPDATA%\fm-optimize\`.
 
 ---
 
@@ -462,32 +467,32 @@ O FM Optimize funciona **sem instalação** — todos os scripts estão embutido
 
 ### Scripts Embutidos (Built-in)
 
-Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/ScriptRegistry.cs`). Na inicialização, o aplicativo:
+Os 90 scripts vêm codificados em **Base64** dentro de `resources/scripts.json`. Na inicialização, o Electron via `ScriptRegistryService`:
 
-1. Lê o `ScriptRegistry` e decodifica cada `ConteudoB64`
-2. Extrai os arquivos para `%TEMP%\FMOptimize\scripts\`
+1. Lê o JSON e decodifica cada `content` (Base64)
+2. Extrai os arquivos para `%TEMP%\fm-optimize\scripts\`
 3. Executa diretamente do diretório temp quando solicitado
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   FMOptimize.exe                        │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │              ScriptRegistry.cs                        │   │
-│  │  ┌────────────────────────────────────────────────┐  │   │
- │  │  │ 90 entradas com Nome, Categoria, Tipo,         │  │   │
- │  │  │ Admin, ConteudoB64 (Base64)                    │  │   │
-│  │  └────────────────────────────────────────────────┘  │   │
-│  │                       │                                │
-│  │                       ▼                                │
-│  │  ┌────────────────────────────────────────────────┐  │   │
-│  │  │  ScriptExtractionService.ExtrairScript()        │  │   │
-│  │  │  └─ Convert.FromBase64String + sanitiza         │  │   │
-│  │  │     (remove pause) + salva em disco             │  │   │
-│  │  └────────────────────────────────────────────────┘  │   │
+┌──────────────────────────────────────────────────────────────┐
+│                    fm-optimize.exe                           │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              resources/scripts.json                     │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │ 90 entradas com name, category, extension,       │  │  │
+│  │  │ requiresAdmin, content (Base64)                  │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
+│  │                       │                                 │  │
+│  │                       ▼                                 │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │  ScriptRegistryService.extractScript()            │  │  │
+│  │  │  └─ Buffer.from(base64, 'base64') + sanitiza     │  │  │
+│  │  │     (remove pause) + salva em disco               │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
 │  └──────────────────────────────────────────────────────┘   │
 │                       │                                      │
 │                       ▼                                      │
-│  %TEMP%\FMOptimize\scripts\                              │
+│  %TEMP%\fm-optimize\scripts\                              │
 │  ├── 1 Delete Temporary Files.cmd                            │
 │  ├── Liberar Memoria RAM.bat                                 │
 │  ├── Desabilitar Telemetria.bat                              │
@@ -496,8 +501,8 @@ Os 90 scripts vêm codificados em **Base64** dentro do código fonte (`Services/
 └─────────────────────────────────────────────────────────────┘
 ```
 
-- Scripts são **sempre reextraídos** na inicialização (garante que correções como remoção de `pause` sejam aplicadas)
-- Na extração, linhas com `pause` ou `pause >nul` são **removidas automaticamente** para execução não-interativa
+- Scripts são **sempre reextraídos** na inicialização
+- Na extração, linhas com `pause` ou `pause >nul` são **removidas automaticamente**
 - O diretório `%TEMP%` é limpo pelo Windows periodicamente
 
 ### Scripts do Usuário
@@ -531,8 +536,8 @@ FMOptimize.exe/
 
 | Tipo | Onde fica | Definido em |
 |---|---|---|
-| **Scripts embutidos** | `%TEMP%\FMOptimize\scripts\` (sempre reextraídos) | `ScriptExtractionService.cs` — `Path.Combine(Path.GetTempPath(), "FMOptimize", entry.CaminhoRelativo)` |
-| **Dados do app** | Mesmo diretório do `.exe` | `DataService.cs:12` — `AppDomain.CurrentDomain.BaseDirectory` |
+| **Scripts embutidos** | `%TEMP%\fm-optimize\scripts\` (sempre reextraídos) | ScriptRegistryService.extractScript() |
+| **Dados do app** | `%APPDATA%\FMOptimize\` (packaged) ou `data/` (dev) | `DataService.getStoragePath()` |
 | **Scripts do usuário (arquivo)** | Qualquer lugar no disco | Escolhido pelo usuário no `OpenFileDialog` |
 | **Scripts do usuário (código)** | `{BaseDirectory}\user_scripts\` | Definido pelo nome salvo |
 
@@ -563,26 +568,23 @@ A interface é dividida em sidebar (200px) + conteúdo principal, navegando entr
 └──────────┴───────────────────────────────────────────┘
 ```
 
-### UserControls
+### Componentes
 
-| Control | Arquivo | Descrição |
-|---|---|---|---|
-| **SidebarControl** | `Controls/SidebarControl.xaml` | Logo FM/OPTIMIZATION pulsante, lista de categorias com ícones SVG, destaque ativo com glow, botões "Adicionar Script" e "Gerenciar Categorias", Configurações fixo no rodapé |
-| **TopBarControl** | `Controls/TopBarControl.xaml` | Título da categoria ativa + badge de contagem, campo de busca com glow neon no foco |
-| **ScriptCardControl** | `Controls/ScriptCardControl.xaml` | Card de 280px com animação fade-in/scale, nome, descrição, badges (ADMIN, categoria, tipo), botões Detalhes/Editar/Remover/Executar/Parar, estrela de favorito com animação |
-| **DashboardControl** | `Controls/DashboardControl.xaml` | Visão geral do sistema: CPU, GPU, memória, SO, armazenamento — auto-carregada na inicialização |
-| **RestorePointsControl** | `Controls/RestorePointsControl.xaml` | Gerenciamento de pontos de restauração: criar, listar, restaurar e excluir com loading, retry e dedup |
-| **SettingsControl** | `Controls/SettingsControl.xaml` | Tela de configurações do aplicativo |
-| **LogPanelControl** | `Controls/LogPanelControl.xaml` | Terminal com log em fonte monospace, cursor piscante, botões Copiar/Limpar com animação, toggle expandir/recolher |
-| **CircuitBackground** | `Controls/CircuitBackground.xaml` | Fundo animado de circuito PCB com 7 traços de fluxo, 10 nós pulsantes e 3 nós de junção com glow |
+| Componente | Arquivo | Descrição |
+|---|---|---|
+| **Sidebar** | `src/layout/Sidebar.tsx` | Logo FM/OPTIMIZATION pulsante, navegação entre páginas com ícones Lucide |
+| **TopBar** | `src/layout/TopBar.tsx` | Título da página + badge de contagem, campo de busca |
+| **ScriptCard** | `src/components/ScriptCard.tsx` | Card com nome, descrição, badges (ADMIN, tipo), botões Executar/Parar, estrela de favorito |
+| **DashboardWidget** | `src/components/DashboardWidget.tsx` | Widget de info do sistema (CPU, GPU, RAM, disco, OS) |
+| **LogPanel** | `src/components/LogPanel.tsx` | Terminal com log em fonte monospace, botões Copiar/Limpar |
+| **CircuitBackground** | `src/components/CircuitBackground.tsx` | Fundo animado canvas — grid PCB com pulsos de dados |
 
 ### Dialogs
 
 | Dialog | Arquivo | Descrição |
-|---|---|---|---|
-| **Detalhes do Script** | `Views/DialogDetalhes.xaml` | Exibe nome, descrição detalhada, código-fonte do script, badges de tipo e admin |
-| **Editar/Adicionar Script** | `Views/DialogEditScript.xaml` | Adiciona ou edita script por seleção de arquivo ou colagem de código |
-| **Restaurar/Excluir Restore Point** | `Views/DialogRestorePoints.xaml` | Confirmação e execução de restauração ou exclusão de ponto de restauração |
+|---|---|---|
+| **Detalhes do Script** | `src/components/ScriptDetailDialog.tsx` | Exibe nome, descrição detalhada, código-fonte e badges |
+| **Adicionar Script** | `src/components/EditScriptDialog.tsx` | Formulário para adicionar novo script |
 
 ### Atalhos de Teclado
 
@@ -598,84 +600,83 @@ A interface é dividida em sidebar (200px) + conteúdo principal, navegando entr
 ### Fluxo de Inicialização
 
 ```
-App.xaml.cs
+electron/main/index.ts
   │
-  ├─ ServiceCollection (DI)
-  │   ├─ IDataService → DataService (Singleton)
-  │   ├─ IScriptExecutionService → ScriptExecutionService (Transient)
-  │   ├─ IScriptExtractionService → ScriptExtractionService (Singleton)
-  │   ├─ IScriptFilterService → ScriptFilterService (Singleton)
-  │   ├─ MainViewModel (Transient)
-  │   └─ MainWindow (Transient)
+  ├─ mainWindow (BrowserWindow)
+  │   ├─ preload (contextBridge)
+  │   └─ loadRenderer (react-router)
   │
-  └─ MainWindow.Show()
+  └─ registerIpcHandlers()
        │
-       └─ MainViewModel (construtor)
-            │
-            └─ LoadData()
-                 │
-                 ├─ Carrega scripts_data.json (DataService)
-                 ├─ Constrói categorias (Todas, Favoritos + salvas)
-                 ├─ Itera ScriptRegistry.Entries (90 built-in)
-                 │   ├─ Cria ScriptModel
-                 │   └─ ScriptExtractionService.ExtrairScript() → Base64 → TEMP (sanitizado)
-                 ├─ Itera _data.Scripts (scripts do usuário)
-                 ├─ Aplica filtro inicial (ScriptFilterService)
-                 └─ Salva categorias se primeira execução
+       ├─ ScriptRegistryService (loadScripts, getScriptContent)
+       ├─ SystemInfoService (getSystemInfo — WMI/PowerShell)
+       ├─ ScriptExecutionService (executeScript, cancelExecution)
+       ├─ RestorePointService (getRestorePoints, create, delete, restore)
+       ├─ DataService (loadSettings, saveSettings)
+       └─ AdminCheck (isAdmin — net session)
 ```
 
 ### Fluxo de Execução de Script
 
 ```
-Botão "▶ Executar"
+Render: ScriptsPage → ScriptCard → "▶ Executar"
     │
-    └─ MainViewModel.ExecuteScript()
+    └─ useScriptContext().execute(id)
          │
-         └─ ScriptExecutionService.ExecuteAsync()
+         └─ window.electronAPI.executeScript(id)
               │
-              ├─ .bat/.cmd → cmd.exe /c "<caminho>"
-              ├─ .ps1 → powershell.exe -ExecutionPolicy Bypass -File "<caminho>"
-              ├─ .reg → regedit.exe /s "<caminho>"
-              ├─ .exe → execução direta
-              └─ .txt → Process.Start com UseShellExecute (abre com bloco de notas)
+              └─ ipcMain.handle('execute-script')
                    │
-                   └─ Process.Start()
-                        ├─ RedirectStandardOutput/Error = true
-                        ├─ CreateNoWindow = true
-                        ├─ Log em tempo real via evento OnLog
-                        └─ Suporte a cancelamento via process.Kill(tree: true)
+                   └─ ScriptExecutionService.execute()
+                        │
+                        ├─ .bat/.cmd → cmd.exe /c "<caminho>"
+                        ├─ .ps1 → powershell.exe -ExecutionPolicy Bypass -File "<caminho>"
+                        ├─ .reg → regedit.exe /s "<caminho>"
+                        └─ .exe → execução direta
+                             │
+                             └─ child_process.spawn()
+                                  ├─ stdout/stderr → IPC → LogContext (tempo real)
+                                  └─ cancelamento via process.kill(tree: true)
 ```
 
 ### Fluxo de Extração de Scripts
 
 ```
-MainViewModel.LoadData()
+ScriptRegistryService.getResourcesPath()
     │
-    └─ ScriptExtractionService.ExtrairScript() (para cada script embutido)
+    ├─ Dev:  resolve("resources/scripts.json")
+    └─ Prod: path.join(process.resourcesPath, "scripts.json")
          │
-         ├─ Busca entry no ScriptRegistry pelo nome
-         ├─ Define destino: Path.Combine(TEMP, "FMOptimize", entry.CaminhoRelativo)
-         ├─ Cria diretório se não existir
-         ├─ Decodifica: Convert.FromBase64String(entry.ConteudoB64)
-         ├─ Sanitiza: remove linhas "pause" e "pause >nul"
-         ├─ Salva: File.WriteAllBytes(dst, data) (sempre sobrescreve)
-         └─ Retorna caminho do arquivo extraído
+         └─ extractScript()
+              │
+              ├─ Buffer.from(entry.content, 'base64')
+              ├─ Sanitiza: remove linhas "pause" e "pause >nul"
+              └─ Salva em %TEMP%\fm-optimize\scripts\
 ```
 
 ### Camadas do Projeto
 
 ```
-App.xaml.cs        → DI Container (ServiceProvider) com logging configurado
-MainWindow.xaml    → View (XAML) + Code-behind (eventos, dialogs)
-├─ Controls/       → UserControls reutilizáveis (8 controles: Sidebar, TopBar, ScriptCard,
-│                    DashboardControl, RestorePointsControl, SettingsControl, LogPanel, CircuitBackground)
-├─ ViewModels/     → MainViewModel (~480 linhas, lógica central)
-├─ Services/       → 6 serviços: DataService, SystemInfoService, ScriptExecutionService,
-│                    ScriptRegistry, ScriptExtractionService, ScriptFilterService
-├─ Models/         → ScriptModel, AppData, ScriptData, DashboardModels (CPU, GPU, RAM, SO, disco),
-│                    RestorePointEntry, TweakInfo, LogEntry, LogLevel
-├─ Converters/     → 8 converters (cor, opacidade, visibilidade, índice → tempo, etc.)
-└─ Helpers/        → SecurityHelper (verificação de admin)
+electron/ (main process)
+├─ main/index.ts        → Entry point, window creation, lifecycle
+├─ main/ipc-handlers.ts → Registro de handlers (ipcMain.handle)
+├─ main/services/       → ScriptRegistryService, SystemInfoService,
+│                          ScriptExecutionService, RestorePointService,
+│                          DataService, AdminCheck
+├─ preload/index.ts     → contextBridge (ElectronAPI tipada)
+└─ shared/ipc-types.ts  → Interfaces compartilhadas (tipos IPC)
+
+src/ (renderer)
+├─ main.tsx             → Entry point React
+├─ App.tsx              → Providers + Router
+├─ layout/              → AppLayout (sidebar + topbar + outlet + log)
+├─ pages/               → DashboardPage, ScriptsPage, RestorePointsPage, SettingsPage
+├─ contexts/            → ScriptContext, SystemContext, RestorePointContext,
+│                          LogContext, SettingsContext
+├─ components/          → ScriptCard, DashboardWidget, LogPanel, FavoriteButton,
+│                          SearchInput, CircuitBackground, ScriptDetailDialog, EditScriptDialog
+├─ lib/utils.ts         → cn() utility (tailwind-merge + clsx)
+└─ styles/globals.css   → Tema Tailwind v4 (@theme + @layer)
 ```
 
 ---
@@ -684,95 +685,71 @@ MainWindow.xaml    → View (XAML) + Code-behind (eventos, dialogs)
 
 ```
 FM-Scripts/
-├── FMOptimize.sln                    # Solução .NET 9
 ├── AGENTS.md                             # Instruções de build para agente
 ├── README.md                             # Esta documentação
-├── assets/
-│   ├── main.png                          # Screenshot da interface principal
-│   ├── script_details.png                # Screenshot de detalhes de script
-│   ├── terminal_log.png                  # Screenshot do painel de log
-│   ├── new_category.png                  # Screenshot de criação de categoria
-│   └── new_script.png                    # Screenshot de adição de script
+├── assets/                               # Screenshots
 │
-├── FMOptimize/                       # Projeto principal WPF
-│   ├── App.xaml / App.xaml.cs            # Recursos globais + DI container (com logging)
-│   ├── MainWindow.xaml / .cs             # Layout principal + code-behind
-│   ├── app.manifest                      # requireAdministrator (UAC)
-│   ├── icon.ico                          # Ícone do executável
-│   ├── FMOptimize.csproj             # .NET 9 WPF, single-file publish
+├── fm-optimize-electron/                 # Aplicação Electron
+│   ├── package.json                      # Dependências e scripts
+│   ├── electron.vite.config.ts           # Configuração do Vite
+│   ├── electron-builder.yml              # Configuração do electron-builder
+│   ├── tsconfig.json / .node.json / .web.json  # TypeScript configs
+│   ├── index.html                        # HTML entry point
 │   │
-│   ├── Assets/
-│   │   ├── Icons.cs                      # SVG paths para ícones de categorias
-│   │   └── Fonts/
-│   │       ├── Audiowide-Regular.ttf      # Fonte logo "FM"
-│   │       ├── JetBrainsMono-Bold.ttf    # Fonte monospace bold
-│   │       ├── JetBrainsMono-Regular.ttf # Fonte monospace
-│   │       ├── Rajdhani-Bold.ttf         # Fonte UI bold
-│   │       └── Rajdhani-Regular.ttf      # Fonte UI principal
+│   ├── resources/
+│   │   ├── icon.ico                      # Ícone do executável
+│   │   └── scripts.json                  # 90 scripts em Base64
 │   │
-│   ├── Controls/
-│   │   ├── CircuitBackground.xaml/.cs    # Fundo animado circuito PCB neon
-│   │   ├── DashboardControl.xaml/.cs     # Dashboard com info do sistema
-│   │   ├── LogPanelControl.xaml/.cs      # Terminal com log scrollável
-│   │   ├── RestorePointsControl.xaml/.cs # Gerenciamento de restore points
-│   │   ├── ScriptCardControl.xaml/.cs    # Card de script
-│   │   ├── SettingsControl.xaml/.cs      # Tela de configurações
-│   │   ├── SidebarControl.xaml/.cs       # Sidebar com categorias
-│   │   └── TopBarControl.xaml/.cs        # Topo: título, busca, ações
+│   ├── electron/ (main process)
+│   │   ├── main/
+│   │   │   ├── index.ts                  # Entry point, window creation
+│   │   │   ├── ipc-handlers.ts           # Registro de handlers IPC
+│   │   │   └── services/
+│   │   │       ├── script-registry.ts    # Load, decode, extract scripts
+│   │   │       ├── system-info.ts        # WMI via PowerShell
+│   │   │       ├── script-executor.ts    # Spawn processos
+│   │   │       ├── restore-points.ts     # PowerShell Checkpoint-Computer
+│   │   │       ├── data-service.ts       # Persistência JSON
+│   │   │       └── admin-check.ts        # isAdmin check
+│   │   ├── preload/
+│   │   │   └── index.ts                  # contextBridge
+│   │   └── shared/
+│   │       └── ipc-types.ts              # Interfaces compartilhadas
 │   │
-│   ├── Converters/
-│   │   ├── AdminToVisibilityConverter.cs      # bool admin → Visibility
-│   │   ├── BoolToOpacityConverter.cs          # bool → 1.0 / 0.4
-│   │   ├── BoolToStarConverter.cs             # bool → ★ / ☆
-│   │   ├── FileTypeToColorConverter.cs        # extensão → cor
-│   │   ├── IconConverter.cs                   # categoria → Geometry SVG
-│   │   ├── IconToColorConverter.cs            # extensão → cor
-│   │   ├── IndexToDelayConverter.cs           # index → TimeSpan (animação)
-│   │   └── LogLevelToColorConverter.cs        # LogLevel → cor
-│   │
-│   ├── Helpers/
-│   │   └── SecurityHelper.cs                  # Verificação de admin
-│   │
-│   ├── Models/
-│   │   ├── CategoryItem.cs                    # Categoria com nome e ícone
-│   │   ├── LogEntry.cs                        # Entrada de log
-│   │   ├── LogLevel.cs                        # Enum: Info, Start, End, Error, Warn
-│   │   └── ScriptModel.cs                    # ScriptModel + AppData + ScriptData
-│   │
-│   ├── Resources/
-│   │   ├── LogMessages.cs / .resx             # Textos PT-BR para log
-│   │   └── Strings.cs / .resx                 # Textos PT-BR para interface
-│   │
-│   ├── Services/
-│   │   ├── DataService.cs / IDataService.cs             # Persistência JSON
-│   │   ├── ScriptExecutionService.cs / IScriptExecutionService.cs  # Execução de processos
-│   │   ├── ScriptExtractionService.cs / IScriptExtractionService.cs  # Extração Base64→TEMP
-│   │   ├── ScriptFilterService.cs / IScriptFilterService.cs        # Filtro por categoria + busca
-│   │   ├── ScriptRegistry.cs                             # 90 scripts em Base64
-│   │   └── SystemInfoService.cs / ISystemInfoService.cs  # Informações do sistema (CPU, GPU, RAM, restore points)
-│   │
-│   ├── ViewModels/
-│   │   └── MainViewModel.cs                           # VM principal (~480 linhas)
-│   │
-    │   └── Views/
-    │       ├── DialogDetalhes.xaml/.cs                    # Detalhes do script
-    │       ├── DialogEditScript.xaml/.cs                  # Adicionar/editar script
-    │       └── DialogRestorePoints.xaml/.cs               # Dialog restaurar/excluir restore point
+│   └── src/ (renderer)
+│       ├── main.tsx                       # Entry point React
+│       ├── App.tsx                        # Providers + Router
+│       ├── layout/
+│       │   ├── AppLayout.tsx              # Shell (sidebar + topbar + outlet + log)
+│       │   ├── Sidebar.tsx                # Navegação lateral
+│       │   └── TopBar.tsx                 # Busca e ações
+│       ├── pages/
+│       │   ├── DashboardPage.tsx          # Visão geral do sistema
+│       │   ├── ScriptsPage.tsx            # Grid de scripts
+│       │   ├── RestorePointsPage.tsx      # Gerenciar restore points
+│       │   └── SettingsPage.tsx           # Preferências
+│       ├── contexts/
+│       │   ├── ScriptContext.tsx           # Estado de scripts
+│       │   ├── SystemContext.tsx           # Estado do sistema
+│       │   ├── RestorePointContext.tsx     # Estado de restore points
+│       │   ├── LogContext.tsx              # Log em tempo real
+│       │   └── SettingsContext.tsx         # Configurações
+│       ├── components/
+│       │   ├── ScriptCard.tsx              # Card de script
+│       │   ├── ScriptCardSkeleton.tsx      # Skeleton loader
+│       │   ├── DashboardWidget.tsx         # Widget de dashboard
+│       │   ├── LogPanel.tsx                # Terminal scrollável
+│       │   ├── FavoriteButton.tsx          # Botão favorito
+│       │   ├── SearchInput.tsx             # Campo de busca
+│       │   ├── CircuitBackground.tsx       # Fundo animado (canvas)
+│       │   ├── ScriptDetailDialog.tsx      # Detalhes do script
+│       │   └── EditScriptDialog.tsx        # Adicionar/editar script
+│       ├── lib/
+│       │   └── utils.ts                    # cn() utility
+│       └── styles/
+│           └── globals.css                 # Tema Tailwind v4
 │
-├── FMOptimize.Tests/                # Projeto de testes unitários
-│   ├── FMOptimize.Tests.csproj       # MSTest + Moq + FluentAssertions
-│   ├── Services/
-│   │   ├── ScriptFilterServiceTests.cs   # 6 testes (filtro por categoria + busca)
-│   │   └── DataServiceTests.cs           # 3 testes (save, load, file-not-found)
-│   │
-│   └── Usings.cs                         # Global usings
-│
-└── dist/                               # Build publicado
-    ├── portable/                       # Versão portátil (sem instalação)
-    │   └── FMOptimize.exe          # Single-file ~148 MB
-    └── installer/                      # Versão para instalador
-        ├── FMOptimize.exe          # Single-file ~148 MB
-        └── FMOptimize_Setup.exe    # Instalador Inno Setup ~46 MB
+└── FMOptimize.Tests/                   # (a migrar — testes C# antigos)
 ```
 
 ---
@@ -781,7 +758,7 @@ FM-Scripts/
 
 ### "O aplicativo não abre"
 
-O executável requer **privilégios de administrador** (UAC). O `app.manifest` tem `requireAdministrator`. Clique com botão direito e selecione "Executar como administrador".
+O app detecta automaticamente se está rodando como administrador. Scripts marcados como "Requer Admin" só executam com privilégios elevados. O sistema solicitará UAC quando necessário.
 
 ### "Meu script não executa"
 
@@ -792,14 +769,14 @@ Verifique:
 
 ### "Onde estão meus scripts do usuário?"
 
-Os dados ficam no arquivo `scripts_data.json` ao lado do executável. Os scripts embutidos ficam em `%TEMP%\FMOptimize\scripts\`.
+Os dados ficam em `%APPDATA%\FMOptimize\` (ou `data/` em modo dev). Os scripts embutidos ficam em `%TEMP%\fm-optimize\scripts\`.
 
 ### "Como resetar tudo?"
 
 Delete os arquivos abaixo e reinicie o aplicativo:
 ```
-%TEMP%\FMOptimize\
-{BaseDirectory}\scripts_data.json
+%TEMP%\fm-optimize\
+%APPDATA%\fm-optimize\
 ```
 
 ### "O log está muito grande"
@@ -808,7 +785,7 @@ O log mantém no máximo **500 entradas** na tela. Use o botão "Limpar" (ícone
 
 ### "Como recuperar um script que removi?"
 
-Scripts embutidos (built-in) são recarregados automaticamente do `ScriptRegistry.cs`. Scripts do usuário removidos não podem ser recuperados — a menos que você tenha backup do `scripts_data.json`.
+Scripts embutidos (built-in) são recarregados automaticamente do `resources/scripts.json`. Scripts do usuário removidos não podem ser recuperados — a menos que você tenha backup dos dados.
 
 ---
 
