@@ -145,7 +145,7 @@
           <span class="stat-label">Categorias</span>
         </div>
         <div class="stat-card fade-in">
-          <span class="stat-number"><span class="counter" data-target="8">0</span></span>
+          <span class="stat-number"><span class="counter" data-target="6">0</span></span>
           <span class="stat-label">Tecnologias</span>
         </div>
       </div>
@@ -162,7 +162,7 @@
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </div>
           <h3><span class="counter" data-target="90">0</span> Scripts Embutidos</h3>
-          <p><span class="counter" data-target="11">0</span> categorias de otimização em um único executável. Sem dependências externas.</p>
+          <p><span class="counter" data-target="11">0</span> categorias de otimização em um único executável Electron.</p>
         </div>
         <div class="feature-card fade-in">
           <div class="feature-icon">
@@ -284,11 +284,12 @@
     <div class="container">
       <h2 class="section-title">Tecnologias</h2>
       <div class="tech-list">
-        <span class="tech-chip">C# 13</span>
-        <span class="tech-chip">.NET 9</span>
-        <span class="tech-chip">WPF / XAML</span>
-        <span class="tech-chip">CommunityToolkit.Mvvm</span>
-        <span class="tech-chip">MVVM</span>
+        <span class="tech-chip">Electron</span>
+        <span class="tech-chip">TypeScript</span>
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Tailwind CSS</span>
+        <span class="tech-chip">Vite</span>
+        <span class="tech-chip">Node.js</span>
       </div>
     </div>
   </section>
@@ -337,29 +338,29 @@
         <div class="download-card fade-in">
           <div class="download-header">
             <h3>Portátil</h3>
-            <span class="download-badge">~148 MB</span>
+            <span class="download-badge">~120 MB</span>
           </div>
           <div class="download-body">
             <ul>
               <li>Standalone — sem instalação</li>
               <li>Execute direto do pendrive</li>
-              <li>Dados salvos ao lado do .exe</li>
+              <li>Dados salvos em %APPDATA%</li>
             </ul>
-            <a href="https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest/download/FMOptimize.exe" class="btn-download" target="_blank" rel="noopener" translate="no">Baixar .exe</a>
+            <a href="https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest/download/fm-optimize-portable.exe" class="btn-download" target="_blank" rel="noopener" translate="no">Baixar .exe</a>
           </div>
         </div>
         <div class="download-card fade-in">
           <div class="download-header">
             <h3>Instalador</h3>
-            <span class="download-badge">~46 MB</span>
+            <span class="download-badge">~80 MB</span>
           </div>
           <div class="download-body">
             <ul>
-              <li>Inno Setup — instalação guiada</li>
-              <li>Integração com Program Files</li>
+              <li>NSIS — instalação guiada</li>
+              <li>Atalho no Menu Iniciar e Desktop</li>
               <li>Dados salvos em %APPDATA%</li>
             </ul>
-            <a href="https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest/download/FMOptimize_Setup.exe" class="btn-download" target="_blank" rel="noopener" translate="no">Baixar Setup</a>
+            <a href="https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest/download/fm-optimize-setup.exe" class="btn-download" target="_blank" rel="noopener" translate="no">Baixar Setup</a>
           </div>
         </div>
       </div>
@@ -384,7 +385,7 @@
       <div class="faq-list">
         <details class="faq-item">
           <summary>Precisa de administrador para rodar?</summary>
-          <p>Sim. O FM Optimize requer privilégios de administrador (UAC) porque a maioria dos scripts modifica o sistema. O executável já solicita elevação automaticamente.</p>
+          <p>O app detecta automaticamente permissões. Scripts marcados como "Requer Admin" solicitam UAC quando necessário. Os demais scripts executam sem elevação.</p>
         </details>
         <details class="faq-item">
           <summary>Funciona no Windows 10?</summary>
@@ -392,7 +393,7 @@
         </details>
         <details class="faq-item">
           <summary>Como desinstalar?</summary>
-          <p>Na versão portátil: delete o .exe e a pasta de dados ao lado dele. Na versão instalada: use "Adicionar ou Remover Programas" do Windows.</p>
+          <p>Na versão portátil: delete o .exe. Na versão instalada: use "Adicionar ou Remover Programas" do Windows. Os dados salvos ficam em %APPDATA%\fm-optimize\.</p>
         </details>
         <details class="faq-item">
           <summary>Os scripts são originais?</summary>
