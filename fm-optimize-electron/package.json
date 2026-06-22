@@ -1,0 +1,45 @@
+{
+  "name": "fm-optimize",
+  "version": "2.0.0",
+  "description": "FM Optimize - Windows optimization toolkit",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "postinstall": "electron-builder install-app-deps",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.0.0",
+    "lucide-react": "^0.400.0",
+    "is-admin": "^4.0.0",
+    "node-wmi": "^0.0.5"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-vite": "^3.0.0",
+    "electron-builder": "^25.0.0",
+    "@electron-toolkit/preload": "^3.0.0",
+    "@electron-toolkit/utils": "^3.0.0",
+    "typescript": "^5.7.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/node": "^22.0.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "vitest": "^3.0.0",
+    "@testing-library/react": "^16.0.0",
+    "jsdom": "^26.0.0",
+    "vite": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.0"
+  }
+}
