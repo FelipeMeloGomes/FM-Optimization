@@ -50,9 +50,11 @@ Trabalhar sempre dentro de `fm-optimize-electron/`.
 
 ```powershell
 $env:GITHUB_TOKEN = (Get-Content -Path ".env" | ForEach-Object { if ($_ -match '^GITHUB_TOKEN=(.*)') { $matches[1] } })
-$tag = "v2.0.1"
-$body = "Correções no módulo Restore Points: data, tipo, exclusão."
+$tag = "v$(node -p "require('./package.json').version")"
 $api = "https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases"
+
+$prevTag = git tag --sort=-v:refname | Select-Object -Skip 1 | Select-Object -First 1
+$body = if ($prevTag) { (git log "$prevTag..HEAD" --oneline --no-decorate | ForEach-Object { "- $_" }) -join "`n" } else { "First release" }
 
 $release = Invoke-RestMethod -Uri $api -Method Post -Headers @{
   Authorization = "Bearer $env:GITHUB_TOKEN"
