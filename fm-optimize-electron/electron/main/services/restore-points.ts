@@ -12,25 +12,53 @@ function execPowerShell(script: string): string {
   }
 }
 
-export function getRestorePoints(): RestorePointEntry[] {
-  const output = execPowerShell(
-    'Get-ComputerRestorePoint | Select-Object SequenceNumber,Description,CreationTime,EventType | ConvertTo-Json'
-  )
-  if (!output || output === 'null') return []
-
+function execPowerShellRaw(script: string): string {
   try {
-    const parsed = JSON.parse(output)
-    const items = Array.isArray(parsed) ? parsed : [parsed]
-    const eventTypes = ['Application Install', 'Application Uninstall', 'Modify Settings', 'Scheduled', 'Manual']
-    return items.map((rp: any) => ({
-      sequenceNumber: rp.SequenceNumber,
-      description: rp.Description,
-      creationTime: rp.CreationTime,
-      eventType: eventTypes[rp.EventType - 1] || 'Unknown'
-    }))
-  } catch {
-    return []
+    const buf = Buffer.from(script, 'utf16le')
+    return execSync(`powershell.exe -NoProfile -EncodedCommand ${buf.toString('base64')}`, {
+      encoding: 'utf-8',
+      timeout: 30000
+    }).trim()
+  } catch (e: any) {
+    throw new Error(e.stderr || e.message)
   }
+}
+
+const RESTORE_TYPES: Record<number, string> = {
+  0: 'Application Install',
+  1: 'Application Uninstall',
+  10: 'Device Driver Install',
+  12: 'Modify Settings',
+  13: 'Cancelled Operation'
+}
+
+export function getRestorePoints(): RestorePointEntry[] {
+  const script = `
+$points = Get-ComputerRestorePoint
+foreach ($rp in $points) {
+  $s = $rp.SequenceNumber.ToString()
+  $d = $rp.Description
+  $t = [System.Management.ManagementDateTimeConverter]::ToDateTime($rp.CreationTime).ToString("yyyy-MM-dd HH:mm:ss")
+  $r = [int]$rp.RestorePointType
+  Write-Output ("$s|||$d|||$r|||$t")
+}
+`
+  const output = execPowerShellRaw(script)
+  if (!output) return []
+
+  const items: RestorePointEntry[] = []
+  for (const line of output.split('\n')) {
+    const cols = line.split('|||')
+    if (cols.length < 4) continue
+    const rpt = parseInt(cols[2], 10)
+    items.push({
+      sequenceNumber: parseInt(cols[0], 10),
+      description: cols[1] || '',
+      creationTime: cols[3] || '',
+      eventType: RESTORE_TYPES[rpt] || 'Unknown'
+    })
+  }
+  return items
 }
 
 export function createRestorePoint(name: string): void {
@@ -38,12 +66,22 @@ export function createRestorePoint(name: string): void {
 }
 
 export function deleteRestorePoint(seq: number): void {
-  execPowerShell(
-    `$rp = Get-ComputerRestorePoint | Where-Object { $_.SequenceNumber -eq ${seq} }; ` +
-    'if ($rp) { Remove-Item -Path "HKLM:\\System\\ControlSet001\\Control\\BackupRestore\\Points\\*" -Force -ErrorAction SilentlyContinue }'
-  )
+  const script = `
+Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public class SR {
+  [DllImport("SrClient.dll", CharSet = CharSet.Unicode)]
+  public static extern int SRRemoveRestorePoint(int dwRPNum);
+}
+'@
+[SR]::SRRemoveRestorePoint(${seq})
+`
+  execPowerShellRaw(script)
 }
 
 export function restoreSystem(seq: number): void {
-  execPowerShell(`Restore-Computer -RestorePoint ${seq} -Confirm:$false`)
+  execPowerShell(
+    `Get-ComputerRestorePoint | Where-Object { $_.SequenceNumber -eq ${seq} } | Restore-Computer -Confirm:$false`
+  )
 }

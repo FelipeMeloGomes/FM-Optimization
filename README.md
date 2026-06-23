@@ -419,6 +419,8 @@ Abaixo os 90 scripts disponíveis em 11 categorias.
 
 ## Como Executar
 
+> **⚠️ O app requer privilégios de administrador** — funcionalidades como Restore Points, limpeza de sistema e scripts exigem elevação.
+
 ```bash
 cd fm-optimize-electron
 npm run dev
@@ -447,7 +449,15 @@ npm run build
 npx electron-builder --win portable
 ```
 
-Gera `dist/fm-optimize-*-portable.exe`.
+Gera `dist/fm-optimize-portable.exe`. Execute **como administrador** (botão direito > Executar como administrador).
+
+Organize na pasta correta:
+
+```powershell
+New-Item -ItemType Directory -Path "dist\portable" -Force
+Move-Item -Path "dist\fm-optimize-portable.exe" -Destination "dist\portable\" -Force
+Remove-Item -Path "dist\builder-debug.yml","dist\win-unpacked" -Recurse -Force -ErrorAction SilentlyContinue
+```
 
 ### Instalável (NSIS)
 
@@ -457,7 +467,15 @@ npm run build
 npx electron-builder --win nsis
 ```
 
-Gera `dist/fm-optimize-*-setup.exe`. Dados salvos em `%APPDATA%\fm-optimize\`.
+Gera `dist/fm-optimize-setup.exe`. Dados salvos em `%APPDATA%\fm-optimize\`.
+
+Organize na pasta correta:
+
+```powershell
+New-Item -ItemType Directory -Path "dist\installer" -Force
+Move-Item -Path "dist\fm-optimize-setup.exe","dist\fm-optimize-setup.exe.blockmap" -Destination "dist\installer\" -Force
+Remove-Item -Path "dist\builder-debug.yml","dist\win-unpacked" -Recurse -Force -ErrorAction SilentlyContinue
+```
 
 ---
 

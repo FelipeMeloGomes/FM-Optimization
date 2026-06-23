@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { RefreshCw, Plus, Trash2 } from 'lucide-react'
+import { RefreshCw, Plus, Trash2, AlertTriangle, X } from 'lucide-react'
 import { useRestorePointContext } from '../contexts/RestorePointContext'
 
 export default function RestorePointsPage() {
   const { restorePoints, loading, error, creating, refresh, create, remove } = useRestorePointContext()
   const [newName, setNewName] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
 
   const handleCreate = async () => {
     if (!newName.trim()) return
@@ -82,7 +83,7 @@ export default function RestorePointsPage() {
                   <td className="px-4 py-3 text-muted-foreground">{rp.eventType}</td>
                   <td className="px-4 py-3 text-right">
                     <button
-                      onClick={() => remove(rp.sequenceNumber)}
+                      onClick={() => setConfirmDelete(rp.sequenceNumber)}
                       className="text-muted-foreground hover:text-destructive transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -92,6 +93,42 @@ export default function RestorePointsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {confirmDelete !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setConfirmDelete(null)}>
+          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <h2 className="text-base font-semibold">Confirmar Exclusão</h2>
+              </div>
+              <button onClick={() => setConfirmDelete(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Tem certeza que deseja excluir este restore point? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="rounded-lg border border-border px-4 py-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  await remove(confirmDelete)
+                  setConfirmDelete(null)
+                }}
+                className="rounded-lg bg-destructive px-4 py-2 text-xs text-destructive-foreground hover:bg-destructive/90"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

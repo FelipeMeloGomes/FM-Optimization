@@ -9,6 +9,7 @@ obj/
 # Build
 build/
 dist/
+out/
 
 # IDE
 .vscode/

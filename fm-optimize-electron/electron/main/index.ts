@@ -1,17 +1,7 @@
 import { app, BrowserWindow, shell, Menu } from 'electron'
-import { spawn } from 'child_process'
 import { join, resolve } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc-handlers'
-import { isAdmin } from './services/admin-check'
-
-if (app.isPackaged && !isAdmin()) {
-  spawn('powershell.exe', [
-    '-NoProfile', '-Command',
-    `Start-Process -FilePath "${process.execPath}" -Verb RunAs`
-  ], { detached: true, stdio: 'ignore' }).unref()
-  app.exit(0)
-}
 
 let mainWindow: BrowserWindow | null = null
 
