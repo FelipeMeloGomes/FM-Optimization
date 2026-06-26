@@ -48,9 +48,55 @@ Trabalhar sempre dentro de `fm-optimize-electron/`.
 
 ## Regras para release body
 
-O body do release deve conter apenas mudanças relevantes para o usuário final, escritas em português, sem commits técnicos (chore, bump, docs, refactor internos). Agrupar em seções: Novidades, Melhorias, Correções. Commits de migração/infra ficam em uma seção "Técnico" no final ou são omitidos.
+O body deve conter apenas mudanças relevantes para o usuário final, em português.
+Agrupar em seções: **Novidades**, **Melhorias**, **Correções**.
+Commits técnicos (chore, bump, docs, refactor) ficam em uma seção "Técnico" no final ou são omitidos.
 
 ## Criar nova release com builds
+
+### Pré-requisitos
+
+- [ ] Diretório de trabalho é `fm-optimize-electron/`
+- [ ] `package.json` com a versão atualizada
+- [ ] `.env` na raiz com `GITHUB_TOKEN=ghp_...`
+- [ ] Builds gerados (`npm run build`)
+- [ ] README.md revisado e atualizado
+
+### Template do body
+
+Preencher com as mudanças desta release:
+
+```markdown
+## v1.0.0 - dd/MM/yyyy
+
+### Novidades
+-
+
+### Melhorias
+-
+
+### Correções
+-
+```
+
+### Exemplo renderizado
+
+Como o body aparece no GitHub:
+
+```markdown
+## v1.5.2 - 26/06/2026
+
+### Novidades
+- Suporte a novo formato de planilha
+
+### Melhorias
+- Performance otimizada na leitura de arquivos grandes
+
+### Correções
+- Corrigido crash ao importar CSV com header vazio
+```
+
+### Script
 
 ```powershell
 $body = @"
@@ -66,7 +112,9 @@ $body = @"
 - 
 "@
 
-$env:GITHUB_TOKEN = (Get-Content -Path ".env" | ForEach-Object { if ($_ -match '^GITHUB_TOKEN=(.*)') { $matches[1] } })
+$env:GITHUB_TOKEN = (Get-Content -Path ".env" | ForEach-Object {
+  if ($_ -match '^GITHUB_TOKEN=(.*)') { $matches[1] }
+})
 $tag = "v$(node -p "require('./package.json').version")"
 $api = "https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases"
 
@@ -97,3 +145,7 @@ foreach ($a in $assets) {
 
 Write-Output "Release $tag criada!"
 ```
+
+### Execução
+
+Copie e cole o script acima no terminal PowerShell a partir de `fm-optimize-electron/`.
