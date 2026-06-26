@@ -35,7 +35,8 @@
 - **Log ao vivo** — terminal com filtro por nível de log
 - **Favoritos** — scripts marcados com estrela para acesso rápido
 - **Busca** — Ctrl+F com filtro instantâneo
-- **Tema** — dark azul neon com fundo de circuito animado
+- **Tema** — claro/escuro com fundo de circuito animado
+- **Confirmação** — diálogo antes de executar scripts (ativável)
 
 ---
 
