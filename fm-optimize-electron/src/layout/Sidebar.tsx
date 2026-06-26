@@ -24,7 +24,7 @@ const navItems = [
 
 export function Sidebar() {
   return (
-    <aside className="flex w-16 flex-col items-center gap-2 border-r border-border bg-sidebar-background py-4">
+    <aside className="flex w-48 flex-col gap-2 border-r border-border bg-sidebar-background px-3 py-4">
       <div className="mb-4 text-primary text-xl font-bold">FM</div>
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => (
@@ -34,15 +34,15 @@ export function Sidebar() {
             end={item.to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
                 isActive
                   ? 'bg-primary/20 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )
             }
-            title={item.label}
           >
-            <item.icon className="h-5 w-5" />
+            <item.icon className="h-5 w-5 shrink-0" />
+            <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
