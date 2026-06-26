@@ -11,7 +11,7 @@ interface DashboardWidgetProps {
 
 export function DashboardWidget({ icon: Icon, label, value, detail, className }: DashboardWidgetProps) {
   return (
-    <div className={cn('rounded-xl border border-border bg-card p-4', className)}>
+    <div className={cn('rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:shadow-[0_0_12px_rgba(0,68,255,0.15)]', className)}>
       <div className="mb-2 flex items-center gap-2 text-muted-foreground">
         <Icon className="h-4 w-4" aria-hidden="true" />
         <span className="text-xs uppercase tracking-wider">{label}</span>

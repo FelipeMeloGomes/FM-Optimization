@@ -11,6 +11,16 @@ export default function SettingsPage() {
       <div className="space-y-4">
         <div className="rounded-lg border border-border bg-card p-4">
           <Toggle
+            id="dark-mode"
+            label="Modo escuro"
+            description="Alternar entre tema escuro e claro"
+            checked={settings.theme === 'dark'}
+            onChange={(e) => update({ theme: e.target.checked ? 'dark' : 'light' })}
+          />
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-4">
+          <Toggle
             id="auto-open-log"
             label="Auto-abrir Log"
             description="Abrir painel de log automaticamente"

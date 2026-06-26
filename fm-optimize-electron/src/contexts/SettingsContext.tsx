@@ -19,6 +19,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     window.electronAPI.getSettings().then(setSettings).catch(() => {}).finally(() => setLoading(false))
   }, [])
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', settings.theme === 'dark')
+  }, [settings.theme])
+
   const update = useCallback((partial: Partial<AppSettings>) => {
     setSettings((prev) => {
       const next = { ...prev, ...partial }
