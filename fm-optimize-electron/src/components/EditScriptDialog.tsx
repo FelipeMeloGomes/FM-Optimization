@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { Dialog, Input, Button } from './ui'
 
 interface EditScriptDialogProps {
   onClose: () => void
@@ -12,67 +12,57 @@ export function EditScriptDialog({ onClose, onSave }: EditScriptDialogProps) {
   const [extension, setExtension] = useState('bat')
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Adicionar Script</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-            <X className="h-5 w-5" />
-          </button>
+    <Dialog open onClose={onClose} title="Adicionar Script">
+      <div className="space-y-4">
+        <div>
+          <Input
+            id="script-name"
+            label="Nome"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Nome</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
-            />
-          </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground" htmlFor="script-type">Tipo</label>
+          <select
+            id="script-type"
+            value={extension}
+            onChange={(e) => setExtension(e.target.value)}
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          >
+            <option value="bat">Batch (.bat)</option>
+            <option value="ps1">PowerShell (.ps1)</option>
+            <option value="cmd">Command (.cmd)</option>
+            <option value="reg">Registry (.reg)</option>
+          </select>
+        </div>
 
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Tipo</label>
-            <select
-              value={extension}
-              onChange={(e) => setExtension(e.target.value)}
-              className="w-full h-9 rounded-lg border border-input bg-background px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
-            >
-              <option value="bat">Batch (.bat)</option>
-              <option value="ps1">PowerShell (.ps1)</option>
-              <option value="cmd">Command (.cmd)</option>
-              <option value="reg">Registry (.reg)</option>
-            </select>
-          </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground" htmlFor="script-code">Código</label>
+          <textarea
+            id="script-code"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={8}
+            className="flex w-full rounded-lg border border-input bg-background p-3 font-mono text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          />
+        </div>
 
-          <div>
-            <label className="mb-1 block text-xs text-muted-foreground">Código</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={8}
-              className="w-full rounded-lg border border-input bg-background p-3 font-mono text-xs focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={onClose}
-              className="rounded-lg border border-border px-4 py-2 text-xs text-muted-foreground hover:text-foreground"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={() => onSave({ name, content, extension })}
-              disabled={!name || !content}
-              className="rounded-lg bg-primary px-4 py-2 text-xs text-primary-foreground disabled:opacity-50"
-            >
-              Salvar
-            </button>
-          </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => onSave({ name, content, extension })}
+            disabled={!name || !content}
+          >
+            Salvar
+          </Button>
         </div>
       </div>
-    </div>
+    </Dialog>
   )
 }

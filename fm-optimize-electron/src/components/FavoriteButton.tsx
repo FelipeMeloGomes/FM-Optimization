@@ -11,6 +11,7 @@ export function FavoriteButton({ isFavorite, onClick }: FavoriteButtonProps) {
     <button
       onClick={(e) => { e.stopPropagation(); onClick() }}
       className="text-muted-foreground hover:text-yellow-400 transition-colors"
+      aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
     >
       <Star className={cn('h-4 w-4', isFavorite && 'fill-yellow-400 text-yellow-400')} />
     </button>

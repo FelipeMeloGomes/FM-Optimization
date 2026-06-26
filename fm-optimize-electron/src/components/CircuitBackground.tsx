@@ -19,6 +19,9 @@ export function CircuitBackground() {
   const animRef = useRef<number>(0)
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (mediaQuery.matches) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -119,6 +122,7 @@ export function CircuitBackground() {
     <canvas
       ref={canvasRef}
       className="pointer-events-none fixed inset-0 -z-10"
+      aria-hidden="true"
     />
   )
 }

@@ -12,14 +12,14 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/tweaks', icon: Gauge, label: 'Tweaks' },
-  { to: '/utilities', icon: Wrench, label: 'Utilities' },
-  { to: '/cleaner', icon: Eraser, label: 'Cleaner' },
-  { to: '/restore-points', icon: Shield, label: 'Restore Points' },
+  { to: '/', icon: LayoutDashboard, label: 'Painel' },
+  { to: '/tweaks', icon: Gauge, label: 'Ajustes' },
+  { to: '/utilities', icon: Wrench, label: 'Utilitários' },
+  { to: '/cleaner', icon: Eraser, label: 'Limpeza' },
+  { to: '/restore-points', icon: Shield, label: 'Pontos de Restauração' },
   { to: '/dns', icon: Globe, label: 'DNS' },
-  { to: '/apps', icon: Smartphone, label: 'Apps' },
-  { to: '/settings', icon: Settings, label: 'Settings' }
+  { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
+  { to: '/settings', icon: Settings, label: 'Configurações' }
 ]
 
 export function Sidebar() {
@@ -41,7 +41,7 @@ export function Sidebar() {
               )
             }
           >
-            <item.icon className="h-5 w-5 shrink-0" />
+            <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
             <span>{item.label}</span>
           </NavLink>
         ))}

@@ -1,11 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
-import { Terminal, Copy, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Terminal, Copy, Trash2, ChevronDown, ChevronUp, WrapText } from 'lucide-react'
 import { useLogContext, type LogEntry } from '../contexts/LogContext'
 import { cn } from '../lib/utils'
+
+type LogLevel = 'all' | 'info' | 'warn' | 'error'
+
+const FILTERS: { key: LogLevel; label: string }[] = [
+  { key: 'all', label: 'Todos' },
+  { key: 'info', label: 'Info' },
+  { key: 'warn', label: 'Warn' },
+  { key: 'error', label: 'Error' },
+]
 
 export function LogPanel() {
   const { entries, clear } = useLogContext()
   const [isOpen, setIsOpen] = useState(true)
+  const [levelFilter, setLevelFilter] = useState<LogLevel>('all')
+  const [wrap, setWrap] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -27,6 +38,8 @@ export function LogPanel() {
     warn: 'text-yellow-400'
   }
 
+  const filteredEntries = levelFilter === 'all' ? entries : entries.filter((e) => e.level === levelFilter)
+
   return (
     <div className="border-t border-border">
       <button
@@ -41,21 +54,53 @@ export function LogPanel() {
       </button>
 
       {isOpen && (
-        <div
-          ref={scrollRef}
-          className="h-40 overflow-y-auto bg-background px-4 py-2 font-mono text-xs leading-relaxed"
-        >
-          {entries.length === 0 && (
-            <span className="text-muted-foreground">[ System ready — aguardando execução... ]</span>
-          )}
-          {entries.map((entry) => (
-            <div key={entry.id} className={cn(logColors[entry.level])}>
-              <span className="text-muted-foreground">[{entry.timestamp.toLocaleTimeString()}]</span>{' '}
-              {entry.text}
-            </div>
-          ))}
-          <span className="inline-block h-4 w-2 animate-pulse bg-primary" />
-        </div>
+        <>
+          <div className="flex items-center gap-1 border-b border-border bg-card px-4 py-1.5">
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setLevelFilter(f.key)}
+                className={cn(
+                  'rounded px-2 py-0.5 text-[10px] font-medium transition-colors',
+                  levelFilter === f.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setWrap(!wrap)}
+              className={cn(
+                'ml-auto rounded p-1 transition-colors',
+                wrap ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+              title={wrap ? 'Quebrar linhas' : 'Não quebrar linhas'}
+            >
+              <WrapText className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div
+            ref={scrollRef}
+            className={cn(
+              'max-h-40 overflow-y-auto bg-background px-4 py-2 font-mono text-xs leading-relaxed',
+              wrap ? 'whitespace-pre-wrap' : 'whitespace-nowrap'
+            )}
+          >
+            {entries.length === 0 && (
+              <span className="text-muted-foreground">[ Sistema pronto — aguardando execução... ]</span>
+            )}
+            {filteredEntries.map((entry) => (
+              <div key={entry.id} className={cn(logColors[entry.level])}>
+                <span className="text-muted-foreground">[{entry.timestamp.toLocaleTimeString()}]</span>{' '}
+                {entry.text}
+              </div>
+            ))}
+            <span className="inline-block h-4 w-2 animate-pulse bg-primary" />
+          </div>
+        </>
       )}
 
       {isOpen && entries.length > 0 && (

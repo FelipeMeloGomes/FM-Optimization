@@ -1,6 +1,7 @@
 import { Cpu, Monitor, MemoryStick, HardDrive, Clock, Activity } from 'lucide-react'
 import { useSystemContext } from '../contexts/SystemContext'
 import { DashboardWidget } from '../components/DashboardWidget'
+import { Button } from '../components/ui'
 
 function formatUptime(seconds: number): string {
   const d = Math.floor(seconds / 86400)
@@ -38,15 +39,15 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <button onClick={refresh} className="mb-4 text-xs text-muted-foreground hover:text-primary transition-colors">
-        Atualizar
-      </button>
+      <div className="mb-4">
+        <Button variant="outline" size="sm" onClick={refresh}>Atualizar</Button>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <DashboardWidget
           icon={Cpu}
           label="CPU"
           value={data.cpu.model}
-          detail={`${data.cpu.cores} cores · ${data.cpu.usage}% uso`}
+          detail={`${data.cpu.cores} núcleos · ${data.cpu.usage}% uso`}
         />
         <DashboardWidget
           icon={Monitor}
@@ -77,7 +78,7 @@ export default function DashboardPage() {
         ))}
         <DashboardWidget
           icon={Clock}
-          label="Uptime"
+          label="Tempo de Atividade"
           value={formatUptime(data.uptime)}
         />
       </div>

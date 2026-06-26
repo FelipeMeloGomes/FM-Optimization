@@ -2,14 +2,14 @@ import { useLocation } from 'react-router-dom'
 import { SearchInput } from '../components/SearchInput'
 
 const routeTitles: Record<string, string> = {
-  '/': 'Dashboard',
-  '/tweaks': 'Tweaks / Desempenho',
-  '/utilities': 'Utilities',
-  '/cleaner': 'Cleaner',
-  '/restore-points': 'Restore Points',
-  '/dns': 'DNS Manager',
-  '/apps': 'Apps & Privacy',
-  '/settings': 'Settings'
+  '/': 'Painel',
+  '/tweaks': 'Ajustes / Desempenho',
+  '/utilities': 'Utilitários',
+  '/cleaner': 'Limpeza',
+  '/restore-points': 'Pontos de Restauração',
+  '/dns': 'Gerenciador de DNS',
+  '/apps': 'Apps e Privacidade',
+  '/settings': 'Configurações'
 }
 
 export function TopBar() {

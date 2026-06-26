@@ -75,15 +75,15 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredScripts.map((script) => (
-            <ScriptCard
-              key={script.id}
-              script={script}
-              isFavorite={favorites.includes(script.id)}
-              isExecuting={activeExecution === script.id}
-              onExecute={() => execute(script.id)}
-              onCancel={() => cancel(script.id)}
-              onToggleFavorite={() => toggleFavorite(script.id)}
-            />
+          <ScriptCard
+            key={script.id}
+            script={script}
+            isFavorite={favorites.includes(script.id)}
+            isExecuting={activeExecution === script.id}
+            onExecute={() => execute(script.id)}
+            onCancel={() => cancel(script.id)}
+            onToggleFavorite={() => toggleFavorite(script.id)}
+          />
           ))}
         </div>
       )}

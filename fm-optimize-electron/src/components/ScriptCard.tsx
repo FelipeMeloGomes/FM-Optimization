@@ -1,5 +1,7 @@
-import { Play, Square, Terminal, ShieldAlert } from 'lucide-react'
+import { useState } from 'react'
+import { Play, Square, Terminal, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react'
 import { FavoriteButton } from './FavoriteButton'
+import { Card, Button } from './ui'
 import type { ScriptEntry } from '../../electron/shared/ipc-types'
 
 interface ScriptCardProps {
@@ -19,23 +21,46 @@ export function ScriptCard({
   onCancel,
   onToggleFavorite
 }: ScriptCardProps) {
+  const [expanded, setExpanded] = useState(false)
+
   return (
-    <div className="group relative flex flex-col rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-[0_0_12px_rgba(0,68,255,0.15)]">
+    <Card hover className="group flex flex-col">
       <div className="mb-2 flex items-start justify-between">
-        <h3 className="font-medium text-sm text-foreground line-clamp-2">{script.name}</h3>
+        <h3
+          onClick={() => setExpanded((v) => !v)}
+          className="font-medium text-sm text-foreground cursor-pointer hover:text-primary transition-colors"
+        >
+          {script.name}
+        </h3>
         <FavoriteButton isFavorite={isFavorite} onClick={onToggleFavorite} />
       </div>
 
-      <p className="mb-3 text-xs text-muted-foreground line-clamp-2">{script.description}</p>
+      <div onClick={() => setExpanded((v) => !v)} className="cursor-pointer mb-1">
+        <p
+          className={`text-xs text-muted-foreground hover:text-foreground transition-colors ${!expanded ? 'line-clamp-2' : ''}`}
+        >
+          {script.description}
+        </p>
+        <button
+          onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v) }}
+          className="mt-0.5 flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors"
+        >
+          {expanded ? (
+            <><ChevronUp className="h-3 w-3" aria-hidden="true" /> Menos</>
+          ) : (
+            <><ChevronDown className="h-3 w-3" aria-hidden="true" /> Mais</>
+          )}
+        </button>
+      </div>
 
       <div className="mb-3 flex flex-wrap gap-1">
-        <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] text-muted-foreground font-mono">
-          <Terminal className="h-3 w-3" />
+        <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground font-mono">
+          <Terminal className="h-3 w-3" aria-hidden="true" />
           .{script.extension}
         </span>
         {script.requiresAdmin && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-0.5 text-[10px] text-destructive font-mono">
-            <ShieldAlert className="h-3 w-3" />
+          <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-0.5 text-xs text-destructive font-mono">
+            <ShieldAlert className="h-3 w-3" aria-hidden="true" />
             Admin
           </span>
         )}
@@ -43,23 +68,17 @@ export function ScriptCard({
 
       <div className="mt-auto flex gap-2">
         {isExecuting ? (
-          <button
-            onClick={onCancel}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
-          >
-            <Square className="h-3.5 w-3.5" />
+          <Button variant="destructive" size="sm" onClick={onCancel} aria-label="Cancelar execução">
+            <Square className="h-3.5 w-3.5" aria-hidden="true" />
             Cancelar
-          </button>
+          </Button>
         ) : (
-          <button
-            onClick={onExecute}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            <Play className="h-3.5 w-3.5" />
+          <Button variant="primary" size="sm" onClick={onExecute} aria-label="Executar script">
+            <Play className="h-3.5 w-3.5" aria-hidden="true" />
             Executar
-          </button>
+          </Button>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
