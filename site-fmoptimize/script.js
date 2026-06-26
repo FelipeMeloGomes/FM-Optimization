@@ -93,12 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
   prevBtn.addEventListener('click', () => handleManualNav(() => goToSlide(Math.max(0, currentSlide - 1))));
   nextBtn.addEventListener('click', () => handleManualNav(() => goToSlide(Math.min(slides.length - 1, currentSlide + 1))));
 
-  // GitHub badges
+  // GitHub badges + download sizes
   const badgeVersion = document.getElementById('badgeVersion');
   const badgeStars = document.getElementById('badgeStars');
+  const badges = document.querySelectorAll('.download-badge');
   fetch('https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases/latest')
     .then(r => r.ok ? r.json() : Promise.reject())
-    .then(d => { badgeVersion.textContent = d.tag_name; })
+    .then(d => {
+      badgeVersion.textContent = d.tag_name;
+      d.assets.forEach(a => {
+        const mb = (a.size / 1048576).toFixed(1);
+        if (a.name === 'fm-optimize-portable.exe' && badges[0]) badges[0].textContent = '~' + mb + ' MB';
+        if (a.name === 'fm-optimize-setup.exe' && badges[1]) badges[1].textContent = '~' + mb + ' MB';
+      });
+    })
     .catch(() => { badgeVersion.textContent = 'v1.0.0'; });
   fetch('https://api.github.com/repos/FelipeMeloGomes/FM-Optimization')
     .then(r => r.ok ? r.json() : Promise.reject())
