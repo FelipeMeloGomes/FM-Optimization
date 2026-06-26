@@ -6,7 +6,7 @@ import { CircuitBackground } from '../components/CircuitBackground'
 
 export function AppLayout() {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="relative flex h-screen overflow-hidden">
       <CircuitBackground />
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">

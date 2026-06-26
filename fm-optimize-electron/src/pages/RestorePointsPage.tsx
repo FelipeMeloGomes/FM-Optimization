@@ -1,12 +1,18 @@
-import { useState } from 'react'
-import { RefreshCw, Plus, Trash2, AlertTriangle } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { RefreshCw, Plus, Trash2, AlertTriangle, Search } from 'lucide-react'
 import { useRestorePointContext } from '../contexts/RestorePointContext'
 import { Input, Button, Dialog } from '../components/ui'
 
 export default function RestorePointsPage() {
   const { restorePoints, loading, error, creating, refresh, create, remove } = useRestorePointContext()
   const [newName, setNewName] = useState('')
+  const [search, setSearch] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+
+  const filtered = useMemo(
+    () => restorePoints.filter((rp) => rp.description.toLowerCase().includes(search.toLowerCase())),
+    [restorePoints, search]
+  )
 
   const handleCreate = async () => {
     if (!newName.trim()) return
@@ -36,6 +42,16 @@ export default function RestorePointsPage() {
 
   return (
     <div>
+      <div className="relative mb-2">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <Input
+          placeholder="Buscar pontos de restauração..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full max-w-sm pl-9"
+        />
+      </div>
+
       <div className="mb-6 flex items-center gap-3">
         <Input
           placeholder="Nome do ponto de restauração..."
@@ -58,10 +74,14 @@ export default function RestorePointsPage() {
         </Button>
       </div>
 
-      {restorePoints.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <p className="text-sm">Nenhum ponto de restauração encontrado</p>
-          <p className="text-xs mt-1">Crie um ponto de restauração para começar</p>
+          <p className="text-sm">
+            {search ? 'Nenhum ponto encontrado para esta busca' : 'Nenhum ponto de restauração encontrado'}
+          </p>
+          <p className="text-xs mt-1">
+            {search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'}
+          </p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
@@ -75,7 +95,7 @@ export default function RestorePointsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {restorePoints.map((rp) => (
+              {filtered.map((rp) => (
                 <tr key={rp.sequenceNumber} className="hover:bg-card/50 transition-colors">
                   <td className="px-4 py-3">{rp.description}</td>
                   <td className="px-4 py-3 text-muted-foreground">

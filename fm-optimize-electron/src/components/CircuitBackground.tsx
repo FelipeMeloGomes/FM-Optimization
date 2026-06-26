@@ -19,25 +19,26 @@ export function CircuitBackground() {
   const animRef = useRef<number>(0)
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    if (mediaQuery.matches) return
-
     const canvas = canvasRef.current
     if (!canvas) return
+    if (!canvas.parentElement) return
+
+    const rect = canvas.parentElement.getBoundingClientRect()
+    canvas.width = rect.width
+    canvas.height = rect.height
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      const r = canvas.parentElement!.getBoundingClientRect()
+      canvas.width = r.width
+      canvas.height = r.height
     }
-    resize()
     window.addEventListener('resize', resize)
 
-    // Generate PCB-like traces
-    const traces: Trace[] = []
     const spacing = 80
+    const traces: Trace[] = []
     for (let x = 0; x < canvas.width + spacing; x += spacing) {
       for (let y = 0; y < canvas.height + spacing; y += spacing) {
         if (Math.random() > 0.3) continue
@@ -51,8 +52,7 @@ export function CircuitBackground() {
               ? { x, y: y + spacing }
               : { x, y: y - spacing }
         traces.push({
-          start,
-          end,
+          start, end,
           progress: Math.random(),
           speed: 0.002 + Math.random() * 0.004,
           hue: 210 + Math.random() * 30
@@ -63,50 +63,36 @@ export function CircuitBackground() {
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      // Background grid
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)'
       ctx.lineWidth = 1
       for (let x = 0; x < canvas.width; x += spacing) {
         ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, canvas.height)
-        ctx.stroke()
+        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke()
       }
       for (let y = 0; y < canvas.height; y += spacing) {
         ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(canvas.width, y)
-        ctx.stroke()
+        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke()
       }
-
-      // Animated data pulses
       for (const trace of traces) {
         trace.progress += trace.speed
         if (trace.progress > 1) trace.progress = 0
-
         const t = trace.progress
         const cx = trace.start.x + (trace.end.x - trace.start.x) * t
         const cy = trace.start.y + (trace.end.y - trace.start.y) * t
-
         ctx.beginPath()
         ctx.arc(cx, cy, 2, 0, Math.PI * 2)
         ctx.fillStyle = `hsla(${trace.hue}, 100%, 50%, ${0.3 + t * 0.4})`
         ctx.fill()
-
-        // Trail
         const trailLen = 0.1
         const prevT = Math.max(0, t - trailLen)
         const px = trace.start.x + (trace.end.x - trace.start.x) * prevT
         const py = trace.start.y + (trace.end.y - trace.start.y) * prevT
         ctx.beginPath()
-        ctx.moveTo(px, py)
-        ctx.lineTo(cx, cy)
+        ctx.moveTo(px, py); ctx.lineTo(cx, cy)
         ctx.strokeStyle = `hsla(${trace.hue}, 100%, 50%, ${0.1 + t * 0.2})`
         ctx.lineWidth = 1
         ctx.stroke()
       }
-
       animRef.current = requestAnimationFrame(animate)
     }
 
@@ -121,7 +107,7 @@ export function CircuitBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 -z-10"
+      className="pointer-events-none absolute inset-0"
       aria-hidden="true"
     />
   )

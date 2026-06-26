@@ -15,12 +15,12 @@ const routeTitles: Record<string, string> = {
 export function TopBar() {
   const location = useLocation()
   const title = routeTitles[location.pathname] || 'FM Optimize'
-  const isDashboard = location.pathname === '/'
+  const showSearch = !['/', '/restore-points', '/settings'].includes(location.pathname)
 
   return (
     <header className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
       <h1 className="text-lg font-semibold">{title}</h1>
-      {!isDashboard && <SearchInput />}
+      {showSearch && <SearchInput />}
     </header>
   )
 }
