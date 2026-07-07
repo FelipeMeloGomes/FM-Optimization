@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { RefreshCw, Plus, Trash2, RotateCcw, AlertTriangle, Search } from 'lucide-react'
 import { useRestorePointContext } from '../contexts/RestorePointContext'
-import { Input, Button, Dialog } from '../components/ui'
+import { EmptyState, Input, Button, Dialog } from '../components/ui'
 
 export default function RestorePointsPage() {
   const { state, creating, restoring, refresh, create, remove, restore } = useRestorePointContext()
@@ -78,14 +78,10 @@ export default function RestorePointsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <p className="text-sm">
-            {search ? 'Nenhum ponto encontrado para esta busca' : 'Nenhum ponto de restauração encontrado'}
-          </p>
-          <p className="text-xs mt-1">
-            {search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'}
-          </p>
-        </div>
+        <EmptyState
+          title={search ? 'Nenhum ponto encontrado para esta busca' : 'Nenhum ponto de restauração encontrado'}
+          description={search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'}
+        />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
           <table className="w-full text-sm">

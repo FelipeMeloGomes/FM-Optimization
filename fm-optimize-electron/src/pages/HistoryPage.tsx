@@ -1,5 +1,6 @@
 import { RefreshCw, Clock, XCircle, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useHistoryContext } from '../contexts/HistoryContext'
+import { EmptyState } from '../components/ui'
 import { cn } from '../lib/utils'
 
 function formatDuration(ms: number): string {
@@ -41,11 +42,11 @@ export default function HistoryPage() {
       </div>
 
       {history.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <Clock className="mb-2 h-8 w-8" />
-          <p className="text-sm">Nenhuma execução registrada</p>
-          <p className="text-xs mt-1">Execute um script para vê-lo aqui</p>
-        </div>
+        <EmptyState
+          icon={<Clock className="h-8 w-8" />}
+          title="Nenhuma execução registrada"
+          description="Execute um script para vê-lo aqui"
+        />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
           <table className="w-full text-sm">

@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { Star } from 'lucide-react'
 import { cn } from '../lib/utils'
+import { EmptyState } from '../components/ui'
 import { useScriptContext } from '../contexts/ScriptContext'
 import { ScriptCard } from '../components/ScriptCard'
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
@@ -110,10 +111,10 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
       )}
 
       {filteredScripts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <p className="text-sm">Nenhum script encontrado</p>
-          <p className="text-xs mt-1">Tente ajustar sua busca ou filtro</p>
-        </div>
+        <EmptyState
+          title="Nenhum script encontrado"
+          description="Tente ajustar sua busca ou filtro"
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredScripts.map((script) => (
