@@ -13,13 +13,53 @@ interface DialogProps {
 
 export function Dialog({ open, onClose, title, children, className }: DialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    if (!open) return
+
+    const prev = document.activeElement as HTMLElement | null
+    const dialog = dialogRef.current
+    if (dialog) {
+      const focusable = dialog.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      focusable?.focus()
     }
-    if (open) document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose()
+        return
+      }
+      if (e.key === 'Tab') {
+        const d = dialogRef.current
+        if (!d) return
+        const focusable = d.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      prev?.focus()
+    }
   }, [open, onClose])
 
   return (
