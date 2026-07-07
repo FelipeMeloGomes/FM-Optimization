@@ -27,7 +27,7 @@ export const DashboardWidget = memo(function DashboardWidget({ icon: Icon, label
       <div className="text-lg font-semibold text-foreground tabular-nums">{value || '—'}</div>
       {detail && <div className="mt-1 text-xs text-muted-foreground">{detail}</div>}
       {progress !== undefined && (
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={`${label}: ${value}`}>
           <div
             className={cn('h-full rounded-full transition-all', progressColor(progress))}
             style={{ width: `${Math.min(progress, 100)}%` }}

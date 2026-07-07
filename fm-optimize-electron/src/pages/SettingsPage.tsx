@@ -6,7 +6,7 @@ import type { UpdateStatus, UpdateInfo, DownloadProgress } from '../../electron/
 const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest'
 
 export default function SettingsPage() {
-  const { settings, update } = useSettingsContext()
+  const { settings, update, loading } = useSettingsContext()
   const [appVersion, setAppVersion] = useState('')
   const [packaged, setPackaged] = useState(false)
   const [status, setStatus] = useState<UpdateStatus | null>(null)
@@ -62,6 +62,14 @@ export default function SettingsPage() {
 
   function handleOpenRelease() {
     window.open(GITHUB_RELEASES, '_blank')
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    )
   }
 
   return (
