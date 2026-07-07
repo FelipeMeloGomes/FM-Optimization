@@ -6,11 +6,6 @@ if (saved) html.dataset.theme = saved;
 else html.dataset.theme = 'dark';
 if (themeMeta) themeMeta.content = themeMeta.dataset[html.dataset.theme];
 
-// Service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-
 function semverCompare(a, b) {
   const aParts = a.replace(/^v/, '').split('.').map(Number);
   const bParts = b.replace(/^v/, '').split('.').map(Number);

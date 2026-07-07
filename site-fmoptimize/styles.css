@@ -45,7 +45,7 @@
   --accent-glow: rgba(0, 51, 187, 0.12);
   --text-primary: #0d1117;
   --text-secondary: #4a5578;
-  --text-muted: #7880a0;
+  --text-muted: #4e5880;
 }
 
 [data-theme="light"] .section { background: rgba(238, 241, 247, 0.6); }
