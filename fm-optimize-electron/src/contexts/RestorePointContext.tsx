@@ -1,32 +1,29 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import type { RestorePointEntry } from '../../electron/shared/ipc-types'
+import type { AsyncState, RestorePointEntry } from '../../electron/shared/ipc-types'
 
 interface RestorePointContextValue {
-  restorePoints: RestorePointEntry[]
-  loading: boolean
-  error: string | null
+  state: AsyncState<RestorePointEntry[]>
   creating: boolean
+  restoring: boolean
   refresh: () => void
   create: (name: string) => Promise<void>
   remove: (seq: number) => Promise<void>
+  restore: (seq: number) => Promise<void>
 }
 
 const RestorePointContext = createContext<RestorePointContextValue | null>(null)
 
 export function RestorePointProvider({ children }: { children: ReactNode }) {
-  const [restorePoints, setRestorePoints] = useState<RestorePointEntry[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [state, setState] = useState<AsyncState<RestorePointEntry[]>>({ status: 'loading' })
   const [creating, setCreating] = useState(false)
+  const [restoring, setRestoring] = useState(false)
 
   const refresh = useCallback(() => {
-    setLoading(true)
-    setError(null)
+    setState({ status: 'loading' })
     window.electronAPI
       .getRestorePoints()
-      .then(setRestorePoints)
-      .catch((e) => setError(typeof e === 'string' ? e : e.message))
-      .finally(() => setLoading(false))
+      .then((data) => setState({ status: 'success', data }))
+      .catch((e) => setState({ status: 'error', error: typeof e === 'string' ? e : (e as Error).message }))
   }, [])
 
   const create = useCallback(async (name: string) => {
@@ -40,14 +37,29 @@ export function RestorePointProvider({ children }: { children: ReactNode }) {
   }, [refresh])
 
   const remove = useCallback(async (seq: number) => {
-    await window.electronAPI.deleteRestorePoint(seq)
-    await refresh()
+    try {
+      await window.electronAPI.deleteRestorePoint(seq)
+      await refresh()
+    } catch (e) {
+      setState({ status: 'error', error: typeof e === 'string' ? e : 'Falha ao excluir ponto de restauração' })
+    }
   }, [refresh])
+
+  const restore = useCallback(async (seq: number) => {
+    setRestoring(true)
+    try {
+      await window.electronAPI.restoreSystem(seq)
+    } catch (e) {
+      setState({ status: 'error', error: typeof e === 'string' ? e : 'Falha ao restaurar sistema' })
+    } finally {
+      setRestoring(false)
+    }
+  }, [])
 
   useEffect(() => { refresh() }, [refresh])
 
   return (
-    <RestorePointContext.Provider value={{ restorePoints, loading, error, creating, refresh, create, remove }}>
+    <RestorePointContext.Provider value={{ state, creating, restoring, refresh, create, remove, restore }}>
       {children}
     </RestorePointContext.Provider>
   )

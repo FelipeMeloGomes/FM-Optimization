@@ -16,7 +16,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    window.electronAPI.getSettings().then(setSettings).catch(() => {}).finally(() => setLoading(false))
+    window.electronAPI.getSettings().then(setSettings).catch((e) =>
+      console.error('Failed to load settings:', e)
+    ).finally(() => setLoading(false))
   }, [])
 
   useEffect(() => {
@@ -24,12 +26,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [settings.theme])
 
   const update = useCallback((partial: Partial<AppSettings>) => {
-    setSettings((prev) => {
-      const next = { ...prev, ...partial }
-      window.electronAPI.saveSettings(next).catch(() => {})
-      return next
-    })
-  }, [])
+    const next = { ...settings, ...partial }
+    setSettings(next)
+    window.electronAPI.saveSettings(next).catch((e) =>
+      console.error('Failed to save settings:', e)
+    )
+  }, [settings])
 
   return (
     <SettingsContext.Provider value={{ settings, update, loading }}>

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'fs'
+import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, copyFileSync } from 'fs'
 import { resolve } from 'path'
 import { app } from 'electron'
 import type { AppSettings } from '../../shared/ipc-types'
@@ -51,7 +51,9 @@ export function loadUserData(): UserData {
 
 export function saveUserData(data: UserData): void {
   const filePath = getDataFilePath()
-  writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8')
+  const tmpPath = filePath + '.tmp'
+  writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf-8')
+  renameSync(tmpPath, filePath)
 }
 
 export function loadSettings(): AppSettings {
@@ -60,7 +62,13 @@ export function loadSettings(): AppSettings {
 
   try {
     const raw = readFileSync(filePath, 'utf-8')
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }
+    const parsed = JSON.parse(raw)
+    if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS
+    return {
+      theme: ['dark', 'light'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
+      autoOpenLog: typeof parsed.autoOpenLog === 'boolean' ? parsed.autoOpenLog : DEFAULT_SETTINGS.autoOpenLog,
+      confirmOnExecute: typeof parsed.confirmOnExecute === 'boolean' ? parsed.confirmOnExecute : DEFAULT_SETTINGS.confirmOnExecute
+    }
   } catch {
     return DEFAULT_SETTINGS
   }
@@ -68,5 +76,7 @@ export function loadSettings(): AppSettings {
 
 export function saveSettings(settings: AppSettings): void {
   const filePath = getSettingsFilePath()
-  writeFileSync(filePath, JSON.stringify(settings, null, 2), 'utf-8')
+  const tmpPath = filePath + '.tmp'
+  writeFileSync(tmpPath, JSON.stringify(settings, null, 2), 'utf-8')
+  renameSync(tmpPath, filePath)
 }

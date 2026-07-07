@@ -102,6 +102,14 @@ function getOsInfo(): OsInfo {
   return { name, version: release(), build, edition, installDate }
 }
 
+interface RawDriveInfo {
+  DeviceID?: string
+  VolumeName?: string
+  Size?: number
+  Free?: number
+  FileSystem?: string
+}
+
 function getStorageDrives(): StorageDrive[] {
   const output = execPowerShell(
     'Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object DeviceID,VolumeName,@{N="Size";E={$_.Size/1GB}},@{N="Free";E={$_.FreeSpace/1GB}},FileSystem | ConvertTo-Json'
@@ -110,12 +118,12 @@ function getStorageDrives(): StorageDrive[] {
 
   try {
     const parsed = JSON.parse(output)
-    const items = Array.isArray(parsed) ? parsed : [parsed]
-    return items.map((d: any) => ({
+    const items: RawDriveInfo[] = Array.isArray(parsed) ? parsed : [parsed]
+    return items.map((d) => ({
       letter: d.DeviceID || '',
       label: d.VolumeName || '',
-      size: d.Size ? `${Math.round(parseFloat(d.Size))} GB` : 'N/A',
-      free: d.Free ? `${Math.round(parseFloat(d.Free))} GB` : 'N/A',
+      size: d.Size ? `${Math.round(d.Size)} GB` : 'N/A',
+      free: d.Free ? `${Math.round(d.Free)} GB` : 'N/A',
       type: d.FileSystem || ''
     }))
   } catch {

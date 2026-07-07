@@ -1,28 +1,22 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import type { DashboardData } from '../../electron/shared/ipc-types'
+import type { AsyncState, DashboardData } from '../../electron/shared/ipc-types'
 
 interface SystemContextValue {
-  data: DashboardData | null
-  loading: boolean
-  error: string | null
+  state: AsyncState<DashboardData>
   refresh: () => void
 }
 
 const SystemContext = createContext<SystemContextValue | null>(null)
 
 export function SystemProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [state, setState] = useState<AsyncState<DashboardData>>({ status: 'loading' })
 
   const refresh = useCallback(() => {
-    setLoading(true)
-    setError(null)
+    setState({ status: 'loading' })
     window.electronAPI
       .getSystemInfo()
-      .then(setData)
-      .catch((e) => setError(typeof e === 'string' ? e : e.message))
-      .finally(() => setLoading(false))
+      .then((data) => setState({ status: 'success', data }))
+      .catch((e) => setState({ status: 'error', error: typeof e === 'string' ? e : (e as Error).message }))
   }, [])
 
   useEffect(() => {
@@ -30,7 +24,7 @@ export function SystemProvider({ children }: { children: ReactNode }) {
   }, [refresh])
 
   return (
-    <SystemContext.Provider value={{ data, loading, error, refresh }}>
+    <SystemContext.Provider value={{ state, refresh }}>
       {children}
     </SystemContext.Provider>
   )

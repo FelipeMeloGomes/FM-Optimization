@@ -89,6 +89,7 @@ export interface UpdateInfo {
   version: string
   releaseNotes?: string
   releaseDate?: string
+  error?: string
 }
 
 export interface DownloadProgress {
@@ -103,6 +104,11 @@ export interface IpcResult<T = void> {
   data?: T
   error?: string
 }
+
+export type AsyncState<T> =
+  | { status: 'loading' }
+  | { status: 'error'; error: string }
+  | { status: 'success'; data: T }
 
 export interface ElectronAPI {
   getSystemInfo(): Promise<DashboardData>
@@ -121,6 +127,9 @@ export interface ElectronAPI {
   onScriptOutput(cb: (data: ScriptOutput) => void): () => void
   onScriptError(cb: (data: ScriptOutput) => void): () => void
   onScriptEnded(cb: (data: ScriptEnded) => void): () => void
+  getFavorites(): Promise<string[]>
+  saveFavorites(ids: string[]): Promise<void>
+  restoreSystem(seq: number): Promise<void>
   getAppVersion(): Promise<string>
   isPackaged(): Promise<boolean>
   checkForUpdate(): Promise<void>

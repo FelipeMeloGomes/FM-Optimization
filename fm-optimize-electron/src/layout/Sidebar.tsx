@@ -20,7 +20,7 @@ const navItems = [
   { to: '/dns', icon: Globe, label: 'DNS' },
   { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
   { to: '/settings', icon: Settings, label: 'Configurações' }
-]
+] as const
 
 export function Sidebar() {
   return (

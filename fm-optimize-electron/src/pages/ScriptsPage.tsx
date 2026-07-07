@@ -11,11 +11,10 @@ interface ScriptsPageProps {
 
 export default function ScriptsPage({ category }: ScriptsPageProps) {
   const {
+    state,
     filteredScripts,
     favorites,
     activeExecution,
-    loading,
-    error,
     setCategoryFilter,
     toggleFavorite,
     showFavoritesOnly,
@@ -28,7 +27,7 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     setCategoryFilter(category)
   }, [category, setCategoryFilter])
 
-  if (loading) {
+  if (state.status === 'loading') {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -38,11 +37,11 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     )
   }
 
-  if (error) {
+  if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
         <p className="text-sm">Erro ao carregar scripts</p>
-        <p className="text-xs text-destructive mt-2">{error}</p>
+        <p className="text-xs text-destructive mt-2">{state.error}</p>
       </div>
     )
   }

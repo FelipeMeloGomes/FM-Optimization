@@ -4,7 +4,9 @@ import { HashRouter } from 'react-router-dom'
 import App from './App'
 import './styles/globals.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById('root')
+if (!rootEl) throw new Error('Root element #root not found — check index.html')
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <HashRouter>
       <App />

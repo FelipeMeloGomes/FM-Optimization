@@ -1,18 +1,15 @@
 import { useState, useMemo } from 'react'
-import { RefreshCw, Plus, Trash2, AlertTriangle, Search } from 'lucide-react'
+import { RefreshCw, Plus, Trash2, RotateCcw, AlertTriangle, Search } from 'lucide-react'
 import { useRestorePointContext } from '../contexts/RestorePointContext'
 import { Input, Button, Dialog } from '../components/ui'
 
 export default function RestorePointsPage() {
-  const { restorePoints, loading, error, creating, refresh, create, remove } = useRestorePointContext()
+  const { state, creating, restoring, refresh, create, remove, restore } = useRestorePointContext()
   const [newName, setNewName] = useState('')
   const [search, setSearch] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-
-  const filtered = useMemo(
-    () => restorePoints.filter((rp) => rp.description.toLowerCase().includes(search.toLowerCase())),
-    [restorePoints, search]
-  )
+  const [confirmRestore, setConfirmRestore] = useState<number | null>(null)
+  const [restoreDone, setRestoreDone] = useState(false)
 
   const handleCreate = async () => {
     if (!newName.trim()) return
@@ -20,7 +17,7 @@ export default function RestorePointsPage() {
     setNewName('')
   }
 
-  if (loading) {
+  if (state.status === 'loading') {
     return (
       <div className="flex items-center justify-center py-20">
         <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -28,17 +25,23 @@ export default function RestorePointsPage() {
     )
   }
 
-  if (error) {
+  if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
         <p className="text-sm">Erro ao carregar pontos de restauração</p>
-        <p className="text-xs text-destructive mt-2">{error}</p>
+        <p className="text-xs text-destructive mt-2">{state.error}</p>
         <Button variant="primary" size="sm" onClick={refresh} className="mt-4">
           Tentar novamente
         </Button>
       </div>
     )
   }
+
+  const restorePoints = state.data
+  const filtered = useMemo(
+    () => restorePoints.filter((rp) => rp.description.toLowerCase().includes(search.toLowerCase())),
+    [restorePoints, search]
+  )
 
   return (
     <div>
@@ -91,7 +94,7 @@ export default function RestorePointsPage() {
                 <th className="px-4 py-3 text-left">Descrição</th>
                 <th className="px-4 py-3 text-left">Data</th>
                 <th className="px-4 py-3 text-left">Tipo</th>
-                <th className="px-4 py-3 text-right">Ação</th>
+                <th className="px-4 py-3 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -103,12 +106,21 @@ export default function RestorePointsPage() {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{rp.eventType}</td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => setConfirmDelete(rp.sequenceNumber)}
-                      className="text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setConfirmRestore(rp.sequenceNumber)}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        title="Restaurar sistema para este ponto"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(rp.sequenceNumber)}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -144,6 +156,51 @@ export default function RestorePointsPage() {
             Excluir
           </Button>
         </div>
+      </Dialog>
+
+      <Dialog
+        open={confirmRestore !== null || restoreDone}
+        onClose={() => { setConfirmRestore(null); setRestoreDone(false) }}
+        className="max-w-sm"
+      >
+        {restoreDone ? (
+          <>
+            <div className="mb-4 flex items-center gap-3">
+              <RefreshCw className="h-5 w-5 text-primary animate-spin" />
+              <h2 className="text-base font-semibold">Restauração Iniciada</h2>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              O sistema será restaurado e o computador será reiniciado em instantes.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="mb-4 flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-semibold">Confirmar Restauração</h2>
+            </div>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Tem certeza que deseja restaurar o sistema para este ponto? O computador será reiniciado.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setConfirmRestore(null)}>
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={restoring}
+                onClick={async () => {
+                  await restore(confirmRestore!)
+                  setConfirmRestore(null)
+                  setRestoreDone(true)
+                }}
+              >
+                {restoring ? 'Restaurando...' : 'Restaurar'}
+              </Button>
+            </div>
+          </>
+        )}
       </Dialog>
     </div>
   )

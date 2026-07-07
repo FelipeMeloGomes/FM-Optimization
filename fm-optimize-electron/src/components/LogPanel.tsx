@@ -5,12 +5,12 @@ import { cn } from '../lib/utils'
 
 type LogLevel = 'all' | 'info' | 'warn' | 'error'
 
-const FILTERS: { key: LogLevel; label: string }[] = [
-  { key: 'all', label: 'Todos' },
-  { key: 'info', label: 'Info' },
-  { key: 'warn', label: 'Warn' },
-  { key: 'error', label: 'Error' },
-]
+const FILTERS = [
+  { key: 'all' as const, label: 'Todos' },
+  { key: 'info' as const, label: 'Info' },
+  { key: 'warn' as const, label: 'Warn' },
+  { key: 'error' as const, label: 'Error' },
+] as const
 
 export function LogPanel() {
   const { entries, clear } = useLogContext()

@@ -1,6 +1,7 @@
-import { spawn, ChildProcess } from 'child_process'
+import { spawn, execSync, ChildProcess } from 'child_process'
 import { BrowserWindow } from 'electron'
-import { extractScriptToTemp } from './script-registry'
+import { extractScriptToTemp, getScriptById } from './script-registry'
+import { isAdmin } from './admin-check'
 import type { ScriptOutput, ScriptEnded } from '../../shared/ipc-types'
 
 const activeProcesses = new Map<string, ChildProcess>()
@@ -17,12 +18,23 @@ function sendEnded(win: BrowserWindow, data: ScriptEnded): void {
   }
 }
 
-export function executeScript(id: string): void {
+export function executeScript(id: string): string {
   const win = BrowserWindow.getFocusedWindow()
-  if (!win) return
+  if (!win) throw new Error('Nenhuma janela ativa')
+
+  if (activeProcesses.has(id)) {
+    throw new Error(`Script "${id}" já está em execução`)
+  }
+
+  const script = getScriptById(id)
+  if (script?.requiresAdmin && !isAdmin()) {
+    throw new Error(
+      'Este script requer privilégios de administrador. Execute o programa como administrador.'
+    )
+  }
 
   const filePath = extractScriptToTemp(id)
-  const ext = filePath.split('.').pop()?.toLowerCase()
+  const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined
 
   const { command, args } = getCommand(ext, filePath)
   const proc = spawn(command, args, {
@@ -38,6 +50,9 @@ export function executeScript(id: string): void {
 
   proc.stderr?.on('data', (data: Buffer) => {
     sendOutput(win, { scriptId: id, type: 'stderr', text: data.toString() })
+    if (!win.isDestroyed()) {
+      win.webContents.send('script-error', JSON.stringify({ scriptId: id, type: 'stderr', text: data.toString() }))
+    }
   })
 
   proc.on('close', (code) => {
@@ -48,23 +63,32 @@ export function executeScript(id: string): void {
   proc.on('error', (err) => {
     activeProcesses.delete(id)
     sendOutput(win, { scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` })
+    if (!win.isDestroyed()) {
+      win.webContents.send('script-error', JSON.stringify({ scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` }))
+    }
     sendEnded(win, { id, code: -1 })
   })
+
+  return 'started'
 }
 
 export function cancelExecution(id: string): void {
   const proc = activeProcesses.get(id)
   if (proc && proc.pid) {
     try {
-      process.kill(-proc.pid, 'SIGTERM')
+      proc.kill('SIGTERM')
     } catch {
-      try { proc.kill('SIGTERM') } catch { /* already dead */ }
+      try {
+        execSync(`taskkill /F /T /PID ${proc.pid}`, { timeout: 5000 })
+      } catch { /* already dead */ }
     }
     activeProcesses.delete(id)
   }
 }
 
-function getCommand(ext: string | undefined, filePath: string): { command: string; args: string[] } {
+type ScriptExtension = import('../../shared/ipc-types').ScriptEntry['extension']
+
+function getCommand(ext: ScriptExtension | undefined, filePath: string): { command: string; args: string[] } {
   switch (ext) {
     case 'bat':
     case 'cmd':

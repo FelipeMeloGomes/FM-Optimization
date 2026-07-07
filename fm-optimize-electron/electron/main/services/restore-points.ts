@@ -7,8 +7,9 @@ function execPowerShell(script: string): string {
       encoding: 'utf-8',
       timeout: 30000
     }).trim()
-  } catch (e: any) {
-    throw new Error(e.stderr || e.message)
+  } catch (e: unknown) {
+    const err = e as { stderr?: string; message?: string }
+    throw new Error(err.stderr || err.message || String(e))
   }
 }
 
@@ -19,8 +20,9 @@ function execPowerShellRaw(script: string): string {
       encoding: 'utf-8',
       timeout: 30000
     }).trim()
-  } catch (e: any) {
-    throw new Error(e.stderr || e.message)
+  } catch (e: unknown) {
+    const err = e as { stderr?: string; message?: string }
+    throw new Error(err.stderr || err.message || String(e))
   }
 }
 
@@ -62,7 +64,9 @@ foreach ($rp in $points) {
 }
 
 export function createRestorePoint(name: string): void {
-  execPowerShell(`Checkpoint-Computer -Description "${name.replace(/"/g, '\\"')}" -RestorePointType MODIFY_SETTINGS`)
+  const safeName = name.replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '').trim()
+  if (!safeName) throw new Error('Nome do ponto de restauração inválido')
+  execPowerShell(`Checkpoint-Computer -Description "${safeName.replace(/"/g, '\\"')}" -RestorePointType MODIFY_SETTINGS`)
 }
 
 export function deleteRestorePoint(seq: number): void {

@@ -11,9 +11,9 @@ function formatUptime(seconds: number): string {
 }
 
 export default function DashboardPage() {
-  const { data, loading, error, refresh } = useSystemContext()
+  const { state, refresh } = useSystemContext()
 
-  if (loading) {
+  if (state.status === 'loading') {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 7 }).map((_, i) => (
@@ -23,11 +23,11 @@ export default function DashboardPage() {
     )
   }
 
-  if (error) {
+  if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
         <p className="mb-2 text-sm">Erro ao carregar informações do sistema</p>
-        <p className="mb-4 text-xs text-destructive">{error}</p>
+        <p className="mb-4 text-xs text-destructive">{state.error}</p>
         <button onClick={refresh} className="rounded-lg bg-primary px-4 py-2 text-xs text-primary-foreground">
           Tentar novamente
         </button>
@@ -35,7 +35,7 @@ export default function DashboardPage() {
     )
   }
 
-  if (!data) return null
+  const { data } = state
 
   return (
     <div>
