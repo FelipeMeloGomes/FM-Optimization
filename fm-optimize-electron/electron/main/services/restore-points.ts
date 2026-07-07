@@ -54,7 +54,7 @@ foreach ($rp in $points) {
 export function createRestorePoint(name: string): void {
   const safeName = name.replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '').trim()
   if (!safeName) throw new Error('Nome do ponto de restauração inválido')
-  execPowerShell(`Checkpoint-Computer -Description "${safeName.replace(/"/g, '\\"')}" -RestorePointType MODIFY_SETTINGS`)
+  execPowerShell(`Checkpoint-Computer -Description "${safeName}" -RestorePointType MODIFY_SETTINGS`)
 }
 
 export function deleteRestorePoint(seq: number): void {
