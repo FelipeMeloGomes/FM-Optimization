@@ -5,6 +5,11 @@ export function isAdmin(): boolean {
     execSync('net session', { timeout: 3000 })
     return true
   } catch {
-    return false
+    try {
+      const output = execSync('whoami /groups', { timeout: 3000, encoding: 'utf-8' })
+      return output.includes('S-1-16-12288')
+    } catch {
+      return false
+    }
   }
 }
