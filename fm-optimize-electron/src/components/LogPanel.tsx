@@ -96,7 +96,7 @@ export function LogPanel() {
             ref={scrollRef}
             onScroll={handleScroll}
             className={cn(
-              'max-h-40 overflow-y-auto bg-background px-4 py-2 font-mono text-xs leading-relaxed',
+              'max-h-40 overflow-y-auto bg-background px-4 py-2 font-mono text-sm leading-relaxed',
               wrap ? 'whitespace-pre-wrap' : 'whitespace-nowrap'
             )}
           >

@@ -17,6 +17,15 @@ export function CircuitBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const tracesRef = useRef<Trace[]>([])
   const animRef = useRef<number>(0)
+  const visibleRef = useRef(true)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      visibleRef.current = entry.isIntersecting
+    })
+    if (canvasRef.current) observer.observe(canvasRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -62,6 +71,10 @@ export function CircuitBackground() {
     tracesRef.current = traces
 
     const animate = () => {
+      if (!visibleRef.current) {
+        animRef.current = requestAnimationFrame(animate)
+        return
+      }
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)'
       ctx.lineWidth = 1
