@@ -1,14 +1,67 @@
 import { app, BrowserWindow, shell, Menu } from 'electron'
 import { join, resolve } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { autoUpdater } from 'electron-updater'
 import { registerIpcHandlers } from './ipc-handlers'
 
 let mainWindow: BrowserWindow | null = null
+
+export { mainWindow }
 
 function iconPath(): string {
   return app.isPackaged
     ? resolve(process.resourcesPath, 'icon.ico')
     : join(__dirname, '../../resources/icon.ico')
+}
+
+function sendToRenderer(channel: string, ...args: unknown[]): void {
+  mainWindow?.webContents.send(channel, ...args)
+}
+
+function setupAutoUpdater(): void {
+  autoUpdater.autoDownload = false
+  autoUpdater.autoInstallOnAppQuit = false
+
+  autoUpdater.on('checking-for-update', () => {
+    sendToRenderer('update-status', 'checking')
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    sendToRenderer('update-status', 'available')
+    sendToRenderer('update-info', {
+      version: info.version,
+      releaseDate: info.releaseDate
+    })
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    sendToRenderer('update-status', 'not-available')
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    sendToRenderer('update-status', 'downloading')
+    sendToRenderer('download-progress', {
+      percent: progress.percent,
+      bytesPerSecond: progress.bytesPerSecond,
+      total: progress.total,
+      transferred: progress.transferred
+    })
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    sendToRenderer('update-status', 'ready')
+  })
+
+  autoUpdater.on('error', (err) => {
+    sendToRenderer('update-status', 'error')
+    sendToRenderer('update-info', { version: '', error: err.message })
+  })
+
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'FelipeMeloGomes',
+    repo: 'FM-Optimization'
+  })
 }
 
 function createWindow(): void {
@@ -53,6 +106,7 @@ app.whenReady().then(() => {
   })
 
   registerIpcHandlers()
+  setupAutoUpdater()
   createWindow()
 
   app.on('activate', () => {

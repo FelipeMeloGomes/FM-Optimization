@@ -22,7 +22,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",
-    "tailwind-merge": "^3.0.0"
+    "tailwind-merge": "^3.0.0",
+    "electron-updater": "^6.3.0"
   },
   "devDependencies": {
     "@electron-toolkit/preload": "^3.0.0",

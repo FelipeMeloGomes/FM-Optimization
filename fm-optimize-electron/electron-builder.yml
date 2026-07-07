@@ -34,3 +34,7 @@ nsis:
   createDesktopShortcut: always
 portable:
   artifactName: fm-optimize-portable.${ext}
+publish:
+  provider: github
+  owner: FelipeMeloGomes
+  repo: FM-Optimization

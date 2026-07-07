@@ -1,5 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { ElectronAPI, ScriptOutput, ScriptEnded } from '../shared/ipc-types'
+import type {
+  ElectronAPI,
+  ScriptOutput,
+  ScriptEnded,
+  UpdateStatus,
+  UpdateInfo,
+  DownloadProgress
+} from '../shared/ipc-types'
 
 const electronAPI: ElectronAPI = {
   getSystemInfo: () => ipcRenderer.invoke('get-system-info').then((r: any) => r.success ? r.data : Promise.reject(r.error)),
@@ -29,6 +36,26 @@ const electronAPI: ElectronAPI = {
     const listener = (_e: any, raw: string) => cb(JSON.parse(raw))
     ipcRenderer.on('script-ended', listener)
     return () => ipcRenderer.removeListener('script-ended', listener)
+  },
+  getAppVersion: () => ipcRenderer.invoke('get-app-version').then((r: any) => r.success ? r.data : Promise.reject(r.error)),
+  isPackaged: () => ipcRenderer.invoke('is-packaged').then((r: any) => r.success ? r.data : Promise.reject(r.error)),
+  checkForUpdate: () => ipcRenderer.invoke('check-for-update').then((r: any) => { if (!r.success) throw new Error(r.error) }),
+  downloadUpdate: () => ipcRenderer.invoke('download-update').then((r: any) => { if (!r.success) throw new Error(r.error) }),
+  installUpdate: () => ipcRenderer.invoke('install-update').then((r: any) => { if (!r.success) throw new Error(r.error) }),
+  onUpdateStatus: (cb: (data: UpdateStatus) => void) => {
+    const listener = (_e: any, data: UpdateStatus) => cb(data)
+    ipcRenderer.on('update-status', listener)
+    return () => ipcRenderer.removeListener('update-status', listener)
+  },
+  onUpdateInfo: (cb: (data: UpdateInfo) => void) => {
+    const listener = (_e: any, data: UpdateInfo) => cb(data)
+    ipcRenderer.on('update-info', listener)
+    return () => ipcRenderer.removeListener('update-info', listener)
+  },
+  onDownloadProgress: (cb: (data: DownloadProgress) => void) => {
+    const listener = (_e: any, data: DownloadProgress) => cb(data)
+    ipcRenderer.on('download-progress', listener)
+    return () => ipcRenderer.removeListener('download-progress', listener)
   }
 }
 

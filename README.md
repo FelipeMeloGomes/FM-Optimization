@@ -36,6 +36,7 @@
 - **Favoritos** — scripts marcados com estrela para acesso rápido
 - **Busca** — Ctrl+F com filtro instantâneo
 - **Mini-guia** — explicação simples do que cada script faz e quando usar
+- **Atualização integrada** — botão nas Configurações que baixa e instala novas versões do GitHub
 - **Tema** — dark azul neon com fundo de circuito animado
 
 ---

@@ -83,6 +83,21 @@ export interface ScriptEnded {
   code: number | null
 }
 
+export type UpdateStatus = 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error'
+
+export interface UpdateInfo {
+  version: string
+  releaseNotes?: string
+  releaseDate?: string
+}
+
+export interface DownloadProgress {
+  percent: number
+  bytesPerSecond: number
+  total: number
+  transferred: number
+}
+
 export interface IpcResult<T = void> {
   success: boolean
   data?: T
@@ -106,4 +121,12 @@ export interface ElectronAPI {
   onScriptOutput(cb: (data: ScriptOutput) => void): () => void
   onScriptError(cb: (data: ScriptOutput) => void): () => void
   onScriptEnded(cb: (data: ScriptEnded) => void): () => void
+  getAppVersion(): Promise<string>
+  isPackaged(): Promise<boolean>
+  checkForUpdate(): Promise<void>
+  downloadUpdate(): Promise<void>
+  installUpdate(): Promise<void>
+  onUpdateStatus(cb: (data: UpdateStatus) => void): () => void
+  onUpdateInfo(cb: (data: UpdateInfo) => void): () => void
+  onDownloadProgress(cb: (data: DownloadProgress) => void): () => void
 }

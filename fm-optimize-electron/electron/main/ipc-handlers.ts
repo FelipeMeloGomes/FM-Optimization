@@ -1,10 +1,20 @@
-import { ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { loadScripts, getScriptById, getScriptContent } from './services/script-registry'
 import { getSystemInfo } from './services/system-info'
 import { executeScript, cancelExecution } from './services/script-executor'
 import { getRestorePoints, createRestorePoint, deleteRestorePoint, restoreSystem } from './services/restore-points'
 import { loadSettings, saveSettings, getDataFilePathForRenderer } from './services/data-service'
 import { isAdmin } from './services/admin-check'
+import { autoUpdater } from 'electron-updater'
+
+function getMainWindow(): BrowserWindow | null {
+  const wins = BrowserWindow.getAllWindows()
+  return wins.length > 0 ? wins[0] : null
+}
+
+function sendToRenderer(channel: string, ...args: unknown[]): void {
+  getMainWindow()?.webContents.send(channel, ...args)
+}
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('get-system-info', async () => {
@@ -103,6 +113,44 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('get-data-file-path', async () => {
     try {
       return { success: true as const, data: getDataFilePathForRenderer() }
+    } catch (e: any) {
+      return { success: false as const, error: e.message }
+    }
+  })
+
+  ipcMain.handle('get-app-version', async () => {
+    return { success: true as const, data: app.getVersion() }
+  })
+
+  ipcMain.handle('is-packaged', async () => {
+    return { success: true as const, data: app.isPackaged }
+  })
+
+  ipcMain.handle('check-for-update', async () => {
+    try {
+      if (!app.isPackaged) {
+        return { success: false as const, error: 'Updates only work in packaged app' }
+      }
+      autoUpdater.checkForUpdates()
+      return { success: true as const }
+    } catch (e: any) {
+      return { success: false as const, error: e.message }
+    }
+  })
+
+  ipcMain.handle('download-update', async () => {
+    try {
+      autoUpdater.downloadUpdate()
+      return { success: true as const }
+    } catch (e: any) {
+      return { success: false as const, error: e.message }
+    }
+  })
+
+  ipcMain.handle('install-update', async () => {
+    try {
+      autoUpdater.quitAndInstall()
+      return { success: true as const }
     } catch (e: any) {
       return { success: false as const, error: e.message }
     }
