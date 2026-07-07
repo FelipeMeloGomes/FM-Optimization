@@ -4,7 +4,8 @@ import type { DashboardData, CpuInfo, GpuInfo, MemoryInfo, OsInfo, StorageDrive 
 
 function execPowerShell(script: string): string {
   try {
-    return execSync(`powershell.exe -NoProfile -Command "${script.replace(/"/g, '\\"')}"`, {
+    const buf = Buffer.from(script, 'utf16le')
+    return execSync(`powershell.exe -NoProfile -EncodedCommand ${buf.toString('base64')}`, {
       encoding: 'utf-8',
       timeout: 10000
     }).trim()

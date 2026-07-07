@@ -3,18 +3,6 @@ import type { RestorePointEntry } from '../../shared/ipc-types'
 
 function execPowerShell(script: string): string {
   try {
-    return execSync(`powershell.exe -NoProfile -Command "${script.replace(/"/g, '\\"')}"`, {
-      encoding: 'utf-8',
-      timeout: 30000
-    }).trim()
-  } catch (e: unknown) {
-    const err = e as { stderr?: string; message?: string }
-    throw new Error(err.stderr || err.message || String(e))
-  }
-}
-
-function execPowerShellRaw(script: string): string {
-  try {
     const buf = Buffer.from(script, 'utf16le')
     return execSync(`powershell.exe -NoProfile -EncodedCommand ${buf.toString('base64')}`, {
       encoding: 'utf-8',
@@ -45,7 +33,7 @@ foreach ($rp in $points) {
   Write-Output ("$s|||$d|||$r|||$t")
 }
 `
-  const output = execPowerShellRaw(script)
+  const output = execPowerShell(script)
   if (!output) return []
 
   const items: RestorePointEntry[] = []
@@ -81,7 +69,7 @@ public class SR {
 '@
 [SR]::SRRemoveRestorePoint(${seq})
 `
-  execPowerShellRaw(script)
+  execPowerShell(script)
 }
 
 export function restoreSystem(seq: number): void {
