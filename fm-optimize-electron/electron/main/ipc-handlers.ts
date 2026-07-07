@@ -139,11 +139,19 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('get-app-version', async (): Promise<IpcResult<string>> => {
-    return { success: true as const, data: app.getVersion() }
+    try {
+      return { success: true as const, data: app.getVersion() }
+    } catch (e: unknown) {
+      return { success: false as const, error: e instanceof Error ? e.message : String(e) }
+    }
   })
 
   ipcMain.handle('is-packaged', async (): Promise<IpcResult<boolean>> => {
-    return { success: true as const, data: app.isPackaged }
+    try {
+      return { success: true as const, data: app.isPackaged }
+    } catch (e: unknown) {
+      return { success: false as const, error: e instanceof Error ? e.message : String(e) }
+    }
   })
 
   ipcMain.handle('extract-script', async (_e, id: string): Promise<IpcResult<string>> => {
