@@ -38,7 +38,7 @@ function getCpuInfo(): CpuInfo {
 
 function getGpuInfo(): GpuInfo {
   const output = execPowerShell(
-    'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,@{N="VRAM";E={$_.AdapterRAM/1GB}},DriverVersion | ConvertTo-Json'
+    'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,@{N="VRAM";E={$_.AdapterRAM/1GB}},DriverVersion | ConvertTo-Json -Depth 3'
   )
   if (!output) return { name: 'N/A', vram: 'N/A', driverVersion: 'N/A' }
 
@@ -83,7 +83,7 @@ function getMemoryInfo(): MemoryInfo {
 
 function getOsInfo(): OsInfo {
   const output = execPowerShell(
-    'Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber,InstallDate | ConvertTo-Json'
+    'Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber,InstallDate | ConvertTo-Json -Depth 3'
   )
   let name = `${type()} ${release()}`
   let build = release()
@@ -113,7 +113,7 @@ interface RawDriveInfo {
 
 function getStorageDrives(): StorageDrive[] {
   const output = execPowerShell(
-    'Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object DeviceID,VolumeName,@{N="Size";E={$_.Size/1GB}},@{N="Free";E={$_.FreeSpace/1GB}},FileSystem | ConvertTo-Json'
+    'Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object DeviceID,VolumeName,@{N="Size";E={$_.Size/1GB}},@{N="Free";E={$_.FreeSpace/1GB}},FileSystem | ConvertTo-Json -Depth 3'
   )
   if (!output) return []
 
