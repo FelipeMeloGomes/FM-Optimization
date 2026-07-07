@@ -6,7 +6,8 @@ import type {
   ScriptEnded,
   UpdateStatus,
   UpdateInfo,
-  DownloadProgress
+  DownloadProgress,
+  ExecutionHistoryEntry
 } from '../shared/ipc-types'
 
 function ipc<T>(channel: string, ...args: unknown[]): Promise<T> {
@@ -55,6 +56,7 @@ const electronAPI: ElectronAPI = {
   },
   getFavorites: () => ipc<string[]>('get-favorites'),
   saveFavorites: (ids) => ipcVoid('save-favorites', ids),
+  getExecutionHistory: () => ipc<ExecutionHistoryEntry[]>('get-execution-history'),
   restoreSystem: (seq) => ipcVoid('restore-system', seq),
   getAppVersion: () => ipc<string>('get-app-version'),
   isPackaged: () => ipc<boolean>('is-packaged'),

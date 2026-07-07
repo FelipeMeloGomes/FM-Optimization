@@ -98,6 +98,16 @@ export default function SettingsPage() {
               onChange={(e) => update({ confirmOnExecute: e.target.checked })}
             />
           </div>
+
+          <div className="rounded-lg border border-border bg-card p-4">
+            <Toggle
+              id="auto-restore-point"
+              label="Restore Point Automático"
+              description="Criar ponto de restauração antes de executar scripts"
+              checked={settings.autoRestorePoint}
+              onChange={(e) => update({ autoRestorePoint: e.target.checked })}
+            />
+          </div>
         </div>
       </section>
 

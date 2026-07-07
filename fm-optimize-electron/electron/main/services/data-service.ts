@@ -1,17 +1,19 @@
 import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, copyFileSync } from 'fs'
 import { resolve } from 'path'
 import { app } from 'electron'
-import type { AppSettings } from '../../shared/ipc-types'
+import type { AppSettings, ExecutionHistoryEntry } from '../../shared/ipc-types'
 
 interface UserData {
   favorites: string[]
   customScripts: Array<{ name: string; content: string; extension: string }>
+  executionHistory: ExecutionHistoryEntry[]
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   autoOpenLog: true,
-  confirmOnExecute: true
+  confirmOnExecute: true,
+  autoRestorePoint: true
 }
 
 function getDataDir(): string {
@@ -38,15 +40,24 @@ export function getDataFilePathForRenderer(): string {
 
 export function loadUserData(): UserData {
   const filePath = getDataFilePath()
-  if (!existsSync(filePath)) return { favorites: [], customScripts: [] }
+  if (!existsSync(filePath)) return { favorites: [], customScripts: [], executionHistory: [] }
 
   try {
     const raw = readFileSync(filePath, 'utf-8')
     return JSON.parse(raw)
   } catch {
     copyFileSync(filePath, `${filePath}.bak`)
-    return { favorites: [], customScripts: [] }
+    return { favorites: [], customScripts: [], executionHistory: [] }
   }
+}
+
+export function addHistoryEntry(entry: ExecutionHistoryEntry): void {
+  const data = loadUserData()
+  data.executionHistory.unshift(entry)
+  if (data.executionHistory.length > 200) {
+    data.executionHistory = data.executionHistory.slice(0, 200)
+  }
+  saveUserData(data)
 }
 
 export function saveUserData(data: UserData): void {
@@ -67,7 +78,8 @@ export function loadSettings(): AppSettings {
     return {
       theme: ['dark', 'light'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
       autoOpenLog: typeof parsed.autoOpenLog === 'boolean' ? parsed.autoOpenLog : DEFAULT_SETTINGS.autoOpenLog,
-      confirmOnExecute: typeof parsed.confirmOnExecute === 'boolean' ? parsed.confirmOnExecute : DEFAULT_SETTINGS.confirmOnExecute
+      confirmOnExecute: typeof parsed.confirmOnExecute === 'boolean' ? parsed.confirmOnExecute : DEFAULT_SETTINGS.confirmOnExecute,
+      autoRestorePoint: typeof parsed.autoRestorePoint === 'boolean' ? parsed.autoRestorePoint : DEFAULT_SETTINGS.autoRestorePoint
     }
   } catch {
     return DEFAULT_SETTINGS

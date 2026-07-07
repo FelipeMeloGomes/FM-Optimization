@@ -7,7 +7,7 @@ import { loadSettings, saveSettings, getDataFilePathForRenderer, loadUserData, s
 import { isAdmin } from './services/admin-check'
 import { autoUpdater } from 'electron-updater'
 import { extractScriptToTemp } from './services/script-registry'
-import type { IpcResult, DashboardData, ScriptEntry, RestorePointEntry, AppSettings } from '../shared/ipc-types'
+import type { IpcResult, DashboardData, ScriptEntry, RestorePointEntry, AppSettings, ExecutionHistoryEntry } from '../shared/ipc-types'
 
 function getMainWindow(): BrowserWindow | null {
   const wins = BrowserWindow.getAllWindows()
@@ -152,6 +152,15 @@ export function registerIpcHandlers(): void {
       data.favorites = favorites
       saveUserData(data)
       return { success: true as const }
+    } catch (e: unknown) {
+      return { success: false as const, error: e instanceof Error ? e.message : String(e) }
+    }
+  })
+
+  ipcMain.handle('get-execution-history', async (): Promise<IpcResult<ExecutionHistoryEntry[]>> => {
+    try {
+      const data = loadUserData()
+      return { success: true as const, data: data.executionHistory || [] }
     } catch (e: unknown) {
       return { success: false as const, error: e instanceof Error ? e.message : String(e) }
     }

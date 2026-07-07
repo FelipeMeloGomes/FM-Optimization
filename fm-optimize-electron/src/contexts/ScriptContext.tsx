@@ -8,8 +8,11 @@ interface ScriptContextValue {
   activeExecution: string | null
   search: string
   categoryFilter: string
+  subcategoryFilter: string
+  subcategories: string[]
   setSearch: (s: string) => void
   setCategoryFilter: (c: string) => void
+  setSubcategoryFilter: (c: string) => void
   toggleFavorite: (id: string) => void
   showFavoritesOnly: boolean
   setShowFavoritesOnly: (v: boolean) => void
@@ -25,6 +28,7 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
   const [activeExecution, setActiveExecution] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
+  const [subcategoryFilter, setSubcategoryFilter] = useState('')
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const activeRef = useRef<string | null>(null)
 
@@ -49,9 +53,16 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
 
   const scripts = state.status === 'success' ? state.data : []
 
+  const subcategories = useMemo(() => {
+    const cats = new Set<string>()
+    scripts.forEach((s) => { if (s.subcategory) cats.add(s.subcategory) })
+    return Array.from(cats).sort()
+  }, [scripts])
+
   const filteredScripts = useMemo(() => scripts.filter((s) => {
     if (showFavoritesOnly && !favorites.includes(s.id)) return false
     if (categoryFilter && s.category !== categoryFilter) return false
+    if (subcategoryFilter && s.subcategory !== subcategoryFilter) return false
     if (search) {
       const q = search.toLowerCase()
       return (
@@ -61,7 +72,7 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
       )
     }
     return true
-  }), [scripts, showFavoritesOnly, favorites, categoryFilter, search])
+  }), [scripts, showFavoritesOnly, favorites, categoryFilter, subcategoryFilter, search])
 
   const toggleFavorite = useCallback((id: string) => {
     setFavorites((prev) => {
@@ -102,8 +113,11 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
         activeExecution,
         search,
         categoryFilter,
+        subcategoryFilter,
+        subcategories,
         setSearch,
         setCategoryFilter,
+        setSubcategoryFilter,
         toggleFavorite,
         showFavoritesOnly,
         setShowFavoritesOnly,

@@ -33,6 +33,7 @@ export interface StorageDrive {
   label: string
   size: string
   free: string
+  usedPercent: number
   type: string
 }
 
@@ -70,6 +71,7 @@ export interface AppSettings {
   theme: 'dark' | 'light'
   autoOpenLog: boolean
   confirmOnExecute: boolean
+  autoRestorePoint: boolean
 }
 
 export interface ScriptOutput {
@@ -81,6 +83,17 @@ export interface ScriptOutput {
 export interface ScriptEnded {
   id: string
   code: number | null
+}
+
+export interface ExecutionHistoryEntry {
+  id: string
+  scriptId: string
+  scriptName: string
+  startTime: string
+  endTime: string
+  durationMs: number
+  exitCode: number | null
+  wasCancelled: boolean
 }
 
 export type UpdateStatus = 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error'
@@ -137,5 +150,6 @@ export interface ElectronAPI {
   installUpdate(): Promise<void>
   onUpdateStatus(cb: (data: UpdateStatus) => void): () => void
   onUpdateInfo(cb: (data: UpdateInfo) => void): () => void
+  getExecutionHistory(): Promise<ExecutionHistoryEntry[]>
   onDownloadProgress(cb: (data: DownloadProgress) => void): () => void
 }

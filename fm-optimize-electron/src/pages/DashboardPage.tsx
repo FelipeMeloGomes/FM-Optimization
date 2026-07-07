@@ -74,6 +74,7 @@ export default function DashboardPage() {
             label={`Disco ${drive.letter}`}
             value={drive.size}
             detail={`${drive.free} livres · ${drive.type}`}
+            progress={drive.usedPercent}
           />
         ))}
         <DashboardWidget

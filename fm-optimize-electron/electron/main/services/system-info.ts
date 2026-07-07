@@ -119,13 +119,19 @@ function getStorageDrives(): StorageDrive[] {
   try {
     const parsed = JSON.parse(output)
     const items: RawDriveInfo[] = Array.isArray(parsed) ? parsed : [parsed]
-    return items.map((d) => ({
-      letter: d.DeviceID || '',
-      label: d.VolumeName || '',
-      size: d.Size ? `${Math.round(d.Size)} GB` : 'N/A',
-      free: d.Free ? `${Math.round(d.Free)} GB` : 'N/A',
-      type: d.FileSystem || ''
-    }))
+    return items.map((d) => {
+      const size = d.Size || 0
+      const free = d.Free || 0
+      const usedPercent = size > 0 ? Math.round((size - free) / size * 100) : 0
+      return {
+        letter: d.DeviceID || '',
+        label: d.VolumeName || '',
+        size: d.Size ? `${Math.round(d.Size)} GB` : 'N/A',
+        free: d.Free ? `${Math.round(d.Free)} GB` : 'N/A',
+        usedPercent,
+        type: d.FileSystem || ''
+      }
+    })
   } catch {
     return []
   }

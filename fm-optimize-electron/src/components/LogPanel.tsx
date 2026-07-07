@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Terminal, Copy, Trash2, ChevronDown, ChevronUp, WrapText } from 'lucide-react'
 import { useLogContext, type LogEntry } from '../contexts/LogContext'
+import { useSettingsContext } from '../contexts/SettingsContext'
 import { cn } from '../lib/utils'
 
 type LogLevel = 'all' | 'info' | 'warn' | 'error'
@@ -14,7 +15,8 @@ const FILTERS = [
 
 export function LogPanel() {
   const { entries, clear } = useLogContext()
-  const [isOpen, setIsOpen] = useState(true)
+  const { settings } = useSettingsContext()
+  const [isOpen, setIsOpen] = useState(() => settings.autoOpenLog)
   const [levelFilter, setLevelFilter] = useState<LogLevel>('all')
   const [wrap, setWrap] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)

@@ -8,7 +8,8 @@ import {
   Shield,
   Globe,
   Smartphone,
-  Settings
+  Settings,
+  Clock
 } from 'lucide-react'
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
   { to: '/utilities', icon: Wrench, label: 'Utilitários' },
   { to: '/cleaner', icon: Eraser, label: 'Limpeza' },
   { to: '/restore-points', icon: Shield, label: 'Pontos de Restauração' },
+  { to: '/history', icon: Clock, label: 'Histórico' },
   { to: '/dns', icon: Globe, label: 'DNS' },
   { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
   { to: '/settings', icon: Settings, label: 'Configurações' }

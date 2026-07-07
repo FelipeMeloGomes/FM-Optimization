@@ -16,16 +16,20 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     favorites,
     activeExecution,
     setCategoryFilter,
+    setSubcategoryFilter,
     toggleFavorite,
     showFavoritesOnly,
     setShowFavoritesOnly,
+    subcategoryFilter,
+    subcategories,
     execute,
     cancel
   } = useScriptContext()
 
   useEffect(() => {
     setCategoryFilter(category)
-  }, [category, setCategoryFilter])
+    setSubcategoryFilter('')
+  }, [category, setCategoryFilter, setSubcategoryFilter])
 
   if (state.status === 'loading') {
     return (
@@ -65,6 +69,36 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
           {filteredScripts.length} scripts
         </span>
       </div>
+
+      {subcategories.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-1.5">
+          <button
+            onClick={() => setSubcategoryFilter('')}
+            className={cn(
+              'rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors',
+              !subcategoryFilter
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            )}
+          >
+            Todas
+          </button>
+          {subcategories.map((sub) => (
+            <button
+              key={sub}
+              onClick={() => setSubcategoryFilter(sub)}
+              className={cn(
+                'rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors',
+                subcategoryFilter === sub
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {sub}
+            </button>
+          ))}
+        </div>
+      )}
 
       {filteredScripts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">

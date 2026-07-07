@@ -29,12 +29,13 @@
 
 ## Funcionalidades
 
-- **Dashboard** — CPU, GPU, memória, armazenamento e tempo de atividade
+- **Dashboard** — CPU, GPU, memória, armazenamento com barra de uso e tempo de atividade
 - **41 scripts** — Tweaks, Cleaner, DNS Manager, Apps, Utilities
-- **Restore Points** — crie, liste e gerencie backups do Windows
+- **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar scripts)
+- **Histórico de Execução** — registro de todos os scripts executados com duração e status
 - **Log ao vivo** — terminal com filtro por nível de log
 - **Favoritos** — scripts marcados com estrela para acesso rápido
-- **Busca** — Ctrl+F com filtro instantâneo
+- **Busca + Filtros** — busca textual e filtro por subcategoria
 - **Mini-guia** — explicação simples do que cada script faz e quando usar
 - **Atualização integrada** — botão nas Configurações que baixa e instala novas versões do GitHub
 - **Tema** — dark azul neon com fundo de circuito animado

@@ -7,6 +7,7 @@ const routeTitles: Record<string, string> = {
   '/utilities': 'Utilitários',
   '/cleaner': 'Limpeza',
   '/restore-points': 'Pontos de Restauração',
+  '/history': 'Histórico de Execução',
   '/dns': 'Gerenciador de DNS',
   '/apps': 'Apps e Privacidade',
   '/settings': 'Configurações'
@@ -15,7 +16,7 @@ const routeTitles: Record<string, string> = {
 export function TopBar() {
   const location = useLocation()
   const title = routeTitles[location.pathname] || 'FM Optimize'
-  const showSearch = !['/', '/restore-points', '/settings'].includes(location.pathname)
+  const showSearch = !['/', '/restore-points', '/history', '/settings'].includes(location.pathname)
 
   return (
     <header className="flex items-center justify-between border-b border-border bg-card px-6 py-3">

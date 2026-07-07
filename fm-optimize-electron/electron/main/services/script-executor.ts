@@ -2,7 +2,9 @@ import { spawn, execSync, ChildProcess } from 'child_process'
 import { BrowserWindow } from 'electron'
 import { extractScriptToTemp, getScriptById } from './script-registry'
 import { isAdmin } from './admin-check'
-import type { ScriptOutput, ScriptEnded } from '../../shared/ipc-types'
+import { createRestorePoint } from './restore-points'
+import { loadSettings, addHistoryEntry } from './data-service'
+import type { ScriptOutput, ScriptEnded, ExecutionHistoryEntry } from '../../shared/ipc-types'
 
 const activeProcesses = new Map<string, ChildProcess>()
 
@@ -36,6 +38,12 @@ export function executeScript(id: string): string {
   const filePath = extractScriptToTemp(id)
   const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined
 
+  if (loadSettings().autoRestorePoint && script) {
+    try {
+      createRestorePoint(`Antes de executar: ${script.name}`)
+    } catch { /* restore point é opcional — script executa mesmo se falhar */ }
+  }
+
   const { command, args } = getCommand(ext, filePath)
   const proc = spawn(command, args, {
     windowsHide: true,
@@ -55,9 +63,23 @@ export function executeScript(id: string): string {
     }
   })
 
+  const startTime = Date.now()
+  const historyEntryId = `${id}_${startTime}`
+
   proc.on('close', (code) => {
     activeProcesses.delete(id)
     sendEnded(win, { id, code })
+    const endTime = Date.now()
+    addHistoryEntry({
+      id: historyEntryId,
+      scriptId: id,
+      scriptName: script?.name || id,
+      startTime: new Date(startTime).toISOString(),
+      endTime: new Date(endTime).toISOString(),
+      durationMs: endTime - startTime,
+      exitCode: code,
+      wasCancelled: false
+    })
   })
 
   proc.on('error', (err) => {
@@ -67,6 +89,16 @@ export function executeScript(id: string): string {
       win.webContents.send('script-error', JSON.stringify({ scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` }))
     }
     sendEnded(win, { id, code: -1 })
+    addHistoryEntry({
+      id: historyEntryId,
+      scriptId: id,
+      scriptName: script?.name || id,
+      startTime: new Date(startTime).toISOString(),
+      endTime: new Date().toISOString(),
+      durationMs: Date.now() - startTime,
+      exitCode: -1,
+      wasCancelled: false
+    })
   })
 
   return 'started'
@@ -82,6 +114,17 @@ export function cancelExecution(id: string): void {
         execSync(`taskkill /F /T /PID ${proc.pid}`, { timeout: 5000 })
       } catch { /* already dead */ }
     }
+    const script = getScriptById(id)
+    addHistoryEntry({
+      id: `${id}_${Date.now()}`,
+      scriptId: id,
+      scriptName: script?.name || id,
+      startTime: new Date().toISOString(),
+      endTime: new Date().toISOString(),
+      durationMs: 0,
+      exitCode: null,
+      wasCancelled: true
+    })
     activeProcesses.delete(id)
   }
 }
