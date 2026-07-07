@@ -9,7 +9,8 @@ function execPowerShell(script: string): string {
       encoding: 'utf-8',
       timeout: 10000
     }).trim()
-  } catch {
+  } catch (e: unknown) {
+    console.error('PowerShell execution failed:', e instanceof Error ? e.message : String(e))
     return ''
   }
 }
