@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Play, Square, Terminal, ShieldAlert, Info, ChevronDown, ChevronUp } from 'lucide-react'
 import { FavoriteButton } from './FavoriteButton'
 import { Card, Button, Dialog } from './ui'
@@ -14,7 +14,7 @@ interface ScriptCardProps {
   onToggleFavorite: () => void
 }
 
-export function ScriptCard({
+export const ScriptCard = memo(function ScriptCard({
   script,
   isFavorite,
   isExecuting,
@@ -148,4 +148,4 @@ export function ScriptCard({
       </Dialog>
     </>
   )
-}
+})

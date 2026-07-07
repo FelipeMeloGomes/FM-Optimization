@@ -20,12 +20,20 @@ export function LogPanel() {
   const [levelFilter, setLevelFilter] = useState<LogLevel>('all')
   const [wrap, setWrap] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const userScrolledUpRef = useRef(false)
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
+    const el = scrollRef.current
+    if (!el || userScrolledUpRef.current) return
+    el.scrollTop = el.scrollHeight
   }, [entries])
+
+  const handleScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50
+    userScrolledUpRef.current = !atBottom
+  }
 
   const copyLog = () => {
     const text = entries.map((e) => `[${e.timestamp.toLocaleTimeString()}] [${e.level}] ${e.text}`).join('\n')
@@ -86,6 +94,7 @@ export function LogPanel() {
 
           <div
             ref={scrollRef}
+            onScroll={handleScroll}
             className={cn(
               'max-h-40 overflow-y-auto bg-background px-4 py-2 font-mono text-xs leading-relaxed',
               wrap ? 'whitespace-pre-wrap' : 'whitespace-nowrap'

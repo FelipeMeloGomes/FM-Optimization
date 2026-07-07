@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Star } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useScriptContext } from '../contexts/ScriptContext'
@@ -30,6 +30,15 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     setCategoryFilter(category)
     setSubcategoryFilter('')
   }, [category, setCategoryFilter, setSubcategoryFilter])
+
+  const handleExecute = useCallback(
+    (id: string) => execute(id),
+    [execute]
+  )
+  const handleCancel = useCallback(
+    (id: string) => cancel(id),
+    [cancel]
+  )
 
   if (state.status === 'loading') {
     return (
@@ -113,8 +122,8 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
             script={script}
             isFavorite={favorites.includes(script.id)}
             isExecuting={activeExecution === script.id}
-            onExecute={() => execute(script.id)}
-            onCancel={() => cancel(script.id)}
+            onExecute={() => handleExecute(script.id)}
+            onCancel={() => handleCancel(script.id)}
             onToggleFavorite={() => toggleFavorite(script.id)}
           />
           ))}
