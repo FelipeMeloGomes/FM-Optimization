@@ -131,6 +131,7 @@ $assets = @(
   @{Path="dist/portable/fm-optimize-portable.exe"; Type="application/x-msdownload"}
   @{Path="dist/installer/fm-optimize-setup.exe"; Type="application/x-msdownload"}
   @{Path="dist/installer/fm-optimize-setup.exe.blockmap"; Type="application/octet-stream"}
+  @{Path="dist/latest.yml"; Type="application/octet-stream"}
 )
 
 foreach ($a in $assets) {
