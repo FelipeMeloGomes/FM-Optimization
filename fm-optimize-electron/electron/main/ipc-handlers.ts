@@ -36,6 +36,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('get-script-content', async (_e, id: string): Promise<IpcResult<string>> => {
+    if (typeof id !== 'string' || !id.trim()) {
+      return { success: false as const, error: 'ID do script inválido' }
+    }
     try {
       return { success: true as const, data: getScriptContent(id) }
     } catch (e: unknown) {
@@ -44,6 +47,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('execute-script', async (_e, id: string): Promise<IpcResult<void>> => {
+    if (typeof id !== 'string' || !id.trim()) {
+      return { success: false as const, error: 'ID do script inválido' }
+    }
     try {
       executeScript(id)
       return { success: true as const }
@@ -53,6 +59,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('cancel-execution', async (_e, id: string): Promise<IpcResult<void>> => {
+    if (typeof id !== 'string' || !id.trim()) {
+      return { success: false as const, error: 'ID do script inválido' }
+    }
     try {
       cancelExecution(id)
       return { success: true as const }
@@ -70,6 +79,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('create-restore-point', async (_e, name: string): Promise<IpcResult<void>> => {
+    if (typeof name !== 'string' || !name.trim()) {
+      return { success: false as const, error: 'Nome do restore point inválido' }
+    }
     try {
       createRestorePoint(name)
       return { success: true as const }
@@ -79,6 +91,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('delete-restore-point', async (_e, seq: number): Promise<IpcResult<void>> => {
+    if (typeof seq !== 'number' || !Number.isFinite(seq) || seq <= 0) {
+      return { success: false as const, error: 'SequenceNumber inválido' }
+    }
     try {
       deleteRestorePoint(seq)
       return { success: true as const }
@@ -104,6 +119,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('save-settings', async (_e, settings): Promise<IpcResult<void>> => {
+    if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
+      return { success: false as const, error: 'Configurações inválidas' }
+    }
     try {
       saveSettings(settings)
       return { success: true as const }
@@ -129,6 +147,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('extract-script', async (_e, id: string): Promise<IpcResult<string>> => {
+    if (typeof id !== 'string' || !id.trim()) {
+      return { success: false as const, error: 'ID do script inválido' }
+    }
     try {
       const filePath = extractScriptToTemp(id)
       return { success: true as const, data: filePath }
@@ -147,6 +168,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('save-favorites', async (_e, favorites: string[]): Promise<IpcResult<void>> => {
+    if (!Array.isArray(favorites) || !favorites.every((f) => typeof f === 'string')) {
+      return { success: false as const, error: 'Lista de favoritos inválida' }
+    }
     try {
       const data = loadUserData()
       data.favorites = favorites
@@ -167,6 +191,9 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('restore-system', async (_e, seq: number): Promise<IpcResult<void>> => {
+    if (typeof seq !== 'number' || !Number.isFinite(seq) || seq <= 0) {
+      return { success: false as const, error: 'SequenceNumber inválido' }
+    }
     try {
       restoreSystem(seq)
       return { success: true as const }
