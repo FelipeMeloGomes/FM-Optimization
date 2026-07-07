@@ -75,6 +75,10 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
           onClick={(e) => e.target === overlayRef.current && onClose()}
         >
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -85,7 +89,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
             )}
           >
             <div className="mb-4 flex items-center justify-between">
-              {title && <h2 className="text-lg font-semibold text-foreground">{title}</h2>}
+              {title && <h2 id="dialog-title" className="text-lg font-semibold text-foreground">{title}</h2>}
               <button
                 onClick={onClose}
                 className="ml-auto rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
