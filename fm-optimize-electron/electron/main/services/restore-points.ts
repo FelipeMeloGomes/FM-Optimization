@@ -85,7 +85,10 @@ public class SR {
 }
 
 export function restoreSystem(seq: number): void {
+  if (typeof seq !== 'number' || !Number.isFinite(seq) || seq <= 0) {
+    throw new Error('SequenceNumber inválido')
+  }
   execPowerShell(
-    `Get-ComputerRestorePoint | Where-Object { $_.SequenceNumber -eq ${seq} } | Restore-Computer -Confirm:$false`
+    `Get-ComputerRestorePoint | Where-Object { $_.SequenceNumber -eq ${Math.floor(seq)} } | Restore-Computer -Confirm:$false -Force`
   )
 }
