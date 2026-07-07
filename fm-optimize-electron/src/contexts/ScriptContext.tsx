@@ -104,27 +104,44 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
     if (activeRef.current === id) activeRef.current = null
   }, [])
 
+  const contextValue = useMemo(() => ({
+    state,
+    filteredScripts,
+    favorites,
+    activeExecution,
+    search,
+    categoryFilter,
+    subcategoryFilter,
+    subcategories,
+    setSearch,
+    setCategoryFilter,
+    setSubcategoryFilter,
+    toggleFavorite,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
+    execute,
+    cancel
+  }), [
+    state,
+    filteredScripts,
+    favorites,
+    activeExecution,
+    search,
+    categoryFilter,
+    subcategoryFilter,
+    subcategories,
+    setSearch,
+    setCategoryFilter,
+    setSubcategoryFilter,
+    toggleFavorite,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
+    execute,
+    cancel
+  ])
+
   return (
-    <ScriptContext.Provider
-      value={{
-        state,
-        filteredScripts,
-        favorites,
-        activeExecution,
-        search,
-        categoryFilter,
-        subcategoryFilter,
-        subcategories,
-        setSearch,
-        setCategoryFilter,
-        setSubcategoryFilter,
-        toggleFavorite,
-        showFavoritesOnly,
-        setShowFavoritesOnly,
-        execute,
-        cancel
-      }}
-    >
+    <ScriptContext.Provider value={contextValue}>
       {children}
     </ScriptContext.Provider>
   )

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, type ReactNode } from 'react'
 import type { AppSettings } from '../../electron/shared/ipc-types'
 
 interface SettingsContextValue {
@@ -14,6 +14,8 @@ const DEFAULT: AppSettings = { theme: 'dark', autoOpenLog: true, confirmOnExecut
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT)
   const [loading, setLoading] = useState(true)
+  const settingsRef = useRef(settings)
+  settingsRef.current = settings
 
   useEffect(() => {
     window.electronAPI.getSettings().then(setSettings).catch((e) =>
@@ -26,15 +28,17 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [settings.theme])
 
   const update = useCallback((partial: Partial<AppSettings>) => {
-    const next = { ...settings, ...partial }
+    const next = { ...settingsRef.current, ...partial }
     setSettings(next)
     window.electronAPI.saveSettings(next).catch((e) =>
       console.error('Failed to save settings:', e)
     )
-  }, [settings])
+  }, [])
+
+  const contextValue = useMemo(() => ({ settings, update, loading }), [settings, update, loading])
 
   return (
-    <SettingsContext.Provider value={{ settings, update, loading }}>
+    <SettingsContext.Provider value={contextValue}>
       {children}
     </SettingsContext.Provider>
   )
