@@ -72,12 +72,12 @@ export default function HistoryPage() {
                       'inline-flex items-center gap-1 text-xs font-medium',
                       entry.wasCancelled && 'text-yellow-400',
                       entry.exitCode === 0 && 'text-green-400',
-                      entry.exitCode && entry.exitCode > 0 && 'text-destructive',
+                      entry.exitCode != null && entry.exitCode > 0 && 'text-destructive',
                       entry.exitCode === null && !entry.wasCancelled && 'text-muted-foreground'
                     )}>
                       {entry.wasCancelled && <><XCircle className="h-3 w-3" /> Cancelado</>}
                       {entry.exitCode === 0 && <><CheckCircle className="h-3 w-3" /> Sucesso</>}
-                      {entry.exitCode && entry.exitCode > 0 && <><AlertTriangle className="h-3 w-3" /> Erro ({entry.exitCode})</>}
+                      {entry.exitCode != null && entry.exitCode > 0 && <><AlertTriangle className="h-3 w-3" /> Erro ({entry.exitCode})</>}
                       {entry.exitCode === null && !entry.wasCancelled && '—'}
                     </span>
                   </td>

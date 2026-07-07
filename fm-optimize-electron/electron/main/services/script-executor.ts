@@ -2,7 +2,6 @@ import { spawn, execSync, ChildProcess } from 'child_process'
 import { BrowserWindow } from 'electron'
 import { extractScriptToTemp, getScriptById } from './script-registry'
 import { isAdmin } from './admin-check'
-import { createRestorePoint } from './restore-points'
 import { loadSettings, addHistoryEntry } from './data-service'
 import type { ScriptOutput, ScriptEnded, ExecutionHistoryEntry } from '../../shared/ipc-types'
 
@@ -39,9 +38,14 @@ export function executeScript(id: string): string {
   const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined
 
   if (loadSettings().autoRestorePoint && script) {
-    try {
-      createRestorePoint(`Antes de executar: ${script.name}`)
-    } catch { /* restore point é opcional — script executa mesmo se falhar */ }
+    const safeName = script.name.replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '').trim()
+    if (safeName) {
+      spawn('powershell.exe', [
+        '-NoProfile',
+        '-Command',
+        `Checkpoint-Computer -Description "Antes de executar: ${safeName}" -RestorePointType MODIFY_SETTINGS`
+      ], { stdio: 'ignore', detached: true }).unref()
+    }
   }
 
   const { command, args } = getCommand(ext, filePath)

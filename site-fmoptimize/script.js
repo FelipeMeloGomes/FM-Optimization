@@ -11,6 +11,16 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 
+function semverCompare(a, b) {
+  const aParts = a.replace(/^v/, '').split('.').map(Number);
+  const bParts = b.replace(/^v/, '').split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((aParts[i] || 0) > (bParts[i] || 0)) return 1;
+    if ((aParts[i] || 0) < (bParts[i] || 0)) return -1;
+  }
+  return 0;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -97,11 +107,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const badgeVersion = document.getElementById('badgeVersion');
   const badgeStars = document.getElementById('badgeStars');
   const badges = document.querySelectorAll('.download-badge');
-  fetch('https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases/latest')
+  fetch('https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases')
     .then(r => r.ok ? r.json() : Promise.reject())
-    .then(d => {
-      badgeVersion.textContent = d.tag_name;
-      d.assets.forEach(a => {
+    .then(all => {
+      all.sort((a, b) => semverCompare(b.tag_name, a.tag_name));
+      const latest = all[0];
+      if (!latest) { badgeVersion.textContent = 'v1.0.0'; return; }
+      badgeVersion.textContent = latest.tag_name;
+      document.querySelectorAll('.btn-download').forEach(btn => {
+        const isSetup = btn.textContent.includes('Setup');
+        const name = isSetup ? 'fm-optimize-setup.exe' : 'fm-optimize-portable.exe';
+        btn.href = `https://github.com/FelipeMeloGomes/FM-Optimization/releases/download/${latest.tag_name}/${name}`;
+      });
+      latest.assets.forEach(a => {
         const mb = (a.size / 1048576).toFixed(1);
         if (a.name === 'fm-optimize-portable.exe' && badges[0]) badges[0].textContent = '~' + mb + ' MB';
         if (a.name === 'fm-optimize-setup.exe' && badges[1]) badges[1].textContent = '~' + mb + ' MB';
@@ -278,8 +296,9 @@ document.addEventListener('DOMContentLoaded', () => {
           releasesContainer.innerHTML = '<p class="releases-error" style="color:var(--text-muted)">Nenhuma release encontrada.</p>';
           return;
         }
+        releases.sort((a, b) => semverCompare(b.tag_name, a.tag_name));
         const html = releases.map(r => {
-          const date = new Date(r.created_at);
+          const date = new Date(r.published_at || r.created_at);
           const dateStr = date.toLocaleDateString('pt-BR', {
             day: 'numeric', month: 'long', year: 'numeric'
           });
