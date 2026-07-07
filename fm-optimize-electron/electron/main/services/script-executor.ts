@@ -3,7 +3,7 @@ import { BrowserWindow } from 'electron'
 import { extractScriptToTemp, getScriptById } from './script-registry'
 import { isAdmin } from './admin-check'
 import { loadSettings, addHistoryEntry } from './data-service'
-import type { ScriptOutput, ScriptEnded, ExecutionHistoryEntry } from '../../shared/ipc-types'
+import type { ScriptOutput, ScriptEnded } from '../../shared/ipc-types'
 
 const activeProcesses = new Map<string, ChildProcess>()
 

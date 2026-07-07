@@ -11,7 +11,7 @@ function formatDuration(ms: number): string {
 }
 
 export default function HistoryPage() {
-  const { state, refresh } = useHistoryContext()
+  const { state } = useHistoryContext()
 
   if (state.status === 'loading') {
     return (
