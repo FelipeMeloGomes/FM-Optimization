@@ -56,6 +56,7 @@ export interface ScriptEntry {
   requiresAdmin: boolean
   isBuiltIn: boolean
   tags: string[]
+  guide?: string
 }
 
 export interface RestorePointEntry {

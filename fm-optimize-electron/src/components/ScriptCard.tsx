@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Play, Square, Terminal, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react'
+import { Play, Square, Terminal, ShieldAlert, Info, ChevronDown, ChevronUp } from 'lucide-react'
 import { FavoriteButton } from './FavoriteButton'
 import { Card, Button, Dialog } from './ui'
 import { useSettingsContext } from '../contexts/SettingsContext'
@@ -23,6 +23,7 @@ export function ScriptCard({
   onToggleFavorite
 }: ScriptCardProps) {
   const [expanded, setExpanded] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const { settings } = useSettingsContext()
 
@@ -64,6 +65,23 @@ export function ScriptCard({
             )}
           </button>
         </div>
+
+        {script.guide && (
+          <div className="mb-2">
+            <button
+              onClick={() => setShowGuide((v) => !v)}
+              className="flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors"
+            >
+              <Info className="h-3 w-3" aria-hidden="true" />
+              {showGuide ? 'Ocultar explicação' : 'Como funciona?'}
+            </button>
+            {showGuide && (
+              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                {script.guide}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="mb-3 flex flex-wrap gap-1">
           <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground font-mono">
