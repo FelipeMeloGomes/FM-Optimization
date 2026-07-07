@@ -40,17 +40,23 @@ const electronAPI: ElectronAPI = {
   saveSettings: (settings) => ipcVoid('save-settings', settings),
   getDataFilePath: () => ipc<string>('get-data-file-path'),
   onScriptOutput: (cb: (data: ScriptOutput) => void) => {
-    const listener = (_e: IpcRendererEvent, raw: string) => cb(JSON.parse(raw))
+    const listener = (_e: IpcRendererEvent, raw: string) => {
+      try { cb(JSON.parse(raw)) } catch { /* skip malformed output */ }
+    }
     ipcRenderer.on('script-output', listener)
     return () => ipcRenderer.removeListener('script-output', listener)
   },
   onScriptError: (cb: (data: ScriptOutput) => void) => {
-    const listener = (_e: IpcRendererEvent, raw: string) => cb(JSON.parse(raw))
+    const listener = (_e: IpcRendererEvent, raw: string) => {
+      try { cb(JSON.parse(raw)) } catch { /* skip malformed error */ }
+    }
     ipcRenderer.on('script-error', listener)
     return () => ipcRenderer.removeListener('script-error', listener)
   },
   onScriptEnded: (cb: (data: ScriptEnded) => void) => {
-    const listener = (_e: IpcRendererEvent, raw: string) => cb(JSON.parse(raw))
+    const listener = (_e: IpcRendererEvent, raw: string) => {
+      try { cb(JSON.parse(raw)) } catch { /* skip malformed ended */ }
+    }
     ipcRenderer.on('script-ended', listener)
     return () => ipcRenderer.removeListener('script-ended', listener)
   },
