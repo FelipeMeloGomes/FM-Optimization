@@ -21,6 +21,12 @@ export default function RestorePointsPage() {
     setNewName('')
   }
 
+  const restorePoints = state.status === 'success' ? state.data : []
+  const filtered = useMemo(
+    () => restorePoints.filter((rp) => rp.description.toLowerCase().includes(search.toLowerCase())),
+    [restorePoints, search]
+  )
+
   if (state.status === 'loading') {
     return (
       <div className="flex items-center justify-center py-20">
@@ -40,12 +46,6 @@ export default function RestorePointsPage() {
       </div>
     )
   }
-
-  const restorePoints = state.data
-  const filtered = useMemo(
-    () => restorePoints.filter((rp) => rp.description.toLowerCase().includes(search.toLowerCase())),
-    [restorePoints, search]
-  )
 
   return (
     <div>

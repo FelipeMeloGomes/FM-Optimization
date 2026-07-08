@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from './layout/AppLayout'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { ScriptProvider } from './contexts/ScriptContext'
 import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext'
 import { SystemProvider } from './contexts/SystemContext'
@@ -33,6 +34,7 @@ export default function App() {
             <RestorePointProvider>
               <HistoryProvider>
                 <Suspense fallback={<PageLoader />}>
+                <ErrorBoundary>
                 <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<DashboardPage />} />
@@ -47,6 +49,7 @@ export default function App() {
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>
                 </Routes>
+                </ErrorBoundary>
                 </Suspense>
               </HistoryProvider>
             </RestorePointProvider>
