@@ -45,7 +45,7 @@ export function extractScriptToTemp(id: string): string {
   const script = getScriptById(id)
   if (!script) throw new Error(`Script not found: ${id}`)
 
-  const tempDir = resolve(app.getPath('temp'), 'FMOptimize', 'scripts')
+  const tempDir = resolve(app.getPath('userData'), 'scripts')
   if (!existsSync(tempDir)) {
     mkdirSync(tempDir, { recursive: true })
   }
