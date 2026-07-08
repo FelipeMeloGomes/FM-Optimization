@@ -112,7 +112,7 @@ $body = @"
 - 
 "@
 
-$env:GITHUB_TOKEN = (Get-Content -Path ".env" | ForEach-Object {
+$env:GITHUB_TOKEN = (Get-Content -Path ".env.local" | ForEach-Object {
   if ($_ -match '^GITHUB_TOKEN=(.*)') { $matches[1] }
 })
 $tag = "v$(node -p "require('./package.json').version")"
@@ -192,17 +192,20 @@ Copie e cole o script acima no terminal PowerShell a partir de `fm-optimize-elec
 - Consumidores (`DashboardPage`, `ScriptsPage`, `RestorePointsPage`) atualizados
 
 ## Pendente
-- **M2 (IpcResult return type):** Tipar retorno dos handlers IPC com `IpcResult<T>`
-- **M4 (never):** Exaustão em switches relevantes
-- **M? (electron-updater):** Testar atualização automática na build
+- **M? (electron-updater):** Testar atualização automática na build (manual — criar release real e verificar fluxo)
+
+## Observações
+- **M2 (IpcResult return type):** Completo — todos os 22 handlers retornam `Promise<IpcResult<T>>` (commit `1b24689`). Limpeza adicional: inline `import()` types substituídos por imports diretos em `preload/index.ts` e `script-executor.ts`.
+- **M4 (never):** Completo — `getCommand` em `script-executor.ts` trata `undefined` antes do `switch` e usa `const _exhaustive: never = ext` no `default`.
+- **auto-updater:** Config `electron-builder.yml` já tem `publish: github`. `setupAutoUpdater()` em `main/index.ts` chama `setFeedURL()`. Teste manual ao criar release real.
 
 ## Relevant Files
-- `electron/main/ipc-handlers.ts` — handlers com `catch(e:unknown)`, `IpcResult` incompleto
-- `electron/main/services/script-executor.ts` — admin check, duplicata guard, taskkill fallback
+- `electron/main/ipc-handlers.ts` — handlers com `catch(e:unknown)`, `IpcResult` completo (commit `1b24689`)
+- `electron/main/services/script-executor.ts` — admin check, duplicata guard, taskkill fallback, never exhaustion
 - `electron/main/services/restore-points.ts` — sanitização + `catch(e:unknown)`
 - `electron/main/services/data-service.ts` — escrita atômica, JSON.parse validado
 - `electron/main/services/system-info.ts` — RawDriveInfo
-- `electron/preload/index.ts` — `ipc<T>()`, `ipcVoid()`, IpcRendererEvent
+- `electron/preload/index.ts` — `ipc<T>()`, `ipcVoid()`, IpcRendererEvent, imports limpos
 - `electron/shared/ipc-types.ts` — `AsyncState`, `UpdateInfo.error`, `ElectronAPI`
 - `src/contexts/SystemContext.tsx` — discriminated union
 - `src/contexts/RestorePointContext.tsx` — discriminated union

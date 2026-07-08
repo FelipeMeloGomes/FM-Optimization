@@ -3,7 +3,7 @@ import { BrowserWindow } from 'electron'
 import { extractScriptToTemp, getScriptById } from './script-registry'
 import { isAdmin } from './admin-check'
 import { loadSettings, addHistoryEntry } from './data-service'
-import type { ScriptOutput, ScriptEnded } from '../../shared/ipc-types'
+import type { ScriptOutput, ScriptEnded, ScriptEntry } from '../../shared/ipc-types'
 
 const activeProcesses = new Map<string, ChildProcess>()
 
@@ -133,9 +133,12 @@ export function cancelExecution(id: string): void {
   }
 }
 
-type ScriptExtension = import('../../shared/ipc-types').ScriptEntry['extension']
+type ScriptExtension = ScriptEntry['extension']
 
 function getCommand(ext: ScriptExtension | undefined, filePath: string): { command: string; args: string[] } {
+  if (ext === undefined) {
+    return { command: 'cmd.exe', args: ['/c', filePath] }
+  }
   switch (ext) {
     case 'bat':
     case 'cmd':
@@ -149,7 +152,9 @@ function getCommand(ext: ScriptExtension | undefined, filePath: string): { comma
       return { command: 'regedit.exe', args: ['/s', filePath] }
     case 'exe':
       return { command: filePath, args: [] }
-    default:
-      return { command: 'cmd.exe', args: ['/c', filePath] }
+    default: {
+      const _exhaustive: never = ext
+      return _exhaustive
+    }
   }
 }

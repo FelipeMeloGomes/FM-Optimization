@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { Terminal, Copy, Trash2, ChevronDown, ChevronUp, WrapText } from 'lucide-react'
 import { useLogContext, type LogEntry } from '../contexts/LogContext'
 import { useSettingsContext } from '../contexts/SettingsContext'
@@ -12,6 +12,14 @@ const FILTERS = [
   { key: 'warn' as const, label: 'Warn' },
   { key: 'error' as const, label: 'Error' },
 ] as const
+
+const logColors: Record<LogEntry['level'], string> = {
+  info: 'text-foreground',
+  start: 'text-primary',
+  end: 'text-green-400',
+  error: 'text-destructive',
+  warn: 'text-yellow-400'
+}
 
 export function LogPanel() {
   const { entries, clear } = useLogContext()
@@ -40,15 +48,10 @@ export function LogPanel() {
     navigator.clipboard.writeText(text)
   }
 
-  const logColors: Record<LogEntry['level'], string> = {
-    info: 'text-foreground',
-    start: 'text-primary',
-    end: 'text-green-400',
-    error: 'text-destructive',
-    warn: 'text-yellow-400'
-  }
-
-  const filteredEntries = levelFilter === 'all' ? entries : entries.filter((e) => e.level === levelFilter)
+  const filteredEntries = useMemo(
+    () => levelFilter === 'all' ? entries : entries.filter((e) => e.level === levelFilter),
+    [entries, levelFilter]
+  )
 
   return (
     <div className="border-t border-border">
@@ -127,3 +130,5 @@ export function LogPanel() {
     </div>
   )
 }
+
+

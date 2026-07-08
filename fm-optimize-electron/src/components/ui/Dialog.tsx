@@ -13,6 +13,8 @@ interface DialogProps {
 export function Dialog({ open, onClose, title, children, className }: DialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!open) return
@@ -27,8 +29,8 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && onClose) {
-        onClose()
+      if (e.key === 'Escape' && onCloseRef.current) {
+        onCloseRef.current()
         return
       }
       if (e.key === 'Tab') {
@@ -59,7 +61,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
       document.removeEventListener('keydown', handleKeyDown)
       prev?.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   return (
     <div
@@ -96,3 +98,4 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
     </div>
   )
 }
+

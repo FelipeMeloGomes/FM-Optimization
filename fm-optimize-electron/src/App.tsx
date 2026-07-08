@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from './layout/AppLayout'
 import { ScriptProvider } from './contexts/ScriptContext'
+import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext'
 import { SystemProvider } from './contexts/SystemContext'
 import { RestorePointProvider } from './contexts/RestorePointContext'
 import { HistoryProvider } from './contexts/HistoryContext'
@@ -26,7 +27,8 @@ export default function App() {
   return (
     <SettingsProvider>
       <SystemProvider>
-        <ScriptProvider>
+        <ScriptExecutionProvider>
+          <ScriptProvider>
           <LogProvider>
             <RestorePointProvider>
               <HistoryProvider>
@@ -49,8 +51,11 @@ export default function App() {
               </HistoryProvider>
             </RestorePointProvider>
           </LogProvider>
-        </ScriptProvider>
+          </ScriptProvider>
+        </ScriptExecutionProvider>
       </SystemProvider>
     </SettingsProvider>
   )
 }
+
+

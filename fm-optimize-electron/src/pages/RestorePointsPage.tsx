@@ -3,6 +3,10 @@ import { RefreshCw, Plus, Trash2, RotateCcw, AlertTriangle, Search } from 'lucid
 import { useRestorePointContext } from '../contexts/RestorePointContext'
 import { EmptyState, Input, Button, Dialog } from '../components/ui'
 
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleString('pt-BR')
+}
+
 export default function RestorePointsPage() {
   const { state, creating, restoring, refresh, create, remove, restore } = useRestorePointContext()
   const [newName, setNewName] = useState('')
@@ -98,7 +102,7 @@ export default function RestorePointsPage() {
                 <tr key={rp.sequenceNumber} className="hover:bg-card/50 transition-colors">
                   <td className="px-4 py-3">{rp.description}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(rp.creationTime).toLocaleString('pt-BR')}
+                    {formatDate(rp.creationTime)}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{rp.eventType}</td>
                   <td className="px-4 py-3 text-right">
@@ -201,3 +205,4 @@ export default function RestorePointsPage() {
     </div>
   )
 }
+

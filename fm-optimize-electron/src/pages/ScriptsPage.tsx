@@ -3,6 +3,7 @@ import { Star } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { EmptyState } from '../components/ui'
 import { useScriptContext } from '../contexts/ScriptContext'
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
 import { ScriptCard } from '../components/ScriptCard'
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
 
@@ -15,7 +16,6 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     state,
     filteredScripts,
     favorites,
-    activeExecution,
     setCategoryFilter,
     setSubcategoryFilter,
     toggleFavorite,
@@ -23,9 +23,8 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     setShowFavoritesOnly,
     subcategoryFilter,
     subcategories,
-    execute,
-    cancel
   } = useScriptContext()
+  const { activeExecution, execute, cancel } = useScriptExecutionContext()
 
   useEffect(() => {
     setCategoryFilter(category)
@@ -133,3 +132,5 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     </div>
   )
 }
+
+

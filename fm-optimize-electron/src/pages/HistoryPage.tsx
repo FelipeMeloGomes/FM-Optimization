@@ -3,6 +3,10 @@ import { useHistoryContext } from '../contexts/HistoryContext'
 import { EmptyState } from '../components/ui'
 import { cn } from '../lib/utils'
 
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleString('pt-BR')
+}
+
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
   const s = Math.floor(ms / 1000)
@@ -63,7 +67,7 @@ export default function HistoryPage() {
                 <tr key={entry.id} className="hover:bg-card/50 transition-colors">
                   <td className="px-4 py-3 font-medium">{entry.scriptName}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(entry.startTime).toLocaleString('pt-BR')}
+                    {formatDate(entry.startTime)}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {entry.wasCancelled ? '—' : formatDuration(entry.durationMs)}
@@ -91,3 +95,4 @@ export default function HistoryPage() {
     </div>
   )
 }
+

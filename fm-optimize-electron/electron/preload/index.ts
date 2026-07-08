@@ -7,7 +7,11 @@ import type {
   UpdateStatus,
   UpdateInfo,
   DownloadProgress,
-  ExecutionHistoryEntry
+  ExecutionHistoryEntry,
+  DashboardData,
+  ScriptEntry,
+  RestorePointEntry,
+  AppSettings
 } from '../shared/ipc-types'
 
 function ipc<T>(channel: string, ...args: unknown[]): Promise<T> {
@@ -26,17 +30,17 @@ function ipcVoid(channel: string, ...args: unknown[]): Promise<void> {
 }
 
 const electronAPI: ElectronAPI = {
-  getSystemInfo: () => ipc<import('../shared/ipc-types').DashboardData>('get-system-info'),
-  getScripts: () => ipc<import('../shared/ipc-types').ScriptEntry[]>('get-scripts'),
+  getSystemInfo: () => ipc<DashboardData>('get-system-info'),
+  getScripts: () => ipc<ScriptEntry[]>('get-scripts'),
   getScriptContent: (id) => ipc<string>('get-script-content', id),
   extractScript: (id) => ipc<string>('extract-script', id),
   executeScript: (id) => ipcVoid('execute-script', id),
   cancelExecution: (id) => ipcVoid('cancel-execution', id),
-  getRestorePoints: () => ipc<import('../shared/ipc-types').RestorePointEntry[]>('get-restore-points'),
+  getRestorePoints: () => ipc<RestorePointEntry[]>('get-restore-points'),
   createRestorePoint: (name) => ipcVoid('create-restore-point', name),
   deleteRestorePoint: (seq) => ipcVoid('delete-restore-point', seq),
   isAdmin: () => ipc<boolean>('is-admin'),
-  getSettings: () => ipc<import('../shared/ipc-types').AppSettings>('get-settings'),
+  getSettings: () => ipc<AppSettings>('get-settings'),
   saveSettings: (settings) => ipcVoid('save-settings', settings),
   getDataFilePath: () => ipc<string>('get-data-file-path'),
   onScriptOutput: (cb: (data: ScriptOutput) => void) => {
