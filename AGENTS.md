@@ -112,6 +112,20 @@ Commits técnicos (chore, bump, docs, refactor) ficam em uma seção "Técnico" 
 - Corrigido crash ao importar CSV com header vazio
 ```
 
+### ⚠️ Regra crítica: ordem das operações
+
+**A versão DEVE ser bumpada ANTES do build.** O `electron-builder` grava a versão
+do `package.json` no `latest.yml`. Se o build rodar antes do `npm version`,
+o `latest.yml` terá a versão antiga e o `electron-updater` **não oferecerá a
+atualização** — o usuário verá "Você já está na versão mais recente".
+
+Ordem obrigatória:
+1. `npm version <tipo>` (bump + commit + tag)
+2. `npm run build`
+3. `npx electron-builder --win`
+4. Verificar que `dist/latest.yml` contém a versão correta
+5. Upload dos assets
+
 ### Script
 
 Copie e cole no terminal PowerShell a partir de `fm-optimize-electron/`:
