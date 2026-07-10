@@ -44,9 +44,13 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
 
   const subcategories = useMemo(() => {
     const cats = new Set<string>()
-    scripts.forEach((s) => { if (s.subcategory) cats.add(s.subcategory) })
+    scripts.forEach((s) => {
+      if (s.subcategory && (!categoryFilter || s.category === categoryFilter)) {
+        cats.add(s.subcategory)
+      }
+    })
     return Array.from(cats).sort()
-  }, [scripts])
+  }, [scripts, categoryFilter])
 
   const filteredScripts = useMemo(() => scripts.filter((s) => {
     if (showFavoritesOnly && !favorites.includes(s.id)) return false
