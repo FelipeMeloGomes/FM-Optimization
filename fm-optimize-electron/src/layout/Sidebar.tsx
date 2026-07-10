@@ -12,7 +12,10 @@ import {
   Settings,
   Clock,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Wifi,
+  MousePointerClick,
+  Cpu
 } from 'lucide-react'
 
 const navItems = [
@@ -23,6 +26,10 @@ const navItems = [
   { to: '/restore-points', icon: Shield, label: 'Pontos de Restauração' },
   { to: '/history', icon: Clock, label: 'Histórico' },
   { to: '/dns', icon: Globe, label: 'DNS' },
+  { to: '/internet', icon: Wifi, label: 'Internet' },
+  { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag' },
+  { to: '/amd', icon: Cpu, label: 'AMD' },
+  { to: '/intel', icon: Cpu, label: 'Intel' },
   { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
   { to: '/settings', icon: Settings, label: 'Configurações' }
 ] as const

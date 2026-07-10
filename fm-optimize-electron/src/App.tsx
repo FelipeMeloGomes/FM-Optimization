@@ -45,6 +45,10 @@ export default function App() {
                     <Route path="/history" element={<HistoryPage />} />
                     <Route path="/dns" element={<ScriptsPage category="DNS Manager" />} />
                     <Route path="/apps" element={<ScriptsPage category="Apps" />} />
+                    <Route path="/internet" element={<ScriptsPage category="Internet" />} />
+                    <Route path="/input-lag" element={<ScriptsPage category="Input Lag" />} />
+                    <Route path="/amd" element={<ScriptsPage category="AMD" />} />
+                    <Route path="/intel" element={<ScriptsPage category="Intel" />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>
