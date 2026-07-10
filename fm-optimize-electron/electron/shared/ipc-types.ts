@@ -53,7 +53,7 @@ export interface ScriptEntry {
   category: string
   subcategory: string
   content: string
-  extension: 'bat' | 'ps1' | 'reg' | 'exe' | 'cmd'
+  extension: 'bat' | 'ps1' | 'reg' | 'exe' | 'cmd' | 'txt'
   requiresAdmin: boolean
   isBuiltIn: boolean
   tags: string[]

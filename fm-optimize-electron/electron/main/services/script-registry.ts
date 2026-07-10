@@ -51,7 +51,8 @@ export function extractScriptToTemp(id: string): string {
   }
 
   const content = getScriptContent(id)
-  const filePath = resolve(tempDir, `${script.name}.${script.extension}`)
+  const safeName = script.name.replace(/[/\\:*?"<>|]/g, '_')
+  const filePath = resolve(tempDir, `${safeName}.${script.extension}`)
   writeFileSync(filePath, content, 'utf-8')
   return filePath
 }

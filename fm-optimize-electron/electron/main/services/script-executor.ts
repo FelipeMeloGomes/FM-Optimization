@@ -37,6 +37,26 @@ export function executeScript(id: string): string {
   const filePath = extractScriptToTemp(id)
   const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined
 
+  if (ext === 'txt') {
+    const proc = spawn('cmd.exe', ['/c', 'start', '', filePath], {
+      detached: true,
+      stdio: 'ignore'
+    })
+    proc.unref()
+    sendEnded(win, { id, code: 0 })
+    addHistoryEntry({
+      id: `${id}_${Date.now()}`,
+      scriptId: id,
+      scriptName: script?.name || id,
+      startTime: new Date().toISOString(),
+      endTime: new Date().toISOString(),
+      durationMs: 0,
+      exitCode: 0,
+      wasCancelled: false
+    })
+    return 'opened'
+  }
+
   if (loadSettings().autoRestorePoint && script) {
     const safeName = script.name.replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '').trim()
     if (safeName) {
@@ -152,6 +172,8 @@ function getCommand(ext: ScriptExtension | undefined, filePath: string): { comma
       return { command: 'regedit.exe', args: ['/s', filePath] }
     case 'exe':
       return { command: filePath, args: [] }
+    case 'txt':
+      return { command: 'notepad.exe', args: [filePath] }
     default: {
       const _exhaustive: never = ext
       return _exhaustive

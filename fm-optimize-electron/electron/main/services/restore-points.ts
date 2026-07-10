@@ -24,6 +24,7 @@ const RESTORE_TYPES: Record<number, string> = {
 
 export function getRestorePoints(): RestorePointEntry[] {
   const script = `
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
 $points = Get-ComputerRestorePoint
 foreach ($rp in $points) {
   $s = $rp.SequenceNumber.ToString()

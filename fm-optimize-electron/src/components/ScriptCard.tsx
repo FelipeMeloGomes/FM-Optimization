@@ -1,5 +1,5 @@
 import { memo, useState } from 'react'
-import { Play, Square, Terminal, ShieldAlert, Info, ChevronDown, ChevronUp } from 'lucide-react'
+import { Play, Square, Terminal, ShieldAlert, Info, ChevronDown, ChevronUp, FileText } from 'lucide-react'
 import { FavoriteButton } from './FavoriteButton'
 import { Card, Button, Dialog } from './ui'
 import { useSettingsContext } from '../contexts/SettingsContext'
@@ -26,9 +26,12 @@ export const ScriptCard = memo(function ScriptCard({
   const [showGuide, setShowGuide] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const { settings } = useSettingsContext()
+  const isTxt = script.extension === 'txt'
 
   function handleExecute() {
-    if (settings.confirmOnExecute) {
+    if (isTxt) {
+      onExecute()
+    } else if (settings.confirmOnExecute) {
       setShowConfirm(true)
     } else {
       onExecute()
@@ -103,15 +106,15 @@ export const ScriptCard = memo(function ScriptCard({
               Cancelar
             </Button>
           ) : (
-            <Button variant="primary" size="sm" onClick={handleExecute} aria-label="Executar script">
-              <Play className="h-3.5 w-3.5" aria-hidden="true" />
-              Executar
+            <Button variant="primary" size="sm" onClick={handleExecute} aria-label={isTxt ? 'Abrir guia' : 'Executar script'}>
+              {isTxt ? <FileText className="h-3.5 w-3.5" aria-hidden="true" /> : <Play className="h-3.5 w-3.5" aria-hidden="true" />}
+              {isTxt ? 'Abrir' : 'Executar'}
             </Button>
           )}
         </div>
       </Card>
 
-      <Dialog open={showConfirm} onClose={() => setShowConfirm(false)} title="Confirmar Execução">
+      <Dialog open={showConfirm} onClose={() => setShowConfirm(false)} title={isTxt ? 'Abrir guia' : 'Confirmar Execução'}>
         <div className="space-y-4">
           <div>
             <p className="text-sm text-foreground font-medium">{script.name}</p>
