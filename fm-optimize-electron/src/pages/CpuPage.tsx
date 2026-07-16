@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
-import { Cpu, Star, AlertTriangle } from 'lucide-react'
+import { Cpu, AlertTriangle } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { Button, Badge, Card, CardContent } from '../components/ui'
 import { useScriptContext } from '../contexts/ScriptContext'
@@ -14,12 +14,8 @@ export default function CpuPage() {
   const {
     state,
     filteredScripts,
-    favorites,
     setCategoryFilter,
     setSubcategoryFilter,
-    toggleFavorite,
-    showFavoritesOnly,
-    setShowFavoritesOnly,
     subcategoryFilter,
     subcategories,
   } = useScriptContext()
@@ -143,18 +139,6 @@ export default function CpuPage() {
       </Card>
 
       <div className="mb-4 flex items-center gap-2">
-        <Button
-          variant={showFavoritesOnly ? 'secondary' : 'ghost'}
-          size="sm"
-          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-          className={cn(
-            'gap-1.5',
-            showFavoritesOnly && 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30 hover:text-yellow-400'
-          )}
-        >
-          <Star className={cn('size-3.5', showFavoritesOnly && 'fill-yellow-400')} />
-          Favoritos
-        </Button>
         <Badge variant="secondary">
           {filteredScripts.length} scripts
         </Badge>
@@ -195,11 +179,9 @@ export default function CpuPage() {
             <ScriptCard
               key={script.id}
               script={script}
-              isFavorite={favorites.includes(script.id)}
               isExecuting={activeExecution === script.id}
               onExecute={() => handleExecute(script.id)}
               onCancel={() => handleCancel(script.id)}
-              onToggleFavorite={() => toggleFavorite(script.id)}
             />
           ))}
         </div>

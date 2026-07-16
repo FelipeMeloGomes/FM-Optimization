@@ -150,8 +150,6 @@ export interface ElectronAPI {
   onScriptOutput(cb: (data: ScriptOutput) => void): () => void
   onScriptError(cb: (data: ScriptOutput) => void): () => void
   onScriptEnded(cb: (data: ScriptEnded) => void): () => void
-  getFavorites(): Promise<string[]>
-  saveFavorites(ids: string[]): Promise<void>
   restoreSystem(seq: number): Promise<void>
   getAppVersion(): Promise<string>
   isPackaged(): Promise<boolean>

@@ -118,10 +118,6 @@ export default function CleanerPage() {
   const {
     state,
     filteredScripts,
-    favorites,
-    toggleFavorite,
-    showFavoritesOnly,
-    setShowFavoritesOnly
   } = useScriptContext()
   const { activeExecution, execute, cancel } = useScriptExecutionContext()
   const { settings } = useSettingsContext()
@@ -194,25 +190,12 @@ export default function CleanerPage() {
             Mantenha seu Windows limpo e rápido
           </p>
         </div>
-        <Button
-          variant={showFavoritesOnly ? 'secondary' : 'ghost'}
-          size="sm"
-          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-          className={cn(
-            'gap-1.5',
-            showFavoritesOnly && 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30 hover:text-yellow-400'
-          )}
-        >
-          <span className={cn('size-3.5', showFavoritesOnly && 'fill-yellow-400')}>★</span>
-          Favoritos
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {CLEANER_CARDS.map((card) => {
           const script = getScriptData(card.id)
           const isExecuting = activeExecution === card.id
-          const isFavorite = favorites.includes(card.id)
 
           return (
             <div
@@ -247,17 +230,6 @@ export default function CleanerPage() {
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => toggleFavorite(card.id)}
-                  className="size-8 text-muted-foreground hover:text-yellow-400"
-                >
-                  <span className={cn(
-                    'size-4',
-                    isFavorite && 'fill-yellow-400 text-yellow-400'
-                  )}>★</span>
-                </Button>
               </div>
 
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">

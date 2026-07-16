@@ -66,8 +66,6 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.on('script-ended', listener)
     return () => ipcRenderer.removeListener('script-ended', listener)
   },
-  getFavorites: () => ipc<string[]>('get-favorites'),
-  saveFavorites: (ids) => ipcVoid('save-favorites', ids),
   getExecutionHistory: () => ipc<ExecutionHistoryEntry[]>('get-execution-history'),
   restoreSystem: (seq) => ipcVoid('restore-system', seq),
   getAppVersion: () => ipc<string>('get-app-version'),

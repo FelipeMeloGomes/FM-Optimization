@@ -4,7 +4,6 @@ import type { AsyncState, ScriptEntry } from '../../electron/shared/ipc-types'
 interface ScriptContextValue {
   state: AsyncState<ScriptEntry[]>
   filteredScripts: ScriptEntry[]
-  favorites: string[]
   search: string
   categoryFilter: string
   subcategoryFilter: string
@@ -12,31 +11,20 @@ interface ScriptContextValue {
   setSearch: (s: string) => void
   setCategoryFilter: (c: string) => void
   setSubcategoryFilter: (c: string) => void
-  toggleFavorite: (id: string) => void
-  showFavoritesOnly: boolean
-  setShowFavoritesOnly: (v: boolean) => void
 }
 
 const ScriptContext = createContext<ScriptContextValue | null>(null)
 
 export function ScriptProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AsyncState<ScriptEntry[]>>({ status: 'loading' })
-  const [favorites, setFavorites] = useState<string[]>([])
   const [search, setSearch] = useState('')
   const deferredSearch = useDeferredValue(search)
   const [categoryFilter, setCategoryFilter] = useState('')
   const [subcategoryFilter, setSubcategoryFilter] = useState('')
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
 
   useEffect(() => {
-    Promise.all([
-      window.electronAPI.getScripts(),
-      window.electronAPI.getFavorites()
-    ])
-      .then(([scripts, favorites]) => {
-        setState({ status: 'success', data: scripts })
-        setFavorites(favorites)
-      })
+    window.electronAPI.getScripts()
+      .then((scripts) => setState({ status: 'success', data: scripts }))
       .catch((e) => setState({ status: 'error', error: typeof e === 'string' ? e : (e as Error).message }))
   }, [])
 
@@ -53,7 +41,6 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
   }, [scripts, categoryFilter])
 
   const filteredScripts = useMemo(() => scripts.filter((s) => {
-    if (showFavoritesOnly && !favorites.includes(s.id)) return false
     if (categoryFilter && s.category !== categoryFilter) return false
     if (subcategoryFilter && s.subcategory !== subcategoryFilter) return false
     if (deferredSearch) {
@@ -65,46 +52,28 @@ export function ScriptProvider({ children }: { children: ReactNode }) {
       )
     }
     return true
-  }), [scripts, showFavoritesOnly, favorites, categoryFilter, subcategoryFilter, deferredSearch])
-
-  const toggleFavorite = useCallback((id: string) => {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-      window.electronAPI.saveFavorites(next).catch((e) =>
-        console.error('Failed to save favorites:', e)
-      )
-      return next
-    })
-  }, [])
+  }), [scripts, categoryFilter, subcategoryFilter, deferredSearch])
 
   const contextValue = useMemo(() => ({
     state,
     filteredScripts,
-    favorites,
     search,
     categoryFilter,
     subcategoryFilter,
     subcategories,
     setSearch,
     setCategoryFilter,
-    setSubcategoryFilter,
-    toggleFavorite,
-    showFavoritesOnly,
-    setShowFavoritesOnly
+    setSubcategoryFilter
   }), [
     state,
     filteredScripts,
-    favorites,
     search,
     categoryFilter,
     subcategoryFilter,
     subcategories,
     setSearch,
     setCategoryFilter,
-    setSubcategoryFilter,
-    toggleFavorite,
-    showFavoritesOnly,
-    setShowFavoritesOnly
+    setSubcategoryFilter
   ])
 
   return (

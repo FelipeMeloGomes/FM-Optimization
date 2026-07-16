@@ -7,8 +7,7 @@ import {
   Loader2,
   Zap,
   Trophy,
-  ArrowDown,
-  Star
+  ArrowDown
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { Button, Badge, Card, CardContent } from '../components/ui'
@@ -56,12 +55,8 @@ export default function NetworkPage() {
   const {
     state: scriptState,
     filteredScripts,
-    favorites,
     setCategoryFilter,
     setSubcategoryFilter,
-    toggleFavorite,
-    showFavoritesOnly,
-    setShowFavoritesOnly
   } = useScriptContext()
   const { activeExecution, execute, cancel } = useScriptExecutionContext()
 
@@ -351,18 +346,6 @@ export default function NetworkPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant={showFavoritesOnly ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={cn(
-                'gap-1.5',
-                showFavoritesOnly && 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30 hover:text-yellow-400'
-              )}
-            >
-              <Star className={cn('size-3.5', showFavoritesOnly && 'fill-yellow-400')} />
-              Favoritos
-            </Button>
             <Badge variant="secondary">
               {internetScripts.length} scripts
             </Badge>
@@ -391,11 +374,9 @@ export default function NetworkPage() {
               <ScriptCard
                 key={script.id}
                 script={script}
-                isFavorite={favorites.includes(script.id)}
                 isExecuting={activeExecution === script.id}
                 onExecute={() => handleExecute(script.id)}
                 onCancel={() => handleCancel(script.id)}
-                onToggleFavorite={() => toggleFavorite(script.id)}
               />
             ))}
           </div>

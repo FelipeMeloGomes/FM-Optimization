@@ -26,11 +26,9 @@ import type { ScriptEntry } from '../../electron/shared/ipc-types'
 
 interface ScriptCardProps {
   script: ScriptEntry
-  isFavorite: boolean
   isExecuting: boolean
   onExecute: () => void
   onCancel: () => void
-  onToggleFavorite: () => void
 }
 
 const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; color: string; bgColor: string; borderColor: string }> = {
@@ -48,11 +46,9 @@ const DEFAULT_CONFIG = { icon: Zap, color: 'text-primary', bgColor: 'bg-primary/
 
 export const ScriptCard = memo(function ScriptCard({
   script,
-  isFavorite,
   isExecuting,
   onExecute,
-  onCancel,
-  onToggleFavorite
+  onCancel
 }: ScriptCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [showGuide, setShowGuide] = useState(false)
@@ -111,17 +107,6 @@ export const ScriptCard = memo(function ScriptCard({
               </div>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleFavorite}
-            className="size-8 text-muted-foreground hover:text-yellow-400 shrink-0"
-          >
-            <span className={cn(
-              'size-4',
-              isFavorite && 'fill-yellow-400 text-yellow-400'
-            )}>★</span>
-          </Button>
         </div>
 
         <div onClick={() => setExpanded((v) => !v)} className="cursor-pointer mt-3">

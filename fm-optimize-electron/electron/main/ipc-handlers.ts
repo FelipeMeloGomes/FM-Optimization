@@ -85,19 +85,6 @@ export function registerIpcHandlers(): void {
     return handleIpc(() => extractScriptToTemp(id))
   })
 
-  ipcMain.handle('get-favorites', () => handleIpc(() => loadUserData().favorites))
-
-  ipcMain.handle('save-favorites', (_e, favorites: string[]) => {
-    if (!Array.isArray(favorites) || !favorites.every((f) => typeof f === 'string')) {
-      return { success: false as const, error: 'Lista de favoritos inválida' }
-    }
-    return handleIpc(() => {
-      const data = loadUserData()
-      data.favorites = favorites
-      saveUserData(data)
-    })
-  })
-
   ipcMain.handle('get-execution-history', () => handleIpc(() => loadUserData().executionHistory || []))
 
   ipcMain.handle('restore-system', (_e, seq: number) => {

@@ -4,7 +4,6 @@ import { app } from 'electron'
 import type { AppSettings, ExecutionHistoryEntry } from '../../shared/ipc-types'
 
 interface UserData {
-  favorites: string[]
   customScripts: Array<{ name: string; content: string; extension: string }>
   executionHistory: ExecutionHistoryEntry[]
 }
@@ -39,14 +38,14 @@ export function getDataFilePathForRenderer(): string {
 
 export function loadUserData(): UserData {
   const filePath = getDataFilePath()
-  if (!existsSync(filePath)) return { favorites: [], customScripts: [], executionHistory: [] }
+  if (!existsSync(filePath)) return { customScripts: [], executionHistory: [] }
 
   try {
     const raw = readFileSync(filePath, 'utf-8')
     return JSON.parse(raw)
   } catch {
     copyFileSync(filePath, `${filePath}.bak`)
-    return { favorites: [], customScripts: [], executionHistory: [] }
+    return { customScripts: [], executionHistory: [] }
   }
 }
 
