@@ -8,7 +8,9 @@ import {
   Terminal,
   Square,
   Play,
-  MousePointerClick
+  MousePointerClick,
+  RotateCcw,
+  ShieldAlert
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { Button, Badge } from '../components/ui'
@@ -17,6 +19,7 @@ import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
 import { useSettingsContext } from '../contexts/SettingsContext'
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { RISK_STYLES } from '../components/ScriptCard'
 import type { ScriptEntry } from '../../electron/shared/ipc-types'
 
 interface DeviceCard {
@@ -220,6 +223,20 @@ function DeviceSection({
                         Admin
                       </Badge>
                     )}
+                    {script.requiresRestart && (
+                      <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
+                        <RotateCcw className="size-3" />
+                        Reiniciar
+                      </Badge>
+                    )}
+                    {script.riskLevel && (
+                      <Badge
+                        variant="outline"
+                        className={cn('gap-1 font-mono text-[10px] px-1.5 py-0', RISK_STYLES[script.riskLevel].className)}
+                      >
+                        {RISK_STYLES[script.riskLevel].label}
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{script.description}</p>
                 </div>
@@ -299,7 +316,6 @@ export default function InputLagPage() {
   const handleConfirm = useCallback(() => {
     if (confirmScript) {
       handleExecute(confirmScript.id)
-      setConfirmScript(null)
     }
   }, [confirmScript, handleExecute])
 
@@ -425,6 +441,20 @@ export default function InputLagPage() {
                             Admin
                           </Badge>
                         )}
+                        {script.requiresRestart && (
+                          <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
+                            <RotateCcw className="size-3" />
+                            Reiniciar
+                          </Badge>
+                        )}
+                        {script.riskLevel && (
+                          <Badge
+                            variant="outline"
+                            className={cn('gap-1 font-mono text-[10px] px-1.5 py-0', RISK_STYLES[script.riskLevel].className)}
+                          >
+                            {RISK_STYLES[script.riskLevel].label}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                     </div>
@@ -466,6 +496,7 @@ export default function InputLagPage() {
         onOpenChange={(open) => { if (!open) setConfirmScript(null) }}
         script={confirmScript}
         onConfirm={handleConfirm}
+        isExecuting={!!confirmScript && activeExecution === confirmScript.id}
       />
     </div>
   )
