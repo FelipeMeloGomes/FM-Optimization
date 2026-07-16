@@ -29,6 +29,7 @@ interface DeviceCard {
   description: string
   icon: React.ElementType
   color: string
+  dotColor: string
   bgColor: string
   borderColor: string
   scriptIds: string[]
@@ -42,6 +43,7 @@ const DEVICE_CARDS: DeviceCard[] = [
     description: 'Reduza a latência de digitação e resposta instantânea de teclas.',
     icon: Keyboard,
     color: 'text-cyan-400',
+    dotColor: 'bg-cyan-400',
     bgColor: 'bg-cyan-500/10',
     borderColor: 'border-cyan-500/20',
     scriptIds: ['inputlag-1', 'inputlag-9'],
@@ -57,6 +59,7 @@ const DEVICE_CARDS: DeviceCard[] = [
     description: 'Desative aceleração e obtenha movimento 1:1 preciso.',
     icon: Mouse,
     color: 'text-yellow-400',
+    dotColor: 'bg-yellow-400',
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/20',
     scriptIds: ['inputlag-2', 'inputlag-11'],
@@ -72,6 +75,7 @@ const DEVICE_CARDS: DeviceCard[] = [
     description: 'Minimize a latência de tolerância do driver de vídeo.',
     icon: Monitor,
     color: 'text-purple-400',
+    dotColor: 'bg-purple-400',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/20',
     scriptIds: ['inputlag-3'],
@@ -158,7 +162,7 @@ function DeviceSection({
           <ul className="space-y-1">
             {card.whatItOptimizes.map((item, i) => (
               <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className={cn('size-1 rounded-full', card.color.replace('text-', 'bg-'))} />
+                <span className={cn('size-1 rounded-full', card.dotColor)} />
                 {item}
               </li>
             ))}
