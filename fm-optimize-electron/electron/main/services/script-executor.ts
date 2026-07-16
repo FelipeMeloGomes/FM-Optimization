@@ -3,6 +3,8 @@ import { BrowserWindow } from 'electron'
 import { extractScriptToTemp, getScriptById } from './script-registry'
 import { isAdmin } from './admin-check'
 import { loadSettings, addHistoryEntry } from './data-service'
+import { auditScriptExecution, auditAdminCheck } from '../audit-logger'
+import { validateScriptPath } from '../path-validation'
 import type { ScriptOutput, ScriptEnded, ScriptEntry, ExecutionHistoryEntry } from '../../shared/ipc-types'
 
 const activeProcesses = new Map<string, ChildProcess>()
@@ -54,13 +56,22 @@ export function executeScript(id: string): string {
   }
 
   const script = getScriptById(id)
-  if (script?.requiresAdmin && !isAdmin()) {
+  const requiresAdmin = script?.requiresAdmin ?? false
+  const adminCheck = requiresAdmin ? isAdmin() : true
+  auditAdminCheck(adminCheck, `script:${id}`)
+  if (requiresAdmin && !adminCheck) {
     throw new Error(
       'Este script requer privilégios de administrador. Execute o programa como administrador.'
     )
   }
 
   const filePath = extractScriptToTemp(id)
+
+  const pathValidation = validateScriptPath(filePath)
+  if (!pathValidation.valid) {
+    throw new Error(`Path validation failed: ${pathValidation.error}`)
+  }
+
   const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined
 
   if (ext === 'txt') {
@@ -72,6 +83,7 @@ export function executeScript(id: string): string {
     sendEnded(win, { id, code: 0 })
     const now = Date.now()
     addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false))
+    auditScriptExecution(id, script?.name || id, false, true, 0, true)
     return 'opened'
   }
 
@@ -111,6 +123,7 @@ export function executeScript(id: string): string {
     sendEnded(win, { id, code })
     const endTime = Date.now()
     addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, code, false))
+    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, script?.requiresAdmin ? isAdmin() : true, code, code === 0)
   })
 
   proc.on('error', (err) => {
@@ -120,6 +133,7 @@ export function executeScript(id: string): string {
     sendEnded(win, { id, code: -1 })
     const endTime = Date.now()
     addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, -1, false))
+    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, script?.requiresAdmin ? isAdmin() : true, -1, false)
   })
 
   return 'started'
@@ -138,6 +152,7 @@ export function cancelExecution(id: string): void {
     const script = getScriptById(id)
     const now = Date.now()
     addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, null, true))
+    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, true, null, false)
     activeProcesses.delete(id)
   }
 }

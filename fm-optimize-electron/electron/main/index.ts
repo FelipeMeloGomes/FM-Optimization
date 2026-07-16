@@ -3,10 +3,76 @@ import { join, resolve } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { autoUpdater } from 'electron-updater'
 import { registerIpcHandlers } from './ipc-handlers'
+import { executeScript } from './services/script-executor'
 
 let mainWindow: BrowserWindow | null = null
 
 export { mainWindow }
+
+// Handle elevated script execution argument
+function handleElevatedScript(): boolean {
+  const args = process.argv.slice(1)
+  const elevateIndex = args.indexOf('--elevate-script')
+  if (elevateIndex !== -1 && elevateIndex + 1 < args.length) {
+    const scriptId = args[elevateIndex + 1]
+    // Wait a bit for window to be ready, then execute
+    setTimeout(() => {
+      if (mainWindow) {
+        try {
+          executeScript(scriptId)
+        } catch (e) {
+          console.error('Failed to execute elevated script:', e)
+        }
+      }
+    }, 1000)
+    return true
+  }
+
+  // Handle elevated DNS apply argument
+  const elevateDnsIndex = args.indexOf('--elevate-dns')
+  if (elevateDnsIndex !== -1 && elevateDnsIndex + 2 < args.length) {
+    const interfaceIndex = parseInt(args[elevateDnsIndex + 1], 10)
+    const addressesJson = args[elevateDnsIndex + 2]
+    if (!isNaN(interfaceIndex) && addressesJson) {
+      setTimeout(() => {
+        if (mainWindow) {
+          try {
+            const addresses = JSON.parse(addressesJson)
+            applyDnsElevated(interfaceIndex, addresses)
+          } catch (e) {
+            console.error('Failed to apply elevated DNS:', e)
+          }
+        }
+      }, 1000)
+    }
+    return true
+  }
+
+  return false
+}
+
+async function applyDnsElevated(interfaceIndex: number, addresses: string[]): Promise<void> {
+  const { execPowerShell } = await import('./services/powershell')
+  
+  if (addresses.length === 0) {
+    const ps = `
+      $ErrorActionPreference = 'Stop'
+      Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ResetServerAddresses
+    `
+    await execPowerShell(ps)
+  } else {
+    const addrList = addresses.map((a) => `"${a}"`).join(',')
+    const ps = `
+      $ErrorActionPreference = 'Stop'
+      Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses (${addrList})
+      ipconfig /flushdns | Out-Null
+    `
+    await execPowerShell(ps)
+  }
+  
+  // Notify renderer of success
+  sendToRenderer('dns-applied', { success: true })
+}
 
 function iconPath(): string {
   return app.isPackaged
@@ -76,7 +142,7 @@ function createWindow(): void {
     icon: iconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -114,6 +180,9 @@ app.whenReady().then(() => {
   registerIpcHandlers()
   setupAutoUpdater()
   createWindow()
+
+  // Handle elevated script execution after window is created
+  handleElevatedScript()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

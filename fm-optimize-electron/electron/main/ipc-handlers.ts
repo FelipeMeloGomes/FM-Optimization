@@ -6,22 +6,29 @@ import { getRestorePoints, createRestorePoint, deleteRestorePoint, restoreSystem
 import { loadSettings, saveSettings, getDataFilePathForRenderer, loadUserData, saveUserData } from './services/data-service'
 import { isAdmin } from './services/admin-check'
 import { autoUpdater } from 'electron-updater'
-import type { IpcResult, NetworkInfo, BenchmarkResult } from '../shared/ipc-types'
+import type { IpcResult, NetworkInfo, BenchmarkResult, AppSettings } from '../shared/ipc-types'
 import { execPowerShell } from './services/powershell'
+import { validateIpcInput, auditIpcValidation } from './validation'
 
-function handleIpc<T>(fn: () => T): Promise<IpcResult<T>> {
+function handleIpc<T, V>(channel: string, input: unknown, fn: (validated: V) => T | Promise<T>): Promise<IpcResult<T>> {
+  const validation = validateIpcInput<V>(channel, input)
+  auditIpcValidation(channel, validation.success, validation.success ? undefined : validation.error)
+  if (!validation.success) {
+    return Promise.resolve({ success: false as const, error: validation.error })
+  }
   try {
-    return Promise.resolve({ success: true as const, data: fn() })
+    const result = fn(validation.data)
+    return Promise.resolve(result).then(
+      (data) => ({ success: true as const, data }),
+      (e: unknown) => ({ success: false as const, error: e instanceof Error ? e.message : String(e) })
+    )
   } catch (e: unknown) {
     return Promise.resolve({ success: false as const, error: e instanceof Error ? e.message : String(e) })
   }
 }
 
-function validateString(id: unknown, label: string): IpcResult<never> | null {
-  if (typeof id !== 'string' || !id.trim()) {
-    return { success: false as const, error: label }
-  }
-  return null
+function handleIpcNoInput<T>(fn: () => T): Promise<IpcResult<T>> {
+  return handleIpc('', undefined, () => fn())
 }
 
 export function registerIpcHandlers(): void {
@@ -33,111 +40,92 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('get-scripts', () => handleIpc(() => loadScripts()))
+  ipcMain.handle('get-scripts', () => handleIpcNoInput(() => loadScripts()))
 
   ipcMain.handle('get-script-content', (_e, id: string) => {
-    const err = validateString(id, 'ID do script inválido')
-    if (err) return err
-    return handleIpc(() => getScriptContent(id))
+    return handleIpc('get-script-content', id, (validated) => getScriptContent(validated as string))
   })
 
   ipcMain.handle('execute-script', (_e, id: string) => {
-    const err = validateString(id, 'ID do script inválido')
-    if (err) return err
-    return handleIpc(() => { executeScript(id) })
+    return handleIpc('execute-script', id, (validated) => { executeScript(validated as string) })
   })
 
   ipcMain.handle('cancel-execution', (_e, id: string) => {
-    const err = validateString(id, 'ID do script inválido')
-    if (err) return err
-    return handleIpc(() => { cancelExecution(id) })
+    return handleIpc('cancel-execution', id, (validated) => { cancelExecution(validated as string) })
   })
 
-  ipcMain.handle('get-restore-points', () => handleIpc(() => getRestorePoints()))
+  ipcMain.handle('get-restore-points', () => handleIpcNoInput(() => getRestorePoints()))
 
   ipcMain.handle('create-restore-point', (_e, name: string) => {
-    const err = validateString(name, 'Nome do restore point inválido')
-    if (err) return err
-    return handleIpc(() => { createRestorePoint(name) })
+    return handleIpc('create-restore-point', name, (validated) => { createRestorePoint(validated as string) })
   })
 
   ipcMain.handle('delete-restore-point', (_e, seq: number) => {
-    if (typeof seq !== 'number' || !Number.isFinite(seq) || seq <= 0) {
-      return { success: false as const, error: 'SequenceNumber inválido' }
-    }
-    return handleIpc(() => { deleteRestorePoint(seq) })
+    return handleIpc('delete-restore-point', seq, (validated) => { deleteRestorePoint(validated as number) })
   })
 
-  ipcMain.handle('is-admin', () => handleIpc(() => isAdmin()))
+  ipcMain.handle('is-admin', () => handleIpcNoInput(() => isAdmin()))
 
-  ipcMain.handle('get-settings', () => handleIpc(() => loadSettings()))
+  ipcMain.handle('get-settings', () => handleIpcNoInput(() => loadSettings()))
 
   ipcMain.handle('save-settings', (_e, settings) => {
-    if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
-      return { success: false as const, error: 'Configurações inválidas' }
-    }
-    return handleIpc(() => { saveSettings(settings) })
+    return handleIpc('save-settings', settings, (validated) => { saveSettings(validated as AppSettings) })
   })
 
-  ipcMain.handle('get-data-file-path', () => handleIpc(() => getDataFilePathForRenderer()))
+  ipcMain.handle('get-data-file-path', () => handleIpcNoInput(() => getDataFilePathForRenderer()))
 
-  ipcMain.handle('get-app-version', () => handleIpc(() => app.getVersion()))
+  ipcMain.handle('get-app-version', () => handleIpcNoInput(() => app.getVersion()))
 
-  ipcMain.handle('is-packaged', () => handleIpc(() => app.isPackaged))
+  ipcMain.handle('is-packaged', () => handleIpcNoInput(() => app.isPackaged))
 
   ipcMain.handle('extract-script', (_e, id: string) => {
-    const err = validateString(id, 'ID do script inválido')
-    if (err) return err
-    return handleIpc(() => extractScriptToTemp(id))
+    return handleIpc('extract-script', id, (validated) => extractScriptToTemp(validated as string))
   })
 
-  ipcMain.handle('get-execution-history', () => handleIpc(() => loadUserData().executionHistory || []))
+  ipcMain.handle('get-execution-history', () => handleIpcNoInput(() => loadUserData().executionHistory || []))
 
   ipcMain.handle('restore-system', (_e, seq: number) => {
-    if (typeof seq !== 'number' || !Number.isFinite(seq) || seq <= 0) {
-      return { success: false as const, error: 'SequenceNumber inválido' }
-    }
-    return handleIpc(() => { restoreSystem(seq) })
+    return handleIpc('restore-system', seq, (validated) => { restoreSystem(validated as number) })
   })
 
   ipcMain.handle('check-for-update', () => {
     if (!app.isPackaged) {
       return { success: false as const, error: 'Updates only work in packaged app' }
     }
-    return handleIpc(() => { autoUpdater.checkForUpdates() })
+    return handleIpcNoInput(() => { autoUpdater.checkForUpdates() })
   })
 
-  ipcMain.handle('download-update', () => handleIpc(() => { autoUpdater.downloadUpdate() }))
+  ipcMain.handle('download-update', () => handleIpcNoInput(() => { autoUpdater.downloadUpdate() }))
 
-  ipcMain.handle('install-update', () => handleIpc(() => { autoUpdater.quitAndInstall() }))
+  ipcMain.handle('install-update', () => handleIpcNoInput(() => { autoUpdater.quitAndInstall() }))
 
-  ipcMain.handle('get-network-info', async (): Promise<IpcResult<NetworkInfo>> => {
-    try {
-      const ps = `
-        $adapter = Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object -First 1
-        if (-not $adapter) { throw "Nenhuma interface de rede ativa encontrada" }
-        $dns = Get-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4
-        $dnsServers = @()
-        if ($dns) { $dnsServers = $dns.ServerAddresses }
-        @{ interfaceName = $adapter.Name; interfaceIndex = $adapter.InterfaceIndex; currentDns = $dnsServers } | ConvertTo-Json -Compress
-      `
-      const output = await execPowerShell(ps)
-      const parsed = JSON.parse(output.trim())
-      return { success: true, data: { interfaceName: parsed.interfaceName, interfaceIndex: parsed.interfaceIndex, currentDns: parsed.currentDns || [] } }
-    } catch (e: unknown) {
-      return { success: false, error: e instanceof Error ? e.message : String(e) }
-    }
+  ipcMain.handle('get-network-info', async () => {
+    return handleIpc('get-network-info', undefined, async () => {
+      try {
+        const ps = `
+          $adapter = Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object -First 1
+          if (-not $adapter) { throw "Nenhuma interface de rede ativa encontrada" }
+          $dns = Get-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4
+          $dnsServers = @()
+          if ($dns) { $dnsServers = $dns.ServerAddresses }
+          @{ interfaceName = $adapter.Name; interfaceIndex = $adapter.InterfaceIndex; currentDns = $dnsServers } | ConvertTo-Json -Compress
+        `
+        const output = await execPowerShell(ps)
+        const parsed = JSON.parse(output.trim())
+        return { interfaceName: parsed.interfaceName, interfaceIndex: parsed.interfaceIndex, currentDns: parsed.currentDns || [] }
+      } catch (e: unknown) {
+        throw new Error(e instanceof Error ? e.message : String(e))
+      }
+    })
   })
 
-  ipcMain.handle('benchmark-dns', async (event, providers: unknown): Promise<IpcResult<BenchmarkResult[]>> => {
-    if (!Array.isArray(providers) || !providers.every((p) => typeof p === 'object' && p !== null && 'primary' in p && 'secondary' in p)) {
-      return { success: false, error: 'Lista de providers inválida' }
-    }
-    try {
-      const total = providers.length
+  ipcMain.handle('benchmark-dns', async (event, providers: unknown) => {
+    return handleIpc('benchmark-dns', providers, async (validated) => {
+      const providerList = (validated as { providers: { primary: string; secondary: string }[] }).providers
+      const total = providerList.length
       const results: BenchmarkResult[] = []
-      for (let i = 0; i < providers.length; i++) {
-        const { primary, secondary } = providers[i] as { primary: string; secondary: string }
+      for (let i = 0; i < providerList.length; i++) {
+        const { primary, secondary } = providerList[i]
         for (const addr of [primary, secondary]) {
           try {
             const ps = `
@@ -157,56 +145,84 @@ export function registerIpcHandlers(): void {
           if (r) event.sender.send('benchmark-result', r)
         }
       }
-      return { success: true, data: results }
-    } catch (e: unknown) {
-      return { success: false, error: e instanceof Error ? e.message : String(e) }
-    }
+      return results
+    })
   })
 
-  ipcMain.handle('apply-dns', async (_e, interfaceIndex: unknown, addresses: unknown): Promise<IpcResult<void>> => {
-    if (typeof interfaceIndex !== 'number' || !Array.isArray(addresses)) {
-      return { success: false, error: 'Parâmetros inválidos' }
-    }
-    if (!isAdmin()) {
-      return { success: false, error: 'Execute o aplicativo como administrador para alterar o DNS.' }
-    }
-    try {
-      if (addresses.length === 0) {
+  ipcMain.handle('apply-dns', async (_e, interfaceIndex: unknown, addresses: unknown) => {
+    return handleIpc('apply-dns', { interfaceIndex, addresses }, async (validated) => {
+      const { interfaceIndex: idx, addresses: addrs } = validated as { interfaceIndex: number; addresses: string[] }
+      if (!isAdmin()) {
+        throw new Error('Execute o aplicativo como administrador para alterar o DNS.')
+      }
+      if (addrs.length === 0) {
         const ps = `
           $ErrorActionPreference = 'Stop'
-          Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ResetServerAddresses
+          Set-DnsClientServerAddress -InterfaceIndex ${idx} -ResetServerAddresses
         `
         await execPowerShell(ps)
       } else {
-        const addrList = addresses.map((a) => `"${a}"`).join(',')
+        const addrList = addrs.map((a) => `"${a}"`).join(',')
         const ps = `
           $ErrorActionPreference = 'Stop'
-          Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses (${addrList})
+          Set-DnsClientServerAddress -InterfaceIndex ${idx} -ServerAddresses (${addrList})
           ipconfig /flushdns | Out-Null
         `
         await execPowerShell(ps)
       }
-      return { success: true }
-    } catch (e: unknown) {
-      return { success: false, error: e instanceof Error ? e.message : String(e) }
-    }
+    })
   })
 
-  ipcMain.handle('window-minimize', () => {
+  ipcMain.handle('window-minimize', () => handleIpcNoInput(() => {
     BrowserWindow.getFocusedWindow()?.minimize()
     return { success: true }
-  })
+  }))
 
-  ipcMain.handle('window-maximize', () => {
+  ipcMain.handle('window-maximize', () => handleIpcNoInput(() => {
     const win = BrowserWindow.getFocusedWindow()
     if (win) {
       win.isMaximized() ? win.unmaximize() : win.maximize()
     }
     return { success: true }
-  })
+  }))
 
-  ipcMain.handle('window-close', () => {
+  ipcMain.handle('window-close', () => handleIpcNoInput(() => {
     BrowserWindow.getFocusedWindow()?.close()
     return { success: true }
-  })
+  }))
+
+  ipcMain.handle('elevate-app', (_e, scriptId?: string, interfaceIndex?: number, addresses?: string[]) => handleIpc('elevate-app', { scriptId, interfaceIndex, addresses }, async (validated: { scriptId?: string; interfaceIndex?: number; addresses?: string[] }) => {
+    const { spawn } = require('child_process')
+    
+    const exePath = process.execPath
+    const args = process.argv.slice(1).filter(arg => !arg.startsWith('--elevate-script'))
+    
+    if (validated.scriptId) {
+      args.push('--elevate-script', validated.scriptId)
+    }
+    
+    // Pass DNS parameters if provided
+    if (validated.interfaceIndex && validated.addresses) {
+      args.push('--elevate-dns', validated.interfaceIndex.toString(), JSON.stringify(validated.addresses))
+    }
+    
+    // Use spawn with detached to properly elevate
+    return new Promise((resolve, reject) => {
+      const elevated = spawn('powershell.exe', [
+        '-Command',
+        `Start-Process -FilePath "${exePath}" -ArgumentList "${args.map(a => `"${a.replace(/"/g, '\\"')}"`).join(' ')}" -Verb RunAs -Wait`
+      ], {
+        detached: true,
+        stdio: 'ignore'
+      })
+      
+      elevated.unref()
+      
+      // Exit current non-elevated process after spawning elevated one
+      setTimeout(() => {
+        app.quit()
+        resolve({ success: true })
+      }, 500)
+    })
+  }))
 }

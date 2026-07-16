@@ -75,6 +75,14 @@ export interface AppSettings {
   theme: 'dark' | 'light'
   confirmOnExecute: boolean
   autoRestorePoint: boolean
+  security: SecuritySettings
+}
+
+export interface SecuritySettings {
+  enableIpcValidation: boolean
+  enableDenyListBlock: boolean
+  enablePathValidation: boolean
+  enablePsSanitize: boolean
 }
 
 export interface ScriptOutput {
@@ -172,4 +180,5 @@ export interface ElectronAPI {
   minimizeWindow(): Promise<void>
   maximizeWindow(): Promise<void>
   closeWindow(): Promise<void>
+  elevateApp(scriptId?: string): Promise<void>
 }

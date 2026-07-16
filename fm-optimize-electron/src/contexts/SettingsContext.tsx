@@ -9,7 +9,17 @@ interface SettingsContextValue {
 
 const SettingsContext = createContext<SettingsContextValue | null>(null)
 
-const DEFAULT: AppSettings = { theme: 'dark', confirmOnExecute: true, autoRestorePoint: true }
+const DEFAULT: AppSettings = { 
+  theme: 'dark', 
+  confirmOnExecute: true, 
+  autoRestorePoint: true,
+  security: {
+    enableIpcValidation: true,
+    enableDenyListBlock: false,
+    enablePathValidation: true,
+    enablePsSanitize: true
+  }
+}
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT)

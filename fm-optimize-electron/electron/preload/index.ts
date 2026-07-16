@@ -31,13 +31,67 @@ function ipcVoid(channel: string, ...args: unknown[]): Promise<void> {
   })
 }
 
+const scriptOutputCallbacks = new Set<(data: ScriptOutput) => void>()
+const scriptErrorCallbacks = new Set<(data: ScriptOutput) => void>()
+const scriptEndedCallbacks = new Set<(data: ScriptEnded) => void>()
+const updateStatusCallbacks = new Set<(data: UpdateStatus) => void>()
+const updateInfoCallbacks = new Set<(data: UpdateInfo) => void>()
+const downloadProgressCallbacks = new Set<(data: DownloadProgress) => void>()
+const benchmarkProgressCallbacks = new Set<(data: { current: number; total: number }) => void>()
+const benchmarkResultCallbacks = new Set<(data: BenchmarkResult) => void>()
+
+function setupListeners(): void {
+  ipcRenderer.on('script-output', (_e: IpcRendererEvent, raw: string) => {
+    try {
+      const data = JSON.parse(raw) as ScriptOutput
+      scriptOutputCallbacks.forEach(cb => cb(data))
+    } catch { /* skip malformed output */ }
+  })
+
+  ipcRenderer.on('script-error', (_e: IpcRendererEvent, raw: string) => {
+    try {
+      const data = JSON.parse(raw) as ScriptOutput
+      scriptErrorCallbacks.forEach(cb => cb(data))
+    } catch { /* skip malformed error */ }
+  })
+
+  ipcRenderer.on('script-ended', (_e: IpcRendererEvent, raw: string) => {
+    try {
+      const data = JSON.parse(raw) as ScriptEnded
+      scriptEndedCallbacks.forEach(cb => cb(data))
+    } catch { /* skip malformed ended */ }
+  })
+
+  ipcRenderer.on('update-status', (_e: IpcRendererEvent, data: UpdateStatus) => {
+    updateStatusCallbacks.forEach(cb => cb(data))
+  })
+
+  ipcRenderer.on('update-info', (_e: IpcRendererEvent, data: UpdateInfo) => {
+    updateInfoCallbacks.forEach(cb => cb(data))
+  })
+
+  ipcRenderer.on('download-progress', (_e: IpcRendererEvent, data: DownloadProgress) => {
+    downloadProgressCallbacks.forEach(cb => cb(data))
+  })
+
+  ipcRenderer.on('benchmark-progress', (_e: IpcRendererEvent, data: { current: number; total: number }) => {
+    benchmarkProgressCallbacks.forEach(cb => cb(data))
+  })
+
+  ipcRenderer.on('benchmark-result', (_e: IpcRendererEvent, data: BenchmarkResult) => {
+    benchmarkResultCallbacks.forEach(cb => cb(data))
+  })
+}
+
+setupListeners()
+
 const electronAPI: ElectronAPI = {
   getSystemInfo: () => ipc<DashboardData>('get-system-info'),
   getScripts: () => ipc<ScriptEntry[]>('get-scripts'),
   getScriptContent: (id) => ipc<string>('get-script-content', id),
   extractScript: (id) => ipc<string>('extract-script', id),
-  executeScript: (id) => ipcVoid('execute-script', id),
-  cancelExecution: (id) => ipcVoid('cancel-execution', id),
+  executeScript: (id) => ipcVoid('execute-script', { id }),
+  cancelExecution: (id) => ipcVoid('cancel-execution', { id }),
   getRestorePoints: () => ipc<RestorePointEntry[]>('get-restore-points'),
   createRestorePoint: (name) => ipcVoid('create-restore-point', name),
   deleteRestorePoint: (seq) => ipcVoid('delete-restore-point', seq),
@@ -46,25 +100,16 @@ const electronAPI: ElectronAPI = {
   saveSettings: (settings) => ipcVoid('save-settings', settings),
   getDataFilePath: () => ipc<string>('get-data-file-path'),
   onScriptOutput: (cb: (data: ScriptOutput) => void) => {
-    const listener = (_e: IpcRendererEvent, raw: string) => {
-      try { cb(JSON.parse(raw)) } catch { /* skip malformed output */ }
-    }
-    ipcRenderer.on('script-output', listener)
-    return () => ipcRenderer.removeListener('script-output', listener)
+    scriptOutputCallbacks.add(cb)
+    return () => scriptOutputCallbacks.delete(cb)
   },
   onScriptError: (cb: (data: ScriptOutput) => void) => {
-    const listener = (_e: IpcRendererEvent, raw: string) => {
-      try { cb(JSON.parse(raw)) } catch { /* skip malformed error */ }
-    }
-    ipcRenderer.on('script-error', listener)
-    return () => ipcRenderer.removeListener('script-error', listener)
+    scriptErrorCallbacks.add(cb)
+    return () => scriptErrorCallbacks.delete(cb)
   },
   onScriptEnded: (cb: (data: ScriptEnded) => void) => {
-    const listener = (_e: IpcRendererEvent, raw: string) => {
-      try { cb(JSON.parse(raw)) } catch { /* skip malformed ended */ }
-    }
-    ipcRenderer.on('script-ended', listener)
-    return () => ipcRenderer.removeListener('script-ended', listener)
+    scriptEndedCallbacks.add(cb)
+    return () => scriptEndedCallbacks.delete(cb)
   },
   getExecutionHistory: () => ipc<ExecutionHistoryEntry[]>('get-execution-history'),
   restoreSystem: (seq) => ipcVoid('restore-system', seq),
@@ -74,36 +119,32 @@ const electronAPI: ElectronAPI = {
   downloadUpdate: () => ipcVoid('download-update'),
   installUpdate: () => ipcVoid('install-update'),
   onUpdateStatus: (cb: (data: UpdateStatus) => void) => {
-    const listener = (_e: IpcRendererEvent, data: UpdateStatus) => cb(data)
-    ipcRenderer.on('update-status', listener)
-    return () => ipcRenderer.removeListener('update-status', listener)
+    updateStatusCallbacks.add(cb)
+    return () => updateStatusCallbacks.delete(cb)
   },
   onUpdateInfo: (cb: (data: UpdateInfo) => void) => {
-    const listener = (_e: IpcRendererEvent, data: UpdateInfo) => cb(data)
-    ipcRenderer.on('update-info', listener)
-    return () => ipcRenderer.removeListener('update-info', listener)
+    updateInfoCallbacks.add(cb)
+    return () => updateInfoCallbacks.delete(cb)
   },
   onDownloadProgress: (cb: (data: DownloadProgress) => void) => {
-    const listener = (_e: IpcRendererEvent, data: DownloadProgress) => cb(data)
-    ipcRenderer.on('download-progress', listener)
-    return () => ipcRenderer.removeListener('download-progress', listener)
+    downloadProgressCallbacks.add(cb)
+    return () => downloadProgressCallbacks.delete(cb)
   },
   getNetworkInfo: () => ipc<NetworkInfo>('get-network-info'),
   onBenchmarkProgress: (cb: (data: { current: number; total: number }) => void) => {
-    const listener = (_e: IpcRendererEvent, data: { current: number; total: number }) => cb(data)
-    ipcRenderer.on('benchmark-progress', listener)
-    return () => ipcRenderer.removeListener('benchmark-progress', listener)
+    benchmarkProgressCallbacks.add(cb)
+    return () => benchmarkProgressCallbacks.delete(cb)
   },
   onBenchmarkResult: (cb: (data: BenchmarkResult) => void) => {
-    const listener = (_e: IpcRendererEvent, data: BenchmarkResult) => cb(data)
-    ipcRenderer.on('benchmark-result', listener)
-    return () => ipcRenderer.removeListener('benchmark-result', listener)
+    benchmarkResultCallbacks.add(cb)
+    return () => benchmarkResultCallbacks.delete(cb)
   },
-  benchmarkDns: (providers: { primary: string; secondary: string }[]) => ipc<BenchmarkResult[]>('benchmark-dns', providers),
-  applyDns: (interfaceIndex: number, addresses: string[]) => ipcVoid('apply-dns', interfaceIndex, addresses),
+  benchmarkDns: (providers: { primary: string; secondary: string }[]) => ipc<BenchmarkResult[]>('benchmark-dns', { providers }),
+  applyDns: (interfaceIndex: number, addresses: string[]) => ipcVoid('apply-dns', { interfaceIndex, addresses }),
   minimizeWindow: () => ipcVoid('window-minimize'),
   maximizeWindow: () => ipcVoid('window-maximize'),
-  closeWindow: () => ipcVoid('window-close')
+  closeWindow: () => ipcVoid('window-close'),
+  elevateApp: (scriptId?: string, dnsInterfaceIndex?: number, dnsAddresses?: string[]) => ipcVoid('elevate-app', { scriptId, dnsInterfaceIndex, dnsAddresses })
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)

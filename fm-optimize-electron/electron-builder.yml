@@ -17,7 +17,6 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 win:
   executableName: fm-optimize
-  requestedExecutionLevel: requireAdministrator
   target:
     - target: portable
       arch:

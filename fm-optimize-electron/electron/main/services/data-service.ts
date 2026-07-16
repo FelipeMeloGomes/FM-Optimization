@@ -11,7 +11,13 @@ interface UserData {
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   confirmOnExecute: true,
-  autoRestorePoint: true
+  autoRestorePoint: true,
+  security: {
+    enableIpcValidation: true,
+    enableDenyListBlock: false,
+    enablePathValidation: true,
+    enablePsSanitize: true
+  }
 }
 
 function getDataDir(): string {
@@ -76,7 +82,13 @@ export function loadSettings(): AppSettings {
     return {
       theme: ['dark', 'light'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
       confirmOnExecute: typeof parsed.confirmOnExecute === 'boolean' ? parsed.confirmOnExecute : DEFAULT_SETTINGS.confirmOnExecute,
-      autoRestorePoint: typeof parsed.autoRestorePoint === 'boolean' ? parsed.autoRestorePoint : DEFAULT_SETTINGS.autoRestorePoint
+      autoRestorePoint: typeof parsed.autoRestorePoint === 'boolean' ? parsed.autoRestorePoint : DEFAULT_SETTINGS.autoRestorePoint,
+      security: parsed.security && typeof parsed.security === 'object' ? {
+        enableIpcValidation: typeof parsed.security.enableIpcValidation === 'boolean' ? parsed.security.enableIpcValidation : DEFAULT_SETTINGS.security.enableIpcValidation,
+        enableDenyListBlock: typeof parsed.security.enableDenyListBlock === 'boolean' ? parsed.security.enableDenyListBlock : DEFAULT_SETTINGS.security.enableDenyListBlock,
+        enablePathValidation: typeof parsed.security.enablePathValidation === 'boolean' ? parsed.security.enablePathValidation : DEFAULT_SETTINGS.security.enablePathValidation,
+        enablePsSanitize: typeof parsed.security.enablePsSanitize === 'boolean' ? parsed.security.enablePsSanitize : DEFAULT_SETTINGS.security.enablePsSanitize
+      } : DEFAULT_SETTINGS.security
     }
   } catch {
     return DEFAULT_SETTINGS

@@ -2,6 +2,10 @@ import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 import { app } from 'electron'
 import type { ScriptEntry } from '../../shared/ipc-types'
+import { checkScriptContent } from '../deny-list'
+import { auditDenyListCheck } from '../audit-logger'
+import { validateScriptPath } from '../path-validation'
+import { getScriptTempDir } from '../path-validation'
 
 let scriptsCache: ScriptEntry[] | null = null
 
@@ -38,14 +42,23 @@ export function getScriptsByCategory(category: string): ScriptEntry[] {
 export function getScriptContent(id: string): string {
   const script = getScriptById(id)
   if (!script) throw new Error(`Script not found: ${id}`)
-  return Buffer.from(script.content, 'base64').toString('utf-8')
+
+  const content = Buffer.from(script.content, 'base64').toString('utf-8')
+
+  const { allowed, violations } = checkScriptContent(content)
+  auditDenyListCheck(id, allowed, violations)
+  if (!allowed) {
+    throw new Error(`Script blocked by security policy: ${violations.join(', ')}`)
+  }
+
+  return content
 }
 
 export function extractScriptToTemp(id: string): string {
   const script = getScriptById(id)
   if (!script) throw new Error(`Script not found: ${id}`)
 
-  const tempDir = resolve(app.getPath('userData'), 'scripts')
+  const tempDir = getScriptTempDir()
   if (!existsSync(tempDir)) {
     mkdirSync(tempDir, { recursive: true })
   }
@@ -53,6 +66,12 @@ export function extractScriptToTemp(id: string): string {
   const content = getScriptContent(id)
   const safeName = script.name.replace(/[/\\:*?"<>|]/g, '_')
   const filePath = resolve(tempDir, `${safeName}.${script.extension}`)
+  
+  const pathValidation = validateScriptPath(filePath)
+  if (!pathValidation.valid) {
+    throw new Error(pathValidation.error)
+  }
+  
   writeFileSync(filePath, content, 'utf-8')
   return filePath
 }

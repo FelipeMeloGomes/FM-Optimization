@@ -237,14 +237,14 @@ export default function NetworkPage() {
                   onClick={() => applyDns(fastest)}
                   className="gap-2 px-6 font-semibold shadow-[0_0_20px_rgba(0,68,255,0.3)] hover:shadow-[0_0_30px_rgba(0,68,255,0.5)]"
                 >
-                  {applyStatus === 'loading' ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : isActive(fastest.primary, fastest.secondary) ? (
-                    <Check className="size-4" />
-                  ) : (
-                    <Zap className="size-4" />
-                  )}
-                  {isActive(fastest.primary, fastest.secondary) ? 'DNS Ativo' : 'Aplicar DNS Mais Rápido'}
+{applyStatus === 'loading' || applyStatus === 'elevating' ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : isActive(fastest.primary, fastest.secondary) ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <Zap className="size-4" />
+                    )}
+                    {isActive(fastest.primary, fastest.secondary) ? 'DNS Ativo' : applyStatus === 'elevating' ? 'Elevando...' : 'Aplicar DNS Mais Rápido'}
                 </Button>
               </div>
             </div>
@@ -317,14 +317,14 @@ export default function NetworkPage() {
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
 
-                      <Button
+<Button
                         variant={active ? 'secondary' : 'default'}
                         size="sm"
-                        disabled={active || applyStatus === 'loading'}
+                        disabled={active || applyStatus === 'loading' || applyStatus === 'elevating'}
                         onClick={() => applyDns(provider)}
                         className="gap-1.5 min-w-[70px]"
                       >
-                        {applyStatus === 'loading' ? (
+                        {applyStatus === 'loading' || applyStatus === 'elevating' ? (
                           <Loader2 className="size-3 animate-spin" />
                         ) : active ? (
                           <Check className="size-3" />

@@ -7,7 +7,7 @@ interface DnsContextValue {
   benchmarks: Map<string, BenchmarkResult>
   benchmarkStatus: 'idle' | 'loading' | 'done'
   benchmarkProgress: { current: number; total: number }
-  applyStatus: 'idle' | 'loading' | 'error'
+  applyStatus: 'idle' | 'loading' | 'error' | 'elevating'
   applyError: string | null
   activeDnsIps: string[]
   runBenchmark: () => Promise<void>
@@ -21,7 +21,7 @@ export function DnsProvider({ children }: { children: ReactNode }) {
   const [benchmarks, setBenchmarks] = useState<Map<string, BenchmarkResult>>(new Map())
   const [benchmarkStatus, setBenchmarkStatus] = useState<'idle' | 'loading' | 'done'>('idle')
   const [benchmarkProgress, setBenchmarkProgress] = useState({ current: 0, total: 0 })
-  const [applyStatus, setApplyStatus] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [applyStatus, setApplyStatus] = useState<'idle' | 'loading' | 'error' | 'elevating'>('idle')
   const [applyError, setApplyError] = useState<string | null>(null)
   const [activeDnsIps, setActiveDnsIps] = useState<string[]>([])
 
@@ -73,10 +73,27 @@ export function DnsProvider({ children }: { children: ReactNode }) {
       await window.electronAPI.applyDns(networkInfo.interfaceIndex, addresses)
       setActiveDnsIps(addresses)
       setApplyStatus('idle')
-    } catch (e: unknown) {
-      setApplyStatus('error')
-      setApplyError(typeof e === 'string' ? e : (e as Error).message)
-      setTimeout(() => setApplyStatus('idle'), 3000)
+} catch (e: unknown) {
+      const errorMsg = typeof e === 'string' ? e : (e as Error).message
+      // Se erro for de admin, eleva e reaplica
+      if (errorMsg.includes('administrador') || errorMsg.includes('admin')) {
+        setApplyStatus('elevating')
+        try {
+          const addresses = provider.isDhcp ? [] : [provider.primary, provider.secondary]
+          await window.electronAPI.elevateApp(networkInfo.interfaceIndex, addresses)
+          // Após elevar, a nova instância vai executar automaticamente
+          // O usuário vai ver o app reiniciar como admin
+        } catch {
+          // Se falhar ao elevar, mostra erro
+          setApplyStatus('error')
+          setApplyError('Erro ao elevar privilégios: ' + errorMsg)
+          setTimeout(() => setApplyStatus('idle'), 3000)
+        }
+      } else {
+        setApplyStatus('error')
+        setApplyError(errorMsg)
+        setTimeout(() => setApplyStatus('idle'), 3000)
+      }
     }
   }, [networkInfo])
 
