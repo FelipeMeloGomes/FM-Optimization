@@ -1,0 +1,321 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  Smartphone,
+  Shield,
+  Trash2,
+  Settings,
+  Terminal,
+  Play,
+  Square,
+  AlertTriangle
+} from 'lucide-react'
+import { cn } from '../lib/utils'
+import { Button, Badge, Card, CardContent, Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui'
+import { useScriptContext } from '../contexts/ScriptContext'
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
+import { useSettingsContext } from '../contexts/SettingsContext'
+import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
+import type { ScriptEntry } from '../../electron/shared/ipc-types'
+
+interface AppSection {
+  id: string
+  name: string
+  description: string
+  icon: React.ElementType
+  color: string
+  bgColor: string
+  borderColor: string
+  scriptIds: string[]
+  warning?: string
+}
+
+const APP_SECTIONS: AppSection[] = [
+  {
+    id: 'privacy',
+    name: 'Privacidade',
+    description: 'Maximize sua privacidade desativando telemetria e coleta de dados do Windows.',
+    icon: Shield,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/20',
+    scriptIds: ['apps-1']
+  },
+  {
+    id: 'security',
+    name: 'Segurança',
+    description: 'Configurações de segurança do Windows para proteger seu sistema.',
+    icon: Shield,
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/10',
+    borderColor: 'border-emerald-500/20',
+    scriptIds: ['apps-2']
+  },
+  {
+    id: 'debloat',
+    name: 'Remover Bloatware',
+    description: 'Remova aplicativos desnecessários pré-instalados no Windows.',
+    icon: Trash2,
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-500/20',
+    scriptIds: ['apps-3', 'builtin-14'],
+    warning: 'Alguns apps do sistema podem ser removidos. Use com cautela.'
+  }
+]
+
+function AppSectionCard({
+  section,
+  scripts,
+  activeExecution,
+  onExecute,
+  onCancel,
+  onConfirmExecute
+}: {
+  section: AppSection
+  scripts: ScriptEntry[]
+  activeExecution: string | null
+  onExecute: (id: string) => void
+  onCancel: (id: string) => void
+  onConfirmExecute: (script: ScriptEntry) => void
+}) {
+  const Icon = section.icon
+
+  const sectionScripts = useMemo(
+    () => scripts.filter(s => section.scriptIds.includes(s.id)),
+    [scripts, section.scriptIds]
+  )
+
+  const isAnyExecuting = section.scriptIds.some(id => activeExecution === id)
+  const executingScript = sectionScripts.find(s => activeExecution === s.id)
+
+  return (
+    <div
+      className={cn(
+        'rounded-xl border bg-card transition-all duration-300 hover:shadow-lg overflow-hidden',
+        section.borderColor,
+        isAnyExecuting && 'ring-2 ring-primary/50'
+      )}
+    >
+      <div className="p-5">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              'flex size-10 items-center justify-center rounded-lg',
+              section.bgColor
+            )}>
+              <Icon className={cn('size-5', section.color)} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">{section.name}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{section.description}</p>
+            </div>
+          </div>
+          <Badge variant="secondary" className="text-[10px] shrink-0">
+            {sectionScripts.length} scripts
+          </Badge>
+        </div>
+
+        {section.warning && (
+          <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-500/5 border border-amber-500/10 p-3">
+            <AlertTriangle className="size-3.5 text-amber-400 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-amber-400/80 leading-relaxed">{section.warning}</p>
+          </div>
+        )}
+
+        <div className="mt-4 space-y-2">
+          {sectionScripts.map((script) => {
+            const isScriptExecuting = activeExecution === script.id
+            return (
+              <div
+                key={script.id}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg border bg-background p-3 transition-all',
+                  script.requiresAdmin && 'border-yellow-500/20',
+                  isScriptExecuting && 'ring-2 ring-primary/50'
+                )}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium truncate">{script.name}</p>
+                    {script.requiresAdmin && (
+                      <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
+                        <Shield className="size-3" />
+                        Admin
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{script.description}</p>
+                </div>
+                <Button
+                  variant={isScriptExecuting ? 'destructive' : 'secondary'}
+                  size="sm"
+                  onClick={() => isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)}
+                  className="gap-1.5 shrink-0"
+                >
+                  {isScriptExecuting ? (
+                    <>
+                      <Square className="size-3" />
+                      Cancelar
+                    </>
+                  ) : (
+                    <>
+                      <Play className="size-3" />
+                      Executar
+                    </>
+                  )}
+                </Button>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function AppsPage() {
+  const {
+    state,
+    filteredScripts,
+    setCategoryFilter,
+    setSubcategoryFilter,
+  } = useScriptContext()
+  const { activeExecution, execute, cancel } = useScriptExecutionContext()
+  const { settings } = useSettingsContext()
+  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null)
+
+  useEffect(() => {
+    setCategoryFilter('Apps')
+    setSubcategoryFilter('')
+  }, [setCategoryFilter, setSubcategoryFilter])
+
+  const appsScripts = useMemo(
+    () => filteredScripts.filter(s => s.category === 'Apps'),
+    [filteredScripts]
+  )
+
+  const handleExecute = useCallback(
+    (id: string) => execute(id),
+    [execute]
+  )
+  const handleCancel = useCallback(
+    (id: string) => cancel(id),
+    [cancel]
+  )
+
+  const handleConfirmExecute = useCallback(
+    (script: ScriptEntry) => {
+      if (settings.confirmOnExecute) {
+        setConfirmScript(script)
+      } else {
+        handleExecute(script.id)
+      }
+    },
+    [settings.confirmOnExecute, handleExecute]
+  )
+
+  const handleConfirm = useCallback(() => {
+    if (confirmScript) {
+      handleExecute(confirmScript.id)
+      setConfirmScript(null)
+    }
+  }, [confirmScript, handleExecute])
+
+  if (state.status === 'loading') {
+    return (
+      <div className="space-y-4">
+        <div className="h-24 rounded-xl bg-muted animate-pulse" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <ScriptCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (state.status === 'error') {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
+        <p className="text-sm">Erro ao carregar scripts</p>
+        <p className="text-xs text-destructive">{state.error}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10">
+          <Smartphone className="size-28 text-primary" />
+        </div>
+        <div className="relative p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Smartphone className="size-4 text-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Aplicativos</span>
+          </div>
+          <h2 className="text-lg font-bold text-foreground">
+            Gerencie privacidade e bloatware
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-lg">
+            Controle sua privacidade, reforce a segurança e remova aplicativos desnecessários
+            que consumem recursos do sistema.
+          </p>
+        </div>
+      </div>
+
+      {/* App Sections */}
+      {APP_SECTIONS.map((section) => (
+        <AppSectionCard
+          key={section.id}
+          section={section}
+          scripts={appsScripts}
+          activeExecution={activeExecution}
+          onExecute={handleExecute}
+          onCancel={handleCancel}
+          onConfirmExecute={handleConfirmExecute}
+        />
+      ))}
+
+      {/* Confirm Dialog */}
+      <Dialog open={!!confirmScript} onOpenChange={(open) => { if (!open) setConfirmScript(null) }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Confirmar Execução</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            {confirmScript && (
+              <>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{confirmScript.name}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <Badge variant="secondary" className="gap-1 font-mono text-xs">
+                      <Terminal className="size-3" />
+                      .{confirmScript.extension}
+                    </Badge>
+                    {confirmScript.requiresAdmin && (
+                      <Badge variant="destructive" className="gap-1 font-mono text-xs">
+                        <Shield className="size-3" />
+                        Admin
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <p className="text-[13px] leading-relaxed text-muted-foreground">{confirmScript.description}</p>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setConfirmScript(null)}>
+                    Cancelar
+                  </Button>
+                  <Button size="sm" onClick={handleConfirm}>
+                    Confirmar
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}

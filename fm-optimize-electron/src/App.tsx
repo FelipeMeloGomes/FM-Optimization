@@ -21,6 +21,9 @@ const CleanerPage = lazy(() => import('./pages/CleanerPage'))
 const CpuPage = lazy(() => import('./pages/CpuPage'))
 const NetworkPage = lazy(() => import('./pages/NetworkPage'))
 const InputLagPage = lazy(() => import('./pages/InputLagPage'))
+const TweaksPage = lazy(() => import('./pages/TweaksPage'))
+const UtilitiesPage = lazy(() => import('./pages/UtilitiesPage'))
+const AppsPage = lazy(() => import('./pages/AppsPage'))
 
 
 function PageLoader() {
@@ -49,13 +52,13 @@ export default function App() {
           <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/tweaks" element={<ScriptsPage category="Tweaks" />} />
-              <Route path="/utilities" element={<ScriptsPage category="Utilities" />} />
+              <Route path="/tweaks" element={<TweaksPage />} />
+              <Route path="/utilities" element={<UtilitiesPage />} />
               <Route path="/cleaner" element={<CleanerPage />} />
               <Route path="/restore-points" element={<RestorePointsPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/rede" element={<NetworkPage />} />
-              <Route path="/apps" element={<ScriptsPage category="Apps" />} />
+              <Route path="/apps" element={<AppsPage />} />
               <Route path="/input-lag" element={<InputLagPage />} />
               <Route path="/cpu" element={<CpuPage />} />
               <Route path="/settings" element={<SettingsPage />} />
