@@ -36,10 +36,9 @@
 - **Processador** — detecção automática de fabricante (Intel/AMD) com scripts específicos
 - **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar scripts)
 - **Histórico de Execução** — registro de todos os scripts executados com duração e status
-- **Favoritos** — scripts marcados com estrela para acesso rápido
-- **Busca + Filtros** — busca textual e filtro por subcategoria
 - **Mini-guia** — explicação simples do que cada script faz e quando usar
 - **Atualização integrada** — botão nas Configurações que baixa e instala novas versões do GitHub
+- **Janela customizada** — controles de minimizar/fechar customizados, sem barra de título nativa do Windows
 - **Tema** — dark azul neon com fundo de circuito animado
 
 ---
