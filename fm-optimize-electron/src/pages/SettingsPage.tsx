@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react'
+import {
+  Settings,
+  Moon,
+  Shield,
+  RotateCcw,
+  Download,
+  Check,
+  AlertTriangle,
+  RefreshCw,
+  ExternalLink,
+  Sparkles
+} from 'lucide-react'
+import { cn } from '../lib/utils'
 import { useSettingsContext } from '../contexts/SettingsContext'
-import { Toggle, Button, Skeleton, Progress } from '../components/ui'
+import { Toggle, Button, Skeleton, Progress, Badge } from '../components/ui'
 import type { UpdateStatus, UpdateInfo, DownloadProgress } from '../../electron/shared/ipc-types'
 
 const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest'
@@ -66,18 +79,50 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Skeleton className="size-6 rounded-full" />
+      <div className="space-y-4">
+        <div className="h-32 rounded-xl bg-muted animate-pulse" />
+        <div className="h-48 rounded-xl bg-muted animate-pulse" />
+        <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
     )
   }
 
   return (
-    <div className="flex max-w-lg flex-col gap-8">
-      <section>
-        <h2 className="mb-6 text-lg font-semibold tracking-tight">Preferências</h2>
-        <div className="flex flex-col gap-3">
-          <div className="rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:bg-card/80">
+    <div className="space-y-6 max-w-lg">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10">
+          <Settings className="size-28 text-primary" />
+        </div>
+        <div className="relative p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Settings className="size-4 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Configurações</span>
+              </div>
+              <h2 className="text-lg font-bold text-foreground">
+                Preferências do Sistema
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Personalize o comportamento do FM Optimize.
+              </p>
+            </div>
+            <Badge variant="secondary" className="text-xs px-3 py-1">
+              v{appVersion || '...'}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Preferences Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="size-1.5 rounded-full bg-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Preferências</h3>
+        </div>
+        <div className="rounded-xl border border-border bg-card divide-y divide-border">
+          <div className="p-4 transition-all duration-200 hover:bg-muted/30">
             <Toggle
               id="dark-mode"
               label="Modo escuro"
@@ -86,8 +131,7 @@ export default function SettingsPage() {
               onChange={(e) => update({ theme: e.target.checked ? 'dark' : 'light' })}
             />
           </div>
-
-          <div className="rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:bg-card/80">
+          <div className="p-4 transition-all duration-200 hover:bg-muted/30">
             <Toggle
               id="confirm-execution"
               label="Confirmar Execução"
@@ -96,8 +140,7 @@ export default function SettingsPage() {
               onChange={(e) => update({ confirmOnExecute: e.target.checked })}
             />
           </div>
-
-          <div className="rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:bg-card/80">
+          <div className="p-4 transition-all duration-200 hover:bg-muted/30">
             <Toggle
               id="auto-restore-point"
               label="Restore Point Automático"
@@ -107,45 +150,61 @@ export default function SettingsPage() {
             />
           </div>
         </div>
-      </section>
+      </div>
 
-      <section>
-        <h2 className="mb-6 text-lg font-semibold tracking-tight">Atualizações</h2>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="mb-3 text-sm text-muted-foreground">
-            Versão atual: <span className="font-medium text-foreground">{appVersion || '...'}</span>
+      {/* Updates Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="size-1.5 rounded-full bg-emerald-400" />
+          <h3 className="text-sm font-semibold text-foreground">Atualizações</h3>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+              <Sparkles className="size-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Versão atual</p>
+              <p className="text-sm font-semibold text-foreground">{appVersion || '...'}</p>
+            </div>
           </div>
 
           {status === 'checking' && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Skeleton className="size-4 rounded-full" />
-              Verificando atualizações...
+            <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+              <RefreshCw className="size-4 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Verificando atualizações...</p>
             </div>
           )}
 
           {status === 'not-available' && (
-            <p className="mb-3 text-sm text-green-500">
-              Você já está na versão mais recente.
-            </p>
+            <div className="flex items-center gap-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+              <Check className="size-4 text-emerald-400" />
+              <p className="text-sm text-emerald-400">Você já está na versão mais recente.</p>
+            </div>
           )}
 
           {status === 'available' && updateInfo && (
-            <div className="flex flex-col gap-3">
-              <p className="text-sm">
-                Nova versão{' '}
-                <span className="font-semibold text-primary">v{updateInfo.version}</span>
-                {' '}disponível!
-              </p>
-              <Button onClick={handleDownload} size="sm">
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Download className="size-4 text-primary" />
+                <p className="text-sm font-medium text-foreground">
+                  Nova versão <span className="text-primary">v{updateInfo.version}</span> disponível!
+                </p>
+              </div>
+              <Button onClick={handleDownload} size="sm" className="gap-1.5">
+                <Download className="size-3.5" />
                 Baixar atualização
               </Button>
             </div>
           )}
 
           {status === 'downloading' && progress && (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-muted-foreground">Baixando atualização...</p>
-              <Progress value={Math.round(progress.percent)} className="h-2" />
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <RefreshCw className="size-4 animate-spin text-primary" />
+                <p className="text-sm font-medium text-foreground">Baixando atualização...</p>
+              </div>
+              <Progress value={Math.round(progress.percent)} className="h-2 mb-2" />
               <p className="text-xs text-muted-foreground">
                 {Math.round(progress.percent)}% (
                 {(progress.transferred / 1024 / 1024).toFixed(1)}/
@@ -155,20 +214,26 @@ export default function SettingsPage() {
           )}
 
           {status === 'ready' && (
-            <div className="flex flex-col gap-3">
-              <p className="text-sm text-green-500">
-                Atualização baixada com sucesso!
-              </p>
-              <Button onClick={handleInstall} size="sm">
+            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Check className="size-4 text-emerald-400" />
+                <p className="text-sm font-medium text-emerald-400">Atualização baixada com sucesso!</p>
+              </div>
+              <Button onClick={handleInstall} size="sm" className="gap-1.5">
+                <RotateCcw className="size-3.5" />
                 Reiniciar e instalar
               </Button>
             </div>
           )}
 
           {status === 'error' && (
-            <div className="flex flex-col gap-3">
-              <p className="text-sm text-destructive">{errorMsg}</p>
-              <Button onClick={handleCheck} variant="secondary" size="sm">
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="size-4 text-destructive" />
+                <p className="text-sm font-medium text-destructive">{errorMsg}</p>
+              </div>
+              <Button onClick={handleCheck} variant="secondary" size="sm" className="gap-1.5">
+                <RefreshCw className="size-3.5" />
                 Tentar novamente
               </Button>
             </div>
@@ -176,31 +241,35 @@ export default function SettingsPage() {
 
           {status === null && (
             <div className="flex gap-2">
-              <Button onClick={handleCheck} size="sm">
+              <Button onClick={handleCheck} size="sm" className="gap-1.5">
+                <RefreshCw className="size-3.5" />
                 Verificar atualizações
               </Button>
               {!packaged && (
-                <Button onClick={handleOpenRelease} variant="outline" size="sm">
-                  Abrir página de download
+                <Button onClick={handleOpenRelease} variant="outline" size="sm" className="gap-1.5">
+                  <ExternalLink className="size-3.5" />
+                  Página de download
                 </Button>
               )}
             </div>
           )}
 
           {(status === 'not-available' || status === 'error') && (
-            <div className="flex gap-2">
-              <Button onClick={handleCheck} variant="outline" size="sm">
+            <div className="flex gap-2 mt-3">
+              <Button onClick={handleCheck} variant="outline" size="sm" className="gap-1.5">
+                <RefreshCw className="size-3.5" />
                 Verificar novamente
               </Button>
               {!packaged && (
-                <Button onClick={handleOpenRelease} variant="ghost" size="sm">
-                  Abrir página de download
+                <Button onClick={handleOpenRelease} variant="ghost" size="sm" className="gap-1.5">
+                  <ExternalLink className="size-3.5" />
+                  Página de download
                 </Button>
               )}
             </div>
           )}
         </div>
-      </section>
+      </div>
     </div>
   )
 }
