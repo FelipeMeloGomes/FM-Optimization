@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Skeleton } from './components/ui';
-import { DnsProvider } from './contexts/DnsContext';
 import { HistoryProvider } from './contexts/HistoryContext';
 import { RestorePointProvider } from './contexts/RestorePointContext';
 import { ScriptProvider } from './contexts/ScriptContext';
@@ -51,8 +50,7 @@ const AllProviders = composeProviders(
   ScriptExecutionProvider,
   ScriptProvider,
   RestorePointProvider,
-  HistoryProvider,
-  DnsProvider
+  HistoryProvider
 );
 
 export default function App() {
