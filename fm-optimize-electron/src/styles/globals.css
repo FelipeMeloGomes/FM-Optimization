@@ -27,8 +27,8 @@
   --color-sidebar-primary: #0044ff;
   --color-sidebar-accent: #0033cc;
   --color-sidebar-border: #1a1a2e;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
   --radius: 0.75rem;
 }
 

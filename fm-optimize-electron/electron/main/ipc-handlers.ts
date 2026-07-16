@@ -214,19 +214,14 @@ export function registerIpcHandlers(): void {
         throw new Error('Execute o aplicativo como administrador para alterar o DNS.');
       }
       if (addrs.length === 0) {
-        const ps = `
-          $ErrorActionPreference = 'Stop'
-          Set-DnsClientServerAddress -InterfaceIndex ${idx} -ResetServerAddresses
-        `;
-        await execPowerShell(ps);
+        await execPowerShell(
+          `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${idx} -ResetServerAddresses`
+        );
       } else {
         const addrList = addrs.map((a) => `"${a}"`).join(',');
-        const ps = `
-          $ErrorActionPreference = 'Stop'
-          Set-DnsClientServerAddress -InterfaceIndex ${idx} -ServerAddresses (${addrList})
-          ipconfig /flushdns | Out-Null
-        `;
-        await execPowerShell(ps);
+        await execPowerShell(
+          `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${idx} -ServerAddresses (${addrList})\nipconfig /flushdns | Out-Null`
+        );
       }
     });
   });

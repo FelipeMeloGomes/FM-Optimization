@@ -9,6 +9,7 @@ export function WindowControls({ className }: WindowControlsProps) {
   return (
     <div className={cn('flex items-center gap-0.5', className)}>
       <button
+        type="button"
         onClick={() => window.electronAPI.minimizeWindow()}
         className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         aria-label="Minimizar"
@@ -16,6 +17,7 @@ export function WindowControls({ className }: WindowControlsProps) {
         <Minus className="size-4" />
       </button>
       <button
+        type="button"
         onClick={() => window.electronAPI.closeWindow()}
         className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/90 hover:text-destructive-foreground"
         aria-label="Fechar"

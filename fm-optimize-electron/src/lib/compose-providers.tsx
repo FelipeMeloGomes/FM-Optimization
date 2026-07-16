@@ -8,6 +8,12 @@ export function composeProviders(
   ...providers: Array<ElementType<ProviderProps>>
 ): React.FC<{ children: ReactNode }> {
   return function ComposedProviders({ children }) {
-    return providers.reduceRight((content, Provider) => <Provider>{content}</Provider>, children);
+    return providers.reduceRight(
+      (content, Provider, index) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: stable provider order, index is safe
+        <Provider key={index}>{content}</Provider>
+      ),
+      children
+    );
   };
 }

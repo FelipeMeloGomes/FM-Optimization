@@ -91,7 +91,10 @@ export default function CpuPage() {
         <div className="h-32 rounded-xl bg-muted animate-pulse" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <ScriptCardSkeleton key={i} />
+            <ScriptCardSkeleton
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
+              key={`skeleton-${i}`}
+            />
           ))}
         </div>
       </div>
@@ -125,7 +128,10 @@ export default function CpuPage() {
         <div className="h-32 rounded-xl bg-muted animate-pulse" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <ScriptCardSkeleton key={i} />
+            <ScriptCardSkeleton
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
+              key={`skeleton-${i}`}
+            />
           ))}
         </div>
       </div>

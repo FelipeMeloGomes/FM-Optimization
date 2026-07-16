@@ -1,6 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import type { BenchmarkResult, NetworkInfo } from '../../electron/shared/ipc-types';
-import { DNS_PROVIDERS, type DnsProvider } from '../lib/dns-providers';
+import { DNS_PROVIDERS, type DnsProvider as DnsProviderType } from '../lib/dns-providers';
 
 interface DnsContextValue {
   networkInfo: NetworkInfo | null;
@@ -11,7 +11,7 @@ interface DnsContextValue {
   applyError: string | null;
   activeDnsIps: string[];
   runBenchmark: () => Promise<void>;
-  applyDns: (provider: DnsProvider) => Promise<void>;
+  applyDns: (provider: DnsProviderType) => Promise<void>;
 }
 
 const DnsContext = createContext<DnsContextValue | null>(null);
@@ -70,7 +70,7 @@ export function DnsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const applyDns = useCallback(
-    async (provider: DnsProvider) => {
+    async (provider: DnsProviderType) => {
       if (!networkInfo) return;
       setApplyStatus('loading');
       setApplyError(null);

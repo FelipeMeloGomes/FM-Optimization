@@ -144,14 +144,14 @@ function DeviceSection({
   card,
   scripts,
   activeExecution,
-  onExecute,
+  _onExecute,
   onCancel,
   onConfirmExecute,
 }: {
   card: DeviceCard;
   scripts: ScriptEntry[];
   activeExecution: string | null;
-  onExecute: (id: string) => void;
+  _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
   onConfirmExecute: (script: ScriptEntry) => void;
 }) {
@@ -196,7 +196,11 @@ function DeviceSection({
           <p className="text-xs font-medium text-foreground mb-2">O que otimiza:</p>
           <ul className="space-y-1">
             {card.whatItOptimizes.map((item, i) => (
-              <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <li
+                // biome-ignore lint/suspicious/noArrayIndexKey: static list items, stable order
+                key={`opt-${i}`}
+                className="flex items-center gap-2 text-xs text-muted-foreground"
+              >
                 <span className={cn('size-1 rounded-full', card.dotColor)} />
                 {item}
               </li>
@@ -361,12 +365,14 @@ export default function InputLagPage() {
         <div className="h-24 rounded-xl bg-muted animate-pulse" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <ScriptCardSkeleton key={i} />
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
+            <ScriptCardSkeleton key={`skeleton-${i}`} />
           ))}
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ScriptCardSkeleton key={i} />
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
+            <ScriptCardSkeleton key={`skeleton-${i}`} />
           ))}
         </div>
       </div>
@@ -422,7 +428,7 @@ export default function InputLagPage() {
               card={card}
               scripts={inputLagScripts}
               activeExecution={activeExecution}
-              onExecute={handleExecute}
+              _onExecute={handleExecute}
               onCancel={handleCancel}
               onConfirmExecute={handleConfirmExecute}
             />

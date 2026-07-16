@@ -149,7 +149,10 @@ export default function CleanerPage() {
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ScriptCardSkeleton key={i} />
+            <ScriptCardSkeleton
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
+              key={`skeleton-${i}`}
+            />
           ))}
         </div>
       </div>
@@ -243,7 +246,11 @@ export default function CleanerPage() {
                 <p className="text-xs font-medium text-foreground mb-2">O que limpa:</p>
                 <ul className="space-y-1">
                   {card.whatItCleans.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <li
+                      // biome-ignore lint/suspicious/noArrayIndexKey: static list items, stable order
+                      key={`clean-${i}`}
+                      className="flex items-center gap-2 text-xs text-muted-foreground"
+                    >
                       <span className={cn('size-1 rounded-full', card.dotColor)} />
                       {item}
                     </li>

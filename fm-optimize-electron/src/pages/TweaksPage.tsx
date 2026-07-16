@@ -93,14 +93,14 @@ function TweakSectionCard({
   section,
   scripts,
   activeExecution,
-  onExecute,
+  _onExecute,
   onCancel,
   onConfirmExecute,
 }: {
   section: TweakSection;
   scripts: ScriptEntry[];
   activeExecution: string | null;
-  onExecute: (id: string) => void;
+  _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
   onConfirmExecute: (script: ScriptEntry) => void;
 }) {
@@ -280,7 +280,8 @@ export default function TweaksPage() {
         <div className="h-24 rounded-xl bg-muted animate-pulse" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <ScriptCardSkeleton key={i} />
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
+            <ScriptCardSkeleton key={`skeleton-${i}`} />
           ))}
         </div>
       </div>
@@ -327,7 +328,7 @@ export default function TweaksPage() {
           section={section}
           scripts={tweaksScripts}
           activeExecution={activeExecution}
-          onExecute={handleExecute}
+          _onExecute={handleExecute}
           onCancel={handleCancel}
           onConfirmExecute={handleConfirmExecute}
         />

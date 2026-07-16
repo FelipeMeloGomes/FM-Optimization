@@ -1,7 +1,4 @@
-import { execFile as execFileCb } from 'node:child_process';
-import { promisify } from 'node:util';
-
-const execFileAsync = promisify(execFileCb);
+import { spawn } from 'node:child_process';
 
 const DANGEROUS_PATTERNS = [
   /\bformat\b/i,
@@ -74,13 +71,39 @@ export async function execPowerShell(script: string): Promise<string> {
   }
 
   const wrapped = `$ProgressPreference = 'SilentlyContinue'\n${script}`;
-  const { stdout } = await execFileAsync(
-    'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', wrapped],
-    { timeout: 30000 }
-  );
 
-  return cleanPsOutput(stdout);
+  return new Promise<string>((resolve, reject) => {
+    const proc = spawn(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script],
+      {
+        timeout: 30000,
+      }
+    );
+
+    let stdout = '';
+    let stderr = '';
+
+    proc.stdout?.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    proc.stderr?.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    proc.on('error', (err) => {
+      reject(new Error(`Failed to spawn PowerShell: ${err.message}`));
+    });
+
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`PowerShell exited with code ${code}: ${stderr}`));
+      } else {
+        resolve(cleanPsOutput(stdout));
+      }
+    });
+  });
 }
 
 export function validatePowerShellScript(script: string): { valid: boolean; violations: string[] } {

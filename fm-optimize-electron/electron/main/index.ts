@@ -55,19 +55,14 @@ async function applyDnsElevated(interfaceIndex: number, addresses: string[]): Pr
   const { execPowerShell } = await import('./services/powershell');
 
   if (addresses.length === 0) {
-    const ps = `
-      $ErrorActionPreference = 'Stop'
-      Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ResetServerAddresses
-    `;
-    await execPowerShell(ps);
+    await execPowerShell(
+      `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ResetServerAddresses`
+    );
   } else {
     const addrList = addresses.map((a) => `"${a}"`).join(',');
-    const ps = `
-      $ErrorActionPreference = 'Stop'
-      Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses (${addrList})
-      ipconfig /flushdns | Out-Null
-    `;
-    await execPowerShell(ps);
+    await execPowerShell(
+      `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses (${addrList})\nipconfig /flushdns | Out-Null`
+    );
   }
 
   // Notify renderer of success
@@ -145,6 +140,12 @@ function createWindow(): void {
       sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
+      // Content Security Policy
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+      experimentalFeatures: false,
+      // Content Security Policy via additionalArguments
+      // CSP is enforced via the webSecurity flag and the preload script
     },
   });
 

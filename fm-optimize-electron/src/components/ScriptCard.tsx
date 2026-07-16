@@ -135,64 +135,84 @@ export const ScriptCard = memo(function ScriptCard({
   }
 
   return (
-    <>
-      <div
-        className={cn(
-          'group relative rounded-xl border bg-card p-5 transition-all duration-300 hover:shadow-lg',
-          config.borderColor,
-          isExecuting && 'ring-2 ring-primary/50'
-        )}
-      >
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className={cn('flex size-10 items-center justify-center rounded-lg', config.bgColor)}
+    <div
+      className={cn(
+        'group relative rounded-xl border bg-card p-5 transition-all duration-300 hover:shadow-lg',
+        config.borderColor,
+        isExecuting && 'ring-2 ring-primary/50'
+      )}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn('flex size-10 items-center justify-center rounded-lg', config.bgColor)}
+          >
+            <Icon className={cn('size-5', config.color)} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setExpanded((v) => !v);
+                }
+              }}
+              className="cursor-pointer font-semibold text-foreground hover:text-primary transition-colors truncate"
+              aria-expanded={expanded}
             >
-              <Icon className={cn('size-5', config.color)} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3
-                onClick={() => setExpanded((v) => !v)}
-                className="cursor-pointer font-semibold text-foreground hover:text-primary transition-colors truncate"
-              >
-                {script.name}
-              </h3>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="secondary" className="gap-1 font-mono text-[10px] px-1.5 py-0">
-                  <Terminal className="size-3" aria-hidden="true" />.{script.extension}
+              {script.name}
+            </button>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge variant="secondary" className="gap-1 font-mono text-[10px] px-1.5 py-0">
+                <Terminal className="size-3" aria-hidden="true" />.{script.extension}
+              </Badge>
+              {script.requiresAdmin && (
+                <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0">
+                  <ShieldAlert className="size-3" aria-hidden="true" />
+                  Admin
                 </Badge>
-                {script.requiresAdmin && (
-                  <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0">
-                    <ShieldAlert className="size-3" aria-hidden="true" />
-                    Admin
-                  </Badge>
-                )}
-                {script.requiresRestart && (
-                  <Badge
-                    variant="outline"
-                    className="gap-1 font-mono text-[10px] px-1.5 py-0 border-amber-500/50 text-amber-400"
-                  >
-                    <RotateCcw className="size-3" aria-hidden="true" />
-                    Reiniciar
-                  </Badge>
-                )}
-                {script.riskLevel && (
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'gap-1 font-mono text-[10px] px-1.5 py-0',
-                      RISK_STYLES[script.riskLevel].className
-                    )}
-                  >
-                    {RISK_STYLES[script.riskLevel].label}
-                  </Badge>
-                )}
-              </div>
+              )}
+              {script.requiresRestart && (
+                <Badge
+                  variant="outline"
+                  className="gap-1 font-mono text-[10px] px-1.5 py-0 border-amber-500/50 text-amber-400"
+                >
+                  <RotateCcw className="size-3" aria-hidden="true" />
+                  Reiniciar
+                </Badge>
+              )}
+              {script.riskLevel && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'gap-1 font-mono text-[10px] px-1.5 py-0',
+                    RISK_STYLES[script.riskLevel].className
+                  )}
+                >
+                  {RISK_STYLES[script.riskLevel].label}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        <div onClick={() => setExpanded((v) => !v)} className="cursor-pointer mt-3">
+      <div className="mt-3 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setExpanded((v) => !v);
+            }
+          }}
+          className="cursor-pointer"
+          aria-expanded={expanded}
+          aria-controls="guide-content"
+        >
           <p
             className={cn(
               'text-[13px] leading-relaxed text-muted-foreground hover:text-foreground transition-colors',
@@ -201,114 +221,111 @@ export const ScriptCard = memo(function ScriptCard({
           >
             {script.description}
           </p>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded((v) => !v);
-            }}
-            className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
-          >
-            <ChevronDown
-              className={cn(
-                'size-3 transition-transform duration-300',
-                expanded ? 'rotate-180' : 'rotate-0'
-              )}
-              aria-hidden="true"
-            />
-            {expanded ? 'Menos' : 'Mais'}
-          </button>
-        </div>
-
-        {script.guide && (
-          <div className="mt-3">
-            <button
-              onClick={() => setShowGuide((v) => !v)}
-              className="flex items-center gap-1.5 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
-            >
-              <Info className="size-3.5" aria-hidden="true" />
-              {showGuide ? 'Ocultar explicação' : 'Como funciona?'}
-            </button>
-            {showGuide && (
-              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-                {script.guide}
-              </p>
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded((v) => !v);
+          }}
+          className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
+          aria-expanded={expanded}
+          aria-controls="guide-content"
+        >
+          <ChevronDown
+            className={cn(
+              'size-3 transition-transform duration-300',
+              expanded ? 'rotate-180' : 'rotate-0'
             )}
-          </div>
-        )}
+            aria-hidden="true"
+          />
+          {expanded ? 'Menos' : 'Mais'}
+        </button>
+      </div>
 
-        {script.requiresAdmin && (
-          <div className="mt-3 flex items-center gap-1.5 text-[10px] text-yellow-400/80">
-            <Shield className="size-3" />
-            <span>Requer administrador</span>
-          </div>
-        )}
-
-        {script.requiresRestart && (
-          <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80">
-            <RotateCcw className="size-3" />
-            <span>Requer reinício do PC após execução</span>
-          </div>
-        )}
-
-        <div className="mt-4 flex gap-2">
-          {isExecuting ? (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={onCancel}
-              className="flex-1 gap-2"
-              aria-label="Cancelar execução"
-            >
-              <Square className="size-3.5" aria-hidden="true" />
-              Cancelar
-            </Button>
-          ) : (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleExecute}
-              className="flex-1 gap-2"
-              aria-label={isTxt ? 'Abrir guia' : 'Executar script'}
-            >
-              {isTxt ? (
-                <FileText className="size-3.5" aria-hidden="true" />
-              ) : (
-                <Play className="size-3.5" aria-hidden="true" />
-              )}
-              {isTxt ? 'Abrir' : 'Executar'}
-            </Button>
+      {script.guide && (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowGuide((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
+          >
+            <Info className="size-3.5" aria-hidden="true" />
+            {showGuide ? 'Ocultar explicação' : 'Como funciona?'}
+          </button>
+          {showGuide && (
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{script.guide}</p>
           )}
         </div>
+      )}
 
-        {showRestartPrompt && (
-          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-            <div className="flex items-center gap-2">
-              <RotateCcw className="size-4 text-amber-400" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-amber-400">Reinício necessário</p>
-                <p className="text-xs text-muted-foreground">
-                  As mudanças só terão efeito após reiniciar o PC.
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowRestartPrompt(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Entendi
-              </Button>
-            </div>
-          </div>
+      {script.requiresAdmin && (
+        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-yellow-400/80">
+          <Shield className="size-3" />
+          <span>Requer administrador</span>
+        </div>
+      )}
+
+      {script.requiresRestart && (
+        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80">
+          <RotateCcw className="size-3" />
+          <span>Requer reinício do PC após execução</span>
+        </div>
+      )}
+
+      <div className="mt-4 flex gap-2">
+        {isExecuting ? (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onCancel}
+            className="flex-1 gap-2"
+            aria-label="Cancelar execução"
+          >
+            <Square className="size-3.5" aria-hidden="true" />
+            Cancelar
+          </Button>
+        ) : (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleExecute}
+            className="flex-1 gap-2"
+            aria-label={isTxt ? 'Abrir guia' : 'Executar script'}
+          >
+            {isTxt ? (
+              <FileText className="size-3.5" aria-hidden="true" />
+            ) : (
+              <Play className="size-3.5" aria-hidden="true" />
+            )}
+            {isTxt ? 'Abrir' : 'Executar'}
+          </Button>
         )}
       </div>
 
-      <Dialog
-        open={showConfirm}
-        onOpenChange={(open) => {
-          if (!open) setShowConfirm(false);
-        }}
-      >
+      {showRestartPrompt && (
+        <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+          <div className="flex items-center gap-2">
+            <RotateCcw className="size-4 text-amber-400" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-400">Reinício necessário</p>
+              <p className="text-xs text-muted-foreground">
+                As mudanças só terão efeito após reiniciar o PC.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowRestartPrompt(false)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Entendi
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{isTxt ? 'Abrir guia' : 'Confirmar Execução'}</DialogTitle>
@@ -376,6 +393,6 @@ export const ScriptCard = memo(function ScriptCard({
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 });

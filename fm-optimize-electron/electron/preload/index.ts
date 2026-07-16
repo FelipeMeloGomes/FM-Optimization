@@ -44,7 +44,9 @@ function setupListeners(): void {
   ipcRenderer.on('script-output', (_e: IpcRendererEvent, raw: string) => {
     try {
       const data = JSON.parse(raw) as ScriptOutput;
-      scriptOutputCallbacks.forEach((cb) => cb(data));
+      scriptOutputCallbacks.forEach((cb) => {
+        cb(data);
+      });
     } catch {
       /* skip malformed output */
     }
@@ -53,7 +55,9 @@ function setupListeners(): void {
   ipcRenderer.on('script-error', (_e: IpcRendererEvent, raw: string) => {
     try {
       const data = JSON.parse(raw) as ScriptOutput;
-      scriptErrorCallbacks.forEach((cb) => cb(data));
+      scriptErrorCallbacks.forEach((cb) => {
+        cb(data);
+      });
     } catch {
       /* skip malformed error */
     }
@@ -62,33 +66,45 @@ function setupListeners(): void {
   ipcRenderer.on('script-ended', (_e: IpcRendererEvent, raw: string) => {
     try {
       const data = JSON.parse(raw) as ScriptEnded;
-      scriptEndedCallbacks.forEach((cb) => cb(data));
+      scriptEndedCallbacks.forEach((cb) => {
+        cb(data);
+      });
     } catch {
       /* skip malformed ended */
     }
   });
 
   ipcRenderer.on('update-status', (_e: IpcRendererEvent, data: UpdateStatus) => {
-    updateStatusCallbacks.forEach((cb) => cb(data));
+    updateStatusCallbacks.forEach((cb) => {
+      cb(data);
+    });
   });
 
   ipcRenderer.on('update-info', (_e: IpcRendererEvent, data: UpdateInfo) => {
-    updateInfoCallbacks.forEach((cb) => cb(data));
+    updateInfoCallbacks.forEach((cb) => {
+      cb(data);
+    });
   });
 
   ipcRenderer.on('download-progress', (_e: IpcRendererEvent, data: DownloadProgress) => {
-    downloadProgressCallbacks.forEach((cb) => cb(data));
+    downloadProgressCallbacks.forEach((cb) => {
+      cb(data);
+    });
   });
 
   ipcRenderer.on(
     'benchmark-progress',
     (_e: IpcRendererEvent, data: { current: number; total: number }) => {
-      benchmarkProgressCallbacks.forEach((cb) => cb(data));
+      benchmarkProgressCallbacks.forEach((cb) => {
+        cb(data);
+      });
     }
   );
 
   ipcRenderer.on('benchmark-result', (_e: IpcRendererEvent, data: BenchmarkResult) => {
-    benchmarkResultCallbacks.forEach((cb) => cb(data));
+    benchmarkResultCallbacks.forEach((cb) => {
+      cb(data);
+    });
   });
 }
 
