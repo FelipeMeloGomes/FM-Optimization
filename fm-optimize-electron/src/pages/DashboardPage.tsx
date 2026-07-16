@@ -157,7 +157,7 @@ export default function DashboardPage() {
             icon={Cpu}
             label="CPU"
             value={data.cpu.model}
-            detail={`${data.cpu.cores} núcleos · ${data.cpu.usage}% uso`}
+            detail={`${data.cpu.cores} núcleos · ${data.cpu.logicalProcessors} threads · ${data.cpu.usage}% uso`}
             progress={data.cpu.usage}
             status={getCpuStatus(data.cpu.usage)}
           />
@@ -173,7 +173,7 @@ export default function DashboardPage() {
             icon={MemoryStick}
             label="RAM"
             value={data.memory.total}
-            detail={`${data.memory.type} · ${data.memory.slots} slots · ${data.memory.used} em uso`}
+            detail={`${data.memory.type} · ${data.memory.frequency} · ${data.memory.slots} slots · ${data.memory.used} em uso`}
             progress={memPercent}
             status={getMemoryStatus(memPercent)}
           />

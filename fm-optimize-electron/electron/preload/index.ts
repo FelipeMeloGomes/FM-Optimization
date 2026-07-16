@@ -89,7 +89,17 @@ const electronAPI: ElectronAPI = {
     return () => ipcRenderer.removeListener('download-progress', listener)
   },
   getNetworkInfo: () => ipc<NetworkInfo>('get-network-info'),
-  benchmarkDns: (addresses: string[]) => ipc<BenchmarkResult[]>('benchmark-dns', addresses),
+  onBenchmarkProgress: (cb: (data: { current: number; total: number }) => void) => {
+    const listener = (_e: IpcRendererEvent, data: { current: number; total: number }) => cb(data)
+    ipcRenderer.on('benchmark-progress', listener)
+    return () => ipcRenderer.removeListener('benchmark-progress', listener)
+  },
+  onBenchmarkResult: (cb: (data: BenchmarkResult) => void) => {
+    const listener = (_e: IpcRendererEvent, data: BenchmarkResult) => cb(data)
+    ipcRenderer.on('benchmark-result', listener)
+    return () => ipcRenderer.removeListener('benchmark-result', listener)
+  },
+  benchmarkDns: (providers: { primary: string; secondary: string }[]) => ipc<BenchmarkResult[]>('benchmark-dns', providers),
   applyDns: (interfaceIndex: number, addresses: string[]) => ipcVoid('apply-dns', interfaceIndex, addresses),
   minimizeWindow: () => ipcVoid('window-minimize'),
   maximizeWindow: () => ipcVoid('window-maximize'),

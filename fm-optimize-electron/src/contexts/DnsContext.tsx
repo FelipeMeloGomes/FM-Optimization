@@ -39,20 +39,28 @@ export function DnsProvider({ children }: { children: ReactNode }) {
   const runBenchmark = useCallback(async () => {
     setBenchmarkStatus('loading')
     setBenchmarks(new Map())
-    const addresses = DNS_PROVIDERS.filter((p) => !p.isDhcp).flatMap((p) => [p.primary, p.secondary])
-    setBenchmarkProgress({ current: 0, total: addresses.length })
+    const providers = DNS_PROVIDERS.filter((p) => !p.isDhcp).map((p) => ({ primary: p.primary, secondary: p.secondary }))
+    setBenchmarkProgress({ current: 0, total: providers.length })
+
+    const cleanupProgress = window.electronAPI.onBenchmarkProgress((progress) => {
+      setBenchmarkProgress(progress)
+    })
+    const cleanupResult = window.electronAPI.onBenchmarkResult((result) => {
+      setBenchmarks((prev) => {
+        const next = new Map(prev)
+        next.set(result.address, result)
+        return next
+      })
+    })
 
     try {
-      const results = await window.electronAPI.benchmarkDns(addresses)
-      const map = new Map<string, BenchmarkResult>()
-      for (const r of results) {
-        map.set(r.address, r)
-        setBenchmarkProgress((prev) => ({ ...prev, current: prev.current + 1 }))
-        setBenchmarks(new Map(map))
-      }
+      await window.electronAPI.benchmarkDns(providers)
       setBenchmarkStatus('done')
     } catch {
       setBenchmarkStatus('done')
+    } finally {
+      cleanupProgress()
+      cleanupResult()
     }
   }, [])
 
@@ -73,23 +81,31 @@ export function DnsProvider({ children }: { children: ReactNode }) {
   }, [networkInfo])
 
   useEffect(() => {
+    let cleanupProgress: (() => void) | undefined
+    let cleanupResult: (() => void) | undefined
     fetchNetworkInfo().then((info) => {
       if (info) {
-        const addresses = DNS_PROVIDERS.filter((p) => !p.isDhcp).flatMap((p) => [p.primary, p.secondary])
+        const providers = DNS_PROVIDERS.filter((p) => !p.isDhcp).map((p) => ({ primary: p.primary, secondary: p.secondary }))
         setBenchmarkStatus('loading')
-        setBenchmarkProgress({ current: 0, total: addresses.length })
+        setBenchmarkProgress({ current: 0, total: providers.length })
 
-        window.electronAPI.benchmarkDns(addresses).then((results) => {
-          const map = new Map<string, BenchmarkResult>()
-          for (const r of results) {
-            map.set(r.address, r)
-            setBenchmarkProgress((prev) => ({ ...prev, current: prev.current + 1 }))
-            setBenchmarks(new Map(map))
-          }
+        cleanupProgress = window.electronAPI.onBenchmarkProgress((progress) => {
+          setBenchmarkProgress(progress)
+        })
+        cleanupResult = window.electronAPI.onBenchmarkResult((result) => {
+          setBenchmarks((prev) => {
+            const next = new Map(prev)
+            next.set(result.address, result)
+            return next
+          })
+        })
+
+        window.electronAPI.benchmarkDns(providers).then(() => {
           setBenchmarkStatus('done')
         }).catch(() => setBenchmarkStatus('done'))
       }
     })
+    return () => { cleanupProgress?.(); cleanupResult?.() }
   }, [fetchNetworkInfo])
 
   return (

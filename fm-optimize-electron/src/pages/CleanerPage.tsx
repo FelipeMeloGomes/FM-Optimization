@@ -10,7 +10,8 @@ import {
   HardDrive,
   Terminal,
   ShieldAlert,
-  Eraser
+  Eraser,
+  RotateCcw
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { Button, Badge } from '../components/ui'
@@ -19,6 +20,7 @@ import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
 import { useSettingsContext } from '../contexts/SettingsContext'
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { RISK_STYLES } from '../components/ScriptCard'
 
 interface CleanerCard {
   id: string
@@ -28,8 +30,7 @@ interface CleanerCard {
   color: string
   bgColor: string
   borderColor: string
-  riskLevel: 'safe' | 'moderate' | 'deep'
-  riskLabel: string
+  dotColor: string
   frequency: string
   whatItCleans: string[]
 }
@@ -43,8 +44,7 @@ const CLEANER_CARDS: CleanerCard[] = [
     color: 'text-green-400',
     bgColor: 'bg-green-500/10',
     borderColor: 'border-green-500/20',
-    riskLevel: 'safe',
-    riskLabel: 'Seguro',
+    dotColor: 'bg-green-400',
     frequency: 'Semanal',
     whatItCleans: [
       'Arquivos temporários do Windows',
@@ -62,8 +62,7 @@ const CLEANER_CARDS: CleanerCard[] = [
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/20',
-    riskLevel: 'moderate',
-    riskLabel: 'Moderado',
+    dotColor: 'bg-blue-400',
     frequency: 'Conforme necessário',
     whatItCleans: [
       'Cache do Windows Update',
@@ -80,8 +79,7 @@ const CLEANER_CARDS: CleanerCard[] = [
     color: 'text-purple-400',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/20',
-    riskLevel: 'moderate',
-    riskLabel: 'Moderado',
+    dotColor: 'bg-purple-400',
     frequency: 'Quando necessário',
     whatItCleans: [
       'Cache do Google Chrome',
@@ -98,8 +96,7 @@ const CLEANER_CARDS: CleanerCard[] = [
     color: 'text-red-400',
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/20',
-    riskLevel: 'deep',
-    riskLabel: 'Completo',
+    dotColor: 'bg-red-400',
     frequency: 'Mensal',
     whatItCleans: [
       'Todas as limpezas anteriores',
@@ -109,12 +106,6 @@ const CLEANER_CARDS: CleanerCard[] = [
     ]
   }
 ]
-
-const RISK_STYLES = {
-  safe: 'bg-green-500/20 text-green-400 border-green-500/30',
-  moderate: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  deep: 'bg-red-500/20 text-red-400 border-red-500/30'
-}
 
 export default function CleanerPage() {
   const {
@@ -158,7 +149,6 @@ export default function CleanerPage() {
   const handleConfirm = useCallback(() => {
     if (confirmScript) {
       handleExecute(confirmScript.id)
-      setConfirmScript(null)
     }
   }, [confirmScript, handleExecute])
 
@@ -231,12 +221,14 @@ export default function CleanerPage() {
                   <div>
                     <h3 className="font-semibold text-foreground">{card.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge
-                        variant="outline"
-                        className={cn('text-[10px] px-1.5 py-0', RISK_STYLES[card.riskLevel])}
-                      >
-                        {card.riskLabel}
-                      </Badge>
+                      {script?.riskLevel && (
+<Badge
+                      variant="outline"
+                      className={cn('text-[10px] px-1.5 py-0', script?.riskLevel && RISK_STYLES[script.riskLevel].className)}
+                    >
+                      {script?.riskLevel ? RISK_STYLES[script.riskLevel].label : ''}
+                    </Badge>
+                      )}
                       <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                         <Clock className="size-3" />
                         {card.frequency}
@@ -255,7 +247,7 @@ export default function CleanerPage() {
                 <ul className="space-y-1">
                   {card.whatItCleans.map((item, i) => (
                     <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="size-1 rounded-full bg-muted-foreground/50" />
+                      <span className={cn('size-1 rounded-full', card.dotColor)} />
                       {item}
                     </li>
                   ))}
@@ -266,6 +258,13 @@ export default function CleanerPage() {
                 <div className="mt-4 flex items-center gap-1.5 text-[10px] text-yellow-400/80">
                   <Shield className="size-3" />
                   <span>Requer administrador</span>
+                </div>
+              )}
+
+              {script?.requiresRestart && (
+                <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80">
+                  <RotateCcw className="size-3" />
+                  <span>Requer reinício do PC após execução</span>
                 </div>
               )}
 
@@ -303,7 +302,7 @@ export default function CleanerPage() {
                 )}
               </div>
 
-              {card.riskLevel === 'deep' && (
+              {script?.riskLevel === 'deep' && (
                 <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-500/5 p-2 border border-red-500/10">
                   <AlertTriangle className="size-3.5 text-red-400 mt-0.5 shrink-0" />
                   <p className="text-[10px] text-red-400/80 leading-relaxed">
@@ -322,6 +321,7 @@ export default function CleanerPage() {
         onOpenChange={(open) => { if (!open) setConfirmScript(null) }}
         script={confirmScript}
         onConfirm={handleConfirm}
+        isExecuting={!!confirmScript && activeExecution === confirmScript.id}
       />
     </div>
   )

@@ -18,6 +18,8 @@ import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
 import { ScriptCard } from '../components/ScriptCard'
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
 
+const DNS_SCRIPT_IDS = new Set(['internet-6', 'internet-8', 'internet-9'])
+
 function getLatencyColor(ms: number): string {
   if (ms < 15) return 'text-emerald-400'
   if (ms < 30) return 'text-green-400'
@@ -66,7 +68,9 @@ export default function NetworkPage() {
   }, [setCategoryFilter, setSubcategoryFilter])
 
   const internetScripts = useMemo(
-    () => filteredScripts.filter(s => s.category === 'Internet'),
+    () => filteredScripts.filter(
+      s => s.category === 'Internet' && !DNS_SCRIPT_IDS.has(s.id)
+    ),
     [filteredScripts]
   )
 

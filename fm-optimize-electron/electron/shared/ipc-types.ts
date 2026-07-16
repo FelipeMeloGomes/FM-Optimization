@@ -19,6 +19,7 @@ export interface MemoryInfo {
   free: string
   type: string
   slots: number
+  frequency: string
 }
 
 export interface OsInfo {
@@ -56,9 +57,11 @@ export interface ScriptEntry {
   content: string
   extension: 'bat' | 'ps1' | 'reg' | 'exe' | 'cmd' | 'txt'
   requiresAdmin: boolean
+  requiresRestart?: boolean
   isBuiltIn: boolean
   tags: string[]
   guide?: string
+  riskLevel?: 'safe' | 'moderate' | 'deep'
 }
 
 export interface RestorePointEntry {
@@ -161,8 +164,10 @@ export interface ElectronAPI {
   onUpdateInfo(cb: (data: UpdateInfo) => void): () => void
   getExecutionHistory(): Promise<ExecutionHistoryEntry[]>
   onDownloadProgress(cb: (data: DownloadProgress) => void): () => void
+  onBenchmarkProgress(cb: (data: { current: number; total: number }) => void): () => void
+  onBenchmarkResult(cb: (data: BenchmarkResult) => void): () => void
   getNetworkInfo(): Promise<NetworkInfo>
-  benchmarkDns(addresses: string[]): Promise<BenchmarkResult[]>
+  benchmarkDns(providers: { primary: string; secondary: string }[]): Promise<BenchmarkResult[]>
   applyDns(interfaceIndex: number, addresses: string[]): Promise<void>
   minimizeWindow(): Promise<void>
   maximizeWindow(): Promise<void>

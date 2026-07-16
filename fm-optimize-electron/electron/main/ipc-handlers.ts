@@ -129,23 +129,32 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('benchmark-dns', async (_e, addresses: unknown): Promise<IpcResult<BenchmarkResult[]>> => {
-    if (!Array.isArray(addresses) || !addresses.every((a) => typeof a === 'string')) {
-      return { success: false, error: 'Lista de endereços inválida' }
+  ipcMain.handle('benchmark-dns', async (event, providers: unknown): Promise<IpcResult<BenchmarkResult[]>> => {
+    if (!Array.isArray(providers) || !providers.every((p) => typeof p === 'object' && p !== null && 'primary' in p && 'secondary' in p)) {
+      return { success: false, error: 'Lista de providers inválida' }
     }
     try {
+      const total = providers.length
       const results: BenchmarkResult[] = []
-      for (const addr of addresses) {
-        try {
-          const ps = `
-            $r = Test-Connection -Count 2 -ComputerName "${addr}" -ErrorAction Stop
-            Write-Output (($r | Measure-Object -Property ResponseTime -Average).Average)
-          `
-          const output = await execPowerShell(ps)
-          const ms = parseFloat(output.trim().split('\n').pop() || '')
-          results.push({ address: addr, latencyMs: isNaN(ms) ? null : Math.round(ms) })
-        } catch {
-          results.push({ address: addr, latencyMs: null })
+      for (let i = 0; i < providers.length; i++) {
+        const { primary, secondary } = providers[i] as { primary: string; secondary: string }
+        for (const addr of [primary, secondary]) {
+          try {
+            const ps = `
+              $r = Test-Connection -Count 2 -ComputerName "${addr}" -ErrorAction Stop
+              Write-Output (($r | Measure-Object -Property ResponseTime -Average).Average)
+            `
+            const output = await execPowerShell(ps)
+            const ms = parseFloat(output.trim().split('\n').pop() || '')
+            results.push({ address: addr, latencyMs: isNaN(ms) ? null : Math.round(ms) })
+          } catch {
+            results.push({ address: addr, latencyMs: null })
+          }
+        }
+        event.sender.send('benchmark-progress', { current: i + 1, total })
+        for (const addr of [primary, secondary]) {
+          const r = results.find((x) => x.address === addr)
+          if (r) event.sender.send('benchmark-result', r)
         }
       }
       return { success: true, data: results }

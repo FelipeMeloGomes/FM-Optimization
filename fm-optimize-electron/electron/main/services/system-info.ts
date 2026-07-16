@@ -106,12 +106,15 @@ async function getMemoryInfo(): Promise<MemoryInfo> {
   const free = freemem()
   const used = total - free
 
-  const [typeOutput, slotsOutput] = await Promise.all([
+  const [typeOutput, slotsOutput, freqOutput] = await Promise.all([
     execPowerShell(
       '(Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1).SMBIOSMemoryType'
     ).catch(() => ''),
     execPowerShell(
       '(Get-CimInstance Win32_PhysicalMemory | Measure-Object).Count'
+    ).catch(() => ''),
+    execPowerShell(
+      '(Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1).Speed'
     ).catch(() => '')
   ])
 
@@ -120,8 +123,9 @@ async function getMemoryInfo(): Promise<MemoryInfo> {
   }
   const memType = typeMap[typeOutput.trim()] || 'Unknown'
   const slots = slotsOutput ? parseInt(slotsOutput.trim()) : 0
+  const freq = freqOutput.trim()
 
-  return { total: formatBytes(total), used: formatBytes(used), free: formatBytes(free), type: memType, slots }
+  return { total: formatBytes(total), used: formatBytes(used), free: formatBytes(free), type: memType, slots, frequency: freq ? `${freq} MHz` : '—' }
 }
 
 async function getOsInfo(): Promise<OsInfo> {

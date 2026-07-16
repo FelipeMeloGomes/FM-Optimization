@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { memo, useState, useRef, useEffect } from 'react'
 import {
   Play,
   Square,
@@ -17,12 +17,20 @@ import {
   Wifi,
   MousePointerClick,
   Cpu,
-  Settings
+  Settings,
+  RotateCcw,
+  AlertTriangle
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle } from './ui'
 import { useSettingsContext } from '../contexts/SettingsContext'
 import type { ScriptEntry } from '../../electron/shared/ipc-types'
+
+export const RISK_STYLES: Record<string, { className: string; label: string }> = {
+  safe: { className: 'bg-green-500/20 text-green-400 border-green-500/30', label: 'Seguro' },
+  moderate: { className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', label: 'Moderado' },
+  deep: { className: 'bg-red-500/20 text-red-400 border-red-500/30', label: 'Completo' }
+}
 
 interface ScriptCardProps {
   script: ScriptEntry
@@ -53,8 +61,17 @@ export const ScriptCard = memo(function ScriptCard({
   const [expanded, setExpanded] = useState(false)
   const [showGuide, setShowGuide] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showRestartPrompt, setShowRestartPrompt] = useState(false)
+  const wasExecuting = useRef(false)
   const { settings } = useSettingsContext()
   const isTxt = script.extension === 'txt'
+
+  useEffect(() => {
+    if (wasExecuting.current && !isExecuting && script.requiresRestart) {
+      setShowRestartPrompt(true)
+    }
+    wasExecuting.current = isExecuting
+  }, [isExecuting, script.requiresRestart])
 
   const config = CATEGORY_CONFIG[script.category] || DEFAULT_CONFIG
   const Icon = config.icon
@@ -102,6 +119,17 @@ export const ScriptCard = memo(function ScriptCard({
                   <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0">
                     <ShieldAlert className="size-3" aria-hidden="true" />
                     Admin
+                  </Badge>
+                )}
+                {script.requiresRestart && (
+                  <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 border-amber-500/50 text-amber-400">
+                    <RotateCcw className="size-3" aria-hidden="true" />
+                    Reiniciar
+                  </Badge>
+                )}
+                {script.riskLevel && (
+                  <Badge variant="outline" className={cn('gap-1 font-mono text-[10px] px-1.5 py-0', RISK_STYLES[script.riskLevel].className)}>
+                    {RISK_STYLES[script.riskLevel].label}
                   </Badge>
                 )}
               </div>
@@ -157,6 +185,13 @@ export const ScriptCard = memo(function ScriptCard({
           </div>
         )}
 
+        {script.requiresRestart && (
+          <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80">
+            <RotateCcw className="size-3" />
+            <span>Requer reinício do PC após execução</span>
+          </div>
+        )}
+
         <div className="mt-4 flex gap-2">
           {isExecuting ? (
             <>
@@ -184,6 +219,28 @@ export const ScriptCard = memo(function ScriptCard({
             </Button>
           )}
         </div>
+
+        {showRestartPrompt && (
+          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+            <div className="flex items-center gap-2">
+              <RotateCcw className="size-4 text-amber-400" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-amber-400">Reinício necessário</p>
+                <p className="text-xs text-muted-foreground">
+                  As mudanças só terão efeito após reiniciar o PC.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowRestartPrompt(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Entendi
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <Dialog open={showConfirm} onOpenChange={(open) => { if (!open) setShowConfirm(false) }}>
@@ -205,9 +262,26 @@ export const ScriptCard = memo(function ScriptCard({
                     Admin
                   </Badge>
                 )}
+                {script.requiresRestart && (
+                  <Badge variant="outline" className="gap-1 font-mono text-xs border-amber-500/50 text-amber-400">
+                    <RotateCcw className="size-3" aria-hidden="true" />
+                    Reiniciar
+                  </Badge>
+                )}
+                {script.riskLevel && (
+                  <Badge variant="outline" className={cn('gap-1 font-mono text-xs', RISK_STYLES[script.riskLevel].className)}>
+                    {RISK_STYLES[script.riskLevel].label}
+                  </Badge>
+                )}
               </div>
             </div>
             <p className="text-[13px] leading-relaxed text-muted-foreground">{script.description}</p>
+            {script.requiresRestart && (
+              <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5">
+                <RotateCcw className="size-4 text-amber-400 shrink-0" />
+                <p className="text-xs text-amber-400 font-medium">Este script requer reinício do PC para que as mudanças tenham efeito.</p>
+              </div>
+            )}
             <div className="flex justify-end gap-2">
               <Button variant="outline" size="sm" onClick={() => setShowConfirm(false)}>
                 Cancelar
