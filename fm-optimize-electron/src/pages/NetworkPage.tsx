@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { ScriptCard } from '../components/ScriptCard';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button, Card, CardContent } from '../components/ui';
-import { useDnsContext } from '../contexts/DnsContext';
+import { DnsProvider, useDnsContext } from '../contexts/DnsContext';
 import { useScriptContext } from '../contexts/ScriptContext';
 import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
 import { DNS_PROVIDERS } from '../lib/dns-providers';
@@ -33,6 +33,14 @@ function getLatencyLabel(ms: number): string {
 }
 
 export default function NetworkPage() {
+  return (
+    <DnsProvider>
+      <NetworkPageContent />
+    </DnsProvider>
+  );
+}
+
+function NetworkPageContent() {
   const {
     networkInfo,
     benchmarks,
