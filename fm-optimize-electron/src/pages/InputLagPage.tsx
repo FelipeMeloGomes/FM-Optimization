@@ -354,9 +354,14 @@ export default function InputLagPage() {
 
       {/* Device Cards */}
       <div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="size-1.5 rounded-full bg-primary" />
-          <h3 className="text-sm font-semibold text-foreground">Dispositivos</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="size-1.5 rounded-full bg-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Dispositivos</h3>
+          </div>
+          <Badge variant="secondary" className="text-[10px]">
+            {inputLagScripts.filter(s => s.subcategory !== 'Regedit').length} scripts
+          </Badge>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {DEVICE_CARDS.map((card) => (
@@ -375,9 +380,11 @@ export default function InputLagPage() {
 
       {/* Registry Section */}
       <div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="size-1.5 rounded-full bg-yellow-400" />
-          <h3 className="text-sm font-semibold text-foreground">Otimizações do Registro</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="size-1.5 rounded-full bg-yellow-400" />
+            <h3 className="text-sm font-semibold text-foreground">Otimizações do Registro</h3>
+          </div>
           <Badge variant="secondary" className="text-[10px]">
             {registryScripts.length} scripts
           </Badge>
