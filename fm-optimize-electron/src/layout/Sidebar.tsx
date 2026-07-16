@@ -53,7 +53,7 @@ export function Sidebar() {
           src={logoUrl}
           alt="FM Optimize"
           className={cn(
-            'object-contain blur-[2px] transition-all duration-300',
+            'object-contain drop-shadow-[0_0_6px_rgba(0,68,255,0.6)] transition-all duration-300',
             collapsed ? 'size-8' : 'size-10'
           )}
         />
