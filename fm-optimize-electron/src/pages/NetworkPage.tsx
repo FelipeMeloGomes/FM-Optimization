@@ -1,4 +1,14 @@
-import { AlertCircle, ArrowDown, Check, Loader2, RefreshCw, Trophy, Wifi, Zap } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowDown,
+  Check,
+  Loader2,
+  RefreshCw,
+  Settings,
+  Trophy,
+  Wifi,
+  Zap,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { ScriptCard } from '../components/ScriptCard';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
@@ -328,7 +338,17 @@ function NetworkPageContent() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {latency !== null ? (
+                      {provider.isDhcp ? (
+                        <div
+                          className="flex items-center gap-1.5 rounded-md border border-muted-foreground/30 bg-muted/40 px-2 py-1"
+                          title="Restaura a configuração de DNS automática do provedor"
+                        >
+                          <Settings className="size-3 text-muted-foreground" />
+                          <span className="text-[11px] font-medium text-muted-foreground">
+                            Padrão
+                          </span>
+                        </div>
+                      ) : latency !== null ? (
                         <div
                           className={cn(
                             'flex items-center gap-1 rounded-md border px-2 py-1',
@@ -362,7 +382,7 @@ function NetworkPageContent() {
                         ) : active ? (
                           <Check className="size-3" />
                         ) : null}
-                        {active ? 'Ativo' : 'Aplicar'}
+                        {active ? 'Ativo' : provider.isDhcp ? 'Restaurar' : 'Aplicar'}
                       </Button>
                     </div>
                   </div>
