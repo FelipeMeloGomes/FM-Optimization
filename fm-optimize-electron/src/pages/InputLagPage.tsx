@@ -135,7 +135,7 @@ function DeviceSection({
       )}
     >
       <div className="p-5">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={cn(
               'flex size-10 items-center justify-center rounded-lg',
@@ -148,7 +148,7 @@ function DeviceSection({
               <p className="text-xs text-muted-foreground mt-0.5">{card.description}</p>
             </div>
           </div>
-          <Badge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary" className="text-[10px] shrink-0">
             {cardScripts.length} scripts
           </Badge>
         </div>
