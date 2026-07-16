@@ -70,7 +70,7 @@ export function Sidebar() {
                 isActive
                   ? 'bg-primary/20 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                collapsed && 'justify-center px-0'
+                collapsed && 'size-9 justify-center px-0 gap-0'
               )
             }
           >
@@ -108,7 +108,7 @@ export function Sidebar() {
                 isActive
                   ? 'bg-primary/20 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                collapsed && 'justify-center px-0'
+                collapsed && 'size-9 justify-center px-0 gap-0'
               )
             }
           >
@@ -149,7 +149,7 @@ export function Sidebar() {
                 isActive
                   ? 'bg-primary/20 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                collapsed && 'justify-center px-0'
+                collapsed && 'size-9 justify-center px-0 gap-0'
               )
             }
           >
@@ -181,7 +181,7 @@ export function Sidebar() {
         onClick={() => setCollapsed((v) => !v)}
         className={cn(
           'mt-auto flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground',
-          collapsed && 'justify-center px-0'
+          collapsed && 'size-9 justify-center px-0 gap-0'
         )}
         aria-label={collapsed ? 'Expandir sidebar' : 'Recolher sidebar'}
       >
