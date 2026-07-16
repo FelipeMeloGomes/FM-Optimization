@@ -3,6 +3,7 @@ import type { AsyncState, DashboardData } from '../../electron/shared/ipc-types'
 
 interface SystemContextValue {
   state: AsyncState<DashboardData>
+  refreshing: boolean
   refresh: () => void
 }
 
@@ -10,23 +11,25 @@ const SystemContext = createContext<SystemContextValue | null>(null)
 
 export function SystemProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AsyncState<DashboardData>>({ status: 'loading' })
+  const [refreshing, setRefreshing] = useState(false)
 
   const refresh = useCallback(() => {
-    setState({ status: 'loading' })
+    const isInitialLoad = state.status === 'loading'
+    if (!isInitialLoad) setRefreshing(true)
+
     window.electronAPI
       .getSystemInfo()
       .then((data) => setState({ status: 'success', data }))
       .catch((e) => setState({ status: 'error', error: typeof e === 'string' ? e : (e as Error).message }))
-  }, [])
+      .finally(() => setRefreshing(false))
+  }, [state.status])
 
   useEffect(() => {
     refresh()
-    const interval = setInterval(refresh, 5000)
-    return () => clearInterval(interval)
-  }, [refresh])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <SystemContext.Provider value={{ state, refresh }}>
+    <SystemContext.Provider value={{ state, refreshing, refresh }}>
       {children}
     </SystemContext.Provider>
   )

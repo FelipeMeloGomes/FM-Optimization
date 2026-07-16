@@ -25,7 +25,13 @@ function validateString(id: unknown, label: string): IpcResult<never> | null {
 }
 
 export function registerIpcHandlers(): void {
-  ipcMain.handle('get-system-info', () => handleIpc(() => getSystemInfo()))
+  ipcMain.handle('get-system-info', async () => {
+    try {
+      return { success: true as const, data: await getSystemInfo() }
+    } catch (e: unknown) {
+      return { success: false as const, error: e instanceof Error ? e.message : String(e) }
+    }
+  })
 
   ipcMain.handle('get-scripts', () => handleIpc(() => loadScripts()))
 

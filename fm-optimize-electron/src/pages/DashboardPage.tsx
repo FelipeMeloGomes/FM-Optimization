@@ -8,7 +8,8 @@ import {
   Activity,
   Zap,
   Shield,
-  Gauge
+  Gauge,
+  Loader2
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useSystemContext } from '../contexts/SystemContext'
@@ -50,7 +51,7 @@ function parseMemoryPercent(used: string, total: string): number {
 }
 
 export default function DashboardPage() {
-  const { state, refresh } = useSystemContext()
+  const { state, refreshing, refresh } = useSystemContext()
 
   const systemHealth = useMemo(() => {
     if (state.status !== 'success') return null
@@ -136,9 +137,9 @@ export default function DashboardPage() {
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Saúde</p>
                 </div>
               )}
-              <Button variant="outline" size="sm" onClick={refresh} className="gap-1.5">
-                <Activity className="size-3.5" />
-                Atualizar
+              <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing} className="gap-1.5">
+                {refreshing ? <Loader2 className="size-3.5 animate-spin" /> : <Activity className="size-3.5" />}
+                {refreshing ? 'Atualizando...' : 'Atualizar'}
               </Button>
             </div>
           </div>

@@ -1,64 +1,55 @@
 import { cpus, totalmem, freemem, uptime, version, release, arch, type } from 'os'
-import { execSync } from 'child_process'
+import { execPowerShell } from './powershell'
 import type { DashboardData, CpuInfo, GpuInfo, MemoryInfo, OsInfo, StorageDrive } from '../../shared/ipc-types'
-
-function execPowerShell(script: string): string {
-  try {
-    const fullScript = `$ProgressPreference = 'SilentlyContinue'\n${script}`
-    const buf = Buffer.from(fullScript, 'utf16le')
-    const raw = execSync(`powershell.exe -NoProfile -EncodedCommand ${buf.toString('base64')}`, {
-      encoding: 'utf-8',
-      timeout: 10000
-    }).trim()
-    return raw.replace(/#< CLIXML>.*?<\/Objs>/gs, '').trim()
-  } catch (e: unknown) {
-    console.error('PowerShell execution failed:', e instanceof Error ? e.message : String(e))
-    return ''
-  }
-}
 
 function formatBytes(bytes: number): string {
   const gb = bytes / (1024 * 1024 * 1024)
   return `${gb.toFixed(1)} GB`
 }
 
-function getCpuInfo(): CpuInfo {
+async function getCpuInfo(): Promise<CpuInfo> {
   const cpu = cpus()[0]
   const model = cpu?.model || 'Unknown'
+  const fallbackCores = cpus().length
 
-  const cpuDetail = execPowerShell(
-    'Get-CimInstance Win32_Processor | Select-Object -First 1 NumberOfCores,NumberOfLogicalProcessors | ConvertTo-Json'
-  )
+  const [cpuDetail, usageOutput] = await Promise.all([
+    execPowerShell(
+      'Get-CimInstance Win32_Processor | Select-Object -First 1 NumberOfCores,NumberOfLogicalProcessors | ConvertTo-Json'
+    ).catch(() => ''),
+    execPowerShell(
+      '$cpu = Get-Counter "\\Processor(_Total)\\% Processor Time"; [math]::Round($cpu.CounterSamples.CookedValue)'
+    ).catch(() => '')
+  ])
 
-  let cores = cpus().length
-  let logicalProcessors = cpus().length
+  let cores = fallbackCores
+  let logicalProcessors = fallbackCores
 
   if (cpuDetail) {
     try {
       const parsed = JSON.parse(cpuDetail)
       if (parsed.NumberOfCores) cores = parsed.NumberOfCores
       if (parsed.NumberOfLogicalProcessors) logicalProcessors = parsed.NumberOfLogicalProcessors
-    } catch { /* fallback to cpus().length */ }
+    } catch { /* fallback */ }
   }
 
-  const usageOutput = execPowerShell(
-    '$cpu = Get-Counter "\\Processor(_Total)\\% Processor Time"; [math]::Round($cpu.CounterSamples.CookedValue)'
-  )
   const usage = usageOutput ? parseInt(usageOutput.trim()) || 0 : 0
 
-  return {
-    model,
-    cores,
-    logicalProcessors,
-    architecture: arch(),
-    usage
-  }
+  return { model, cores, logicalProcessors, architecture: arch(), usage }
 }
 
-function getGpuInfo(): GpuInfo {
-  const output = execPowerShell(
-    'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,DriverVersion | ConvertTo-Json -Depth 3'
-  )
+async function getGpuInfo(): Promise<GpuInfo> {
+  const [output, nvidiaVram, nvidiaSmi] = await Promise.all([
+    execPowerShell(
+      'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,DriverVersion | ConvertTo-Json -Depth 3'
+    ).catch(() => ''),
+    execPowerShell(
+      'nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>$null'
+    ).catch(() => ''),
+    execPowerShell(
+      'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>$null'
+    ).catch(() => '')
+  ])
+
   if (!output) return { name: 'N/A', vram: 'N/A', driverVersion: 'N/A', usage: 0 }
 
   let name = 'N/A'
@@ -71,24 +62,21 @@ function getGpuInfo(): GpuInfo {
   } catch { /* use defaults */ }
 
   let vram = 'N/A'
-  const nvidiaVram = execPowerShell(
-    'nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>$null'
-  )
   if (nvidiaVram) {
     const val = parseInt(nvidiaVram.trim())
     if (!isNaN(val)) vram = `${Math.round(val / 1024)} GB`
   } else {
-    const adapterRam = execPowerShell(
+    const adapterRam = await execPowerShell(
       '(Get-CimInstance Win32_VideoController | Select-Object -First 1).AdapterRAM'
-    )
+    ).catch(() => '')
     if (adapterRam) {
       const val = parseInt(adapterRam.trim())
       if (!isNaN(val) && val > 0) vram = `${Math.round(val / (1024 * 1024 * 1024))} GB`
     }
     if (vram === 'N/A') {
-      const regVram = execPowerShell(
+      const regVram = await execPowerShell(
         "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\0000' -Name 'HardwareInformation.MemorySize' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'HardwareInformation.MemorySize'"
-      )
+      ).catch(() => '')
       if (regVram) {
         const val = parseInt(regVram.trim())
         if (!isNaN(val) && val > 0) vram = `${Math.round(val / (1024 * 1024 * 1024))} GB`
@@ -97,16 +85,13 @@ function getGpuInfo(): GpuInfo {
   }
 
   let usage = 0
-  const nvidiaSmi = execPowerShell(
-    'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>$null'
-  )
   if (nvidiaSmi) {
     const val = parseInt(nvidiaSmi.trim())
     if (!isNaN(val)) usage = val
   } else {
-    const gpuUsage = execPowerShell(
+    const gpuUsage = await execPowerShell(
       "$counters = (Get-Counter '\\GPU Engine(*)\\Utilization Percentage').CounterSamples | Where-Object { $_.CookedValue -gt 0 }; $max = ($counters | Measure-Object -Property CookedValue -Maximum).Maximum; [math]::Round($max)"
-    )
+    ).catch(() => '')
     if (gpuUsage) {
       const val = parseInt(gpuUsage.trim())
       if (!isNaN(val)) usage = val
@@ -116,37 +101,34 @@ function getGpuInfo(): GpuInfo {
   return { name, vram, driverVersion, usage }
 }
 
-function getMemoryInfo(): MemoryInfo {
+async function getMemoryInfo(): Promise<MemoryInfo> {
   const total = totalmem()
   const free = freemem()
   const used = total - free
 
-  const typeOutput = execPowerShell(
-    '(Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1).SMBIOSMemoryType'
-  )
+  const [typeOutput, slotsOutput] = await Promise.all([
+    execPowerShell(
+      '(Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1).SMBIOSMemoryType'
+    ).catch(() => ''),
+    execPowerShell(
+      '(Get-CimInstance Win32_PhysicalMemory | Measure-Object).Count'
+    ).catch(() => '')
+  ])
+
   const typeMap: Record<string, string> = {
     '20': 'DDR', '21': 'DDR2', '24': 'DDR3', '26': 'DDR4', '34': 'DDR5'
   }
   const memType = typeMap[typeOutput.trim()] || 'Unknown'
-
-  const slotsOutput = execPowerShell(
-    '(Get-CimInstance Win32_PhysicalMemory | Measure-Object).Count'
-  )
   const slots = slotsOutput ? parseInt(slotsOutput.trim()) : 0
 
-  return {
-    total: formatBytes(total),
-    used: formatBytes(used),
-    free: formatBytes(free),
-    type: memType,
-    slots
-  }
+  return { total: formatBytes(total), used: formatBytes(used), free: formatBytes(free), type: memType, slots }
 }
 
-function getOsInfo(): OsInfo {
-  const output = execPowerShell(
+async function getOsInfo(): Promise<OsInfo> {
+  const output = await execPowerShell(
     'Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber,InstallDate | ConvertTo-Json -Depth 3'
-  )
+  ).catch(() => '')
+
   let name = `${type()} ${release()}`
   let build = release()
   let edition = version()
@@ -173,10 +155,10 @@ interface RawDriveInfo {
   FileSystem?: string
 }
 
-function getStorageDrives(): StorageDrive[] {
-  const output = execPowerShell(
+async function getStorageDrives(): Promise<StorageDrive[]> {
+  const output = await execPowerShell(
     'Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object DeviceID,VolumeName,@{N="Size";E={$_.Size/1GB}},@{N="Free";E={$_.FreeSpace/1GB}},FileSystem | ConvertTo-Json -Depth 3'
-  )
+  ).catch(() => '')
   if (!output) return []
 
   try {
@@ -200,13 +182,14 @@ function getStorageDrives(): StorageDrive[] {
   }
 }
 
-export function getSystemInfo(): DashboardData {
-  return {
-    cpu: getCpuInfo(),
-    gpu: getGpuInfo(),
-    memory: getMemoryInfo(),
-    os: getOsInfo(),
-    drives: getStorageDrives(),
-    uptime: Math.floor(uptime())
-  }
+export async function getSystemInfo(): Promise<DashboardData> {
+  const [cpu, gpu, memory, os, drives] = await Promise.all([
+    getCpuInfo(),
+    getGpuInfo(),
+    getMemoryInfo(),
+    getOsInfo(),
+    getStorageDrives()
+  ])
+
+  return { cpu, gpu, memory, os, drives, uptime: Math.floor(uptime()) }
 }
