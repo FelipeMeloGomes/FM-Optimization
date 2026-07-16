@@ -64,21 +64,13 @@ export const restoreSystemSchema = z.object({
   seq: RestorePointSeqSchema,
 });
 
-export const executeScriptSchema = z.object({
-  id: ScriptIdSchema,
-});
+export const executeScriptSchema = ScriptIdSchema;
 
-export const cancelExecutionSchema = z.object({
-  id: ScriptIdSchema,
-});
+export const cancelExecutionSchema = ScriptIdSchema;
 
-export const getScriptContentSchema = z.object({
-  id: ScriptIdSchema,
-});
+export const getScriptContentSchema = ScriptIdSchema;
 
-export const extractScriptSchema = z.object({
-  id: ScriptIdSchema,
-});
+export const extractScriptSchema = ScriptIdSchema;
 
 export const benchmarkDnsSchema = z.object({
   providers: BenchmarkProvidersSchema,

@@ -34,6 +34,8 @@ export function ScriptExecutionProvider({ children }: { children: ReactNode }) {
       await window.electronAPI.executeScript(id);
     } catch (e) {
       console.error('Failed to execute script:', e);
+      setActiveExecution((prev) => (prev === id ? null : prev));
+      if (activeRef.current === id) activeRef.current = null;
     }
   }, []);
 
