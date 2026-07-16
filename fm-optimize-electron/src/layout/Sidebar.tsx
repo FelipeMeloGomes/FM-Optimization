@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { cn } from '../lib/utils'
 import {
   LayoutDashboard,
   Gauge,
@@ -8,25 +10,12 @@ import {
   Smartphone,
   Settings,
   Clock,
+  PanelLeftClose,
+  PanelLeftOpen,
   Wifi,
   MousePointerClick,
-  Cpu,
-  PanelLeftClose,
-  PanelLeftOpen
+  Cpu
 } from 'lucide-react'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
-  SidebarTrigger,
-  useSidebar
-} from '../components/ui/sidebar'
-import { cn } from '../lib/utils'
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Painel' },
@@ -48,95 +37,141 @@ const bottomItems = [
   { to: '/settings', icon: Settings, label: 'Configurações' }
 ] as const
 
-function SidebarCollapseButton() {
-  const { toggleSidebar } = useSidebar()
+export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <SidebarMenuButton
-      onClick={toggleSidebar}
-      tooltip="Recolher"
-      className="mt-auto text-muted-foreground"
+    <aside
+      className={cn(
+        'flex flex-col gap-2 border-r border-border bg-sidebar-background px-3 py-4 transition-[width] duration-300 ease-in-out',
+        collapsed ? 'w-16' : 'w-48'
+      )}
     >
-      <PanelLeftClose className="size-5 group-data-[state=collapsed]:hidden" />
-      <PanelLeftOpen className="size-5 hidden group-data-[state=collapsed]:block" />
-      <span>Recolher</span>
-    </SidebarMenuButton>
-  )
-}
-
-export function AppSidebar() {
-  const { state } = useSidebar()
-  const collapsed = state === 'collapsed'
-
-  return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <NavLink to="/" className={cn('justify-center', !collapsed && 'justify-start')}>
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-                  {collapsed ? 'F' : 'FM'}
-                </div>
-                {!collapsed && (
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">FM Optimize</span>
-                  </div>
+      <div className={cn('mb-4 text-primary text-xl font-bold', collapsed && 'text-center')}>
+        {collapsed ? 'F' : 'FM'}
+      </div>
+      <nav className="flex flex-col gap-1">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === '/'}
+            className={({ isActive }) =>
+              cn(
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
+                isActive
+                  ? 'bg-primary/20 text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                collapsed && 'justify-center px-0'
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-
-      <SidebarContent>
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.to}>
-              <SidebarMenuButton asChild tooltip={item.label}>
-                <NavLink to={item.to} end={item.to === '/'}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-
-        <SidebarSeparator />
-
-        <SidebarMenu>
-          {systemItems.map((item) => (
-            <SidebarMenuItem key={item.to}>
-              <SidebarMenuButton asChild tooltip={item.label}>
-                <NavLink to={item.to}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarSeparator />
-          {bottomItems.map((item) => (
-            <SidebarMenuItem key={item.to}>
-              <SidebarMenuButton asChild tooltip={item.label}>
-                <NavLink to={item.to}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-          <SidebarMenuItem>
-            <SidebarCollapseButton />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <span
+                  className={cn(
+                    'overflow-hidden whitespace-nowrap transition-all duration-300',
+                    collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                  )}
+                >
+                  {item.label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ))}
+        <div className="my-2 border-t border-border" />
+        {systemItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              cn(
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
+                isActive
+                  ? 'bg-primary/20 text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                collapsed && 'justify-center px-0'
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
+                )}
+                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <span
+                  className={cn(
+                    'overflow-hidden whitespace-nowrap transition-all duration-300',
+                    collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                  )}
+                >
+                  {item.label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+      <div className="mt-auto" />
+      <nav className="flex flex-col gap-1">
+        <div className="my-2 border-t border-border" />
+        {bottomItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              cn(
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
+                isActive
+                  ? 'bg-primary/20 text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                collapsed && 'justify-center px-0'
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
+                )}
+                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <span
+                  className={cn(
+                    'overflow-hidden whitespace-nowrap transition-all duration-300',
+                    collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                  )}
+                >
+                  {item.label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+      <button
+        onClick={() => setCollapsed((v) => !v)}
+        className={cn(
+          'mt-auto flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground',
+          collapsed && 'justify-center px-0'
+        )}
+        aria-label={collapsed ? 'Expandir sidebar' : 'Recolher sidebar'}
+      >
+        {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
+        <span
+          className={cn(
+            'overflow-hidden whitespace-nowrap transition-all duration-300',
+            collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+          )}
+        >
+          Recolher
+        </span>
+      </button>
+    </aside>
   )
 }
