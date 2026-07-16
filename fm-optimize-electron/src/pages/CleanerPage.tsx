@@ -9,7 +9,8 @@ import {
   Clock,
   HardDrive,
   Terminal,
-  ShieldAlert
+  ShieldAlert,
+  Eraser
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui'
@@ -183,15 +184,27 @@ export default function CleanerPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Limpeza do Sistema</h2>
-          <p className="text-sm text-muted-foreground">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10">
+          <Eraser className="size-28 text-primary" />
+        </div>
+        <div className="relative p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Eraser className="size-4 text-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Limpeza</span>
+          </div>
+          <h2 className="text-lg font-bold text-foreground">
             Mantenha seu Windows limpo e rápido
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-lg">
+            Remova arquivos temporários, cache de atualizações e dados de navegadores
+            para liberar espaço e melhorar a performance do sistema.
           </p>
         </div>
       </div>
 
+      {/* Cleaner Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {CLEANER_CARDS.map((card) => {
           const script = getScriptData(card.id)
