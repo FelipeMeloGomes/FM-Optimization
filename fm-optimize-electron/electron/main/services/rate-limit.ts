@@ -53,3 +53,8 @@ export function checkRateLimit(channel: string): RateLimitResult {
   buckets.set(channel, bucket);
   return { allowed: true, retryAfterMs: 0 };
 }
+
+// Test helper: limpa o estado de todos os buckets.
+export function resetRateLimit(): void {
+  buckets.clear();
+}
