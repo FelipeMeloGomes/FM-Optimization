@@ -20,6 +20,7 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const CleanerPage = lazy(() => import('./pages/CleanerPage'))
 const CpuPage = lazy(() => import('./pages/CpuPage'))
 const NetworkPage = lazy(() => import('./pages/NetworkPage'))
+const InputLagPage = lazy(() => import('./pages/InputLagPage'))
 
 
 function PageLoader() {
@@ -55,7 +56,7 @@ export default function App() {
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/rede" element={<NetworkPage />} />
               <Route path="/apps" element={<ScriptsPage category="Apps" />} />
-              <Route path="/input-lag" element={<ScriptsPage category="Input Lag" />} />
+              <Route path="/input-lag" element={<InputLagPage />} />
               <Route path="/cpu" element={<CpuPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
