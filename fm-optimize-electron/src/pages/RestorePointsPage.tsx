@@ -1,7 +1,18 @@
 import { useState, useMemo } from 'react'
-import { RefreshCw, Plus, Trash2, RotateCcw, AlertTriangle, Search } from 'lucide-react'
+import {
+  RefreshCw,
+  Plus,
+  Trash2,
+  RotateCcw,
+  AlertTriangle,
+  Search,
+  Shield,
+  Clock,
+  CheckCircle
+} from 'lucide-react'
+import { cn } from '../lib/utils'
 import { useRestorePointContext } from '../contexts/RestorePointContext'
-import { EmptyState, Input, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui'
+import { EmptyState, Input, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Badge } from '../components/ui'
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleString('pt-BR')
@@ -29,8 +40,9 @@ export default function RestorePointsPage() {
 
   if (state.status === 'loading') {
     return (
-      <div className="flex items-center justify-center py-20">
-        <RefreshCw className="size-6 animate-spin text-muted-foreground" />
+      <div className="space-y-4">
+        <div className="h-32 rounded-xl bg-muted animate-pulse" />
+        <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
     )
   }
@@ -48,86 +60,141 @@ export default function RestorePointsPage() {
   }
 
   return (
-    <div>
-      <div className="relative mb-2">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <Input
-          placeholder="Buscar pontos de restauração..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm pl-9"
-        />
+    <div className="space-y-6">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10">
+          <Shield className="size-28 text-primary" />
+        </div>
+        <div className="relative p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="size-4 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Restauração</span>
+              </div>
+              <h2 className="text-lg font-bold text-foreground">
+                Pontos de Restauração do Sistema
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Crie e gerencie pontos de restauração para reverter mudanças quando necessário.
+              </p>
+            </div>
+            <Badge variant="secondary" className="text-xs px-3 py-1">
+              {restorePoints.length} pontos
+            </Badge>
+          </div>
+        </div>
       </div>
 
-      <div className="mb-6 flex items-center gap-3">
-        <Input
-          placeholder="Nome do ponto de restauração..."
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-          className="flex-1"
-        />
-        <Button
-          size="sm"
-          onClick={handleCreate}
-          disabled={creating || !newName.trim()}
-        >
-          <Plus className="size-3.5" />
-          {creating ? 'Criando...' : 'Criar'}
-        </Button>
-        <Button variant="outline" size="sm" onClick={refresh}>
-          <RefreshCw className="size-4" />
-        </Button>
+      {/* Create Section */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="size-1.5 rounded-full bg-emerald-400" />
+          <h3 className="text-sm font-semibold text-foreground">Criar Novo Ponto</h3>
+        </div>
+        <div className="flex items-center gap-3">
+          <Input
+            placeholder="Nome do ponto de restauração..."
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+            className="flex-1"
+          />
+          <Button
+            size="sm"
+            onClick={handleCreate}
+            disabled={creating || !newName.trim()}
+            className="gap-1.5"
+          >
+            <Plus className="size-3.5" />
+            {creating ? 'Criando...' : 'Criar'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={refresh} className="gap-1.5">
+            <RefreshCw className="size-3.5" />
+            Atualizar
+          </Button>
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <EmptyState
-          title={search ? 'Nenhum ponto encontrado para esta busca' : 'Nenhum ponto de restauração encontrado'}
-          description={search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'}
-        />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Descrição</TableHead>
-              <TableHead>Data</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((rp) => (
-              <TableRow key={rp.sequenceNumber}>
-                <TableCell>{rp.description}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {formatDate(rp.creationTime)}
-                </TableCell>
-                <TableCell className="text-muted-foreground">{rp.eventType}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setConfirmRestore(rp.sequenceNumber)}
-                      title="Restaurar sistema para este ponto"
-                    >
-                      <RotateCcw className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setConfirmDelete(rp.sequenceNumber)}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      {/* Search and Table */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="size-1.5 rounded-full bg-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Pontos Existentes</h3>
+        </div>
 
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Input
+            placeholder="Buscar pontos de restauração..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm pl-9"
+          />
+        </div>
+
+        {filtered.length === 0 ? (
+          <EmptyState
+            title={search ? 'Nenhum ponto encontrado para esta busca' : 'Nenhum ponto de restauração encontrado'}
+            description={search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'}
+          />
+        ) : (
+          <div className="rounded-xl border border-border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30">
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((rp) => (
+                  <TableRow key={rp.sequenceNumber}>
+                    <TableCell className="font-medium">{rp.description}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="size-3" />
+                        {formatDate(rp.creationTime)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {rp.eventType}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setConfirmRestore(rp.sequenceNumber)}
+                          title="Restaurar sistema para este ponto"
+                          className="size-8"
+                        >
+                          <RotateCcw className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setConfirmDelete(rp.sequenceNumber)}
+                          className="size-8"
+                        >
+                          <Trash2 className="size-3.5 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
+
+      {/* Delete Dialog */}
       <Dialog
         open={confirmDelete !== null}
         onOpenChange={(open) => { if (!open) setConfirmDelete(null) }}
@@ -137,11 +204,13 @@ export default function RestorePointsPage() {
             <DialogTitle>Confirmar Exclusão</DialogTitle>
           </DialogHeader>
           <div className="flex items-center gap-3">
-            <AlertTriangle className="size-5 text-destructive" />
+            <div className="flex size-10 items-center justify-center rounded-lg bg-destructive/10">
+              <AlertTriangle className="size-5 text-destructive" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Tem certeza que deseja excluir este ponto de restauração? Esta ação não pode ser desfeita.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Tem certeza que deseja excluir este ponto de restauração? Esta ação não pode ser desfeita.
-          </p>
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setConfirmDelete(null)}>
               Cancelar
@@ -160,6 +229,7 @@ export default function RestorePointsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Restore Dialog */}
       <Dialog
         open={confirmRestore !== null || restoreDone}
         onOpenChange={(open) => { if (!open) { setConfirmRestore(null); setRestoreDone(false) } }}
@@ -171,11 +241,13 @@ export default function RestorePointsPage() {
                 <DialogTitle>Restauração Iniciada</DialogTitle>
               </DialogHeader>
               <div className="flex items-center gap-3">
-                <RefreshCw className="size-5 animate-spin text-primary" />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <RefreshCw className="size-5 animate-spin text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  O sistema será restaurado e o computador será reiniciado em instantes.
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                O sistema será restaurado e o computador será reiniciado em instantes.
-              </p>
             </>
           ) : (
             <>
@@ -183,11 +255,13 @@ export default function RestorePointsPage() {
                 <DialogTitle>Confirmar Restauração</DialogTitle>
               </DialogHeader>
               <div className="flex items-center gap-3">
-                <AlertTriangle className="size-5 text-primary" />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <AlertTriangle className="size-5 text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Tem certeza que deseja restaurar o sistema para este ponto? O computador será reiniciado.
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Tem certeza que deseja restaurar o sistema para este ponto? O computador será reiniciado.
-              </p>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={() => setConfirmRestore(null)}>
                   Cancelar
