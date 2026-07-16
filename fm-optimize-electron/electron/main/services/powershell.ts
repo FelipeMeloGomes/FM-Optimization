@@ -64,7 +64,7 @@ function sanitizeScript(script: string): { clean: string; violations: string[] }
 }
 
 export function psEscape(arg: string): string {
-  return arg.replace(/['"`$]/g, (m) => `\`${m}`);
+  return arg.replace(/['"`$;()|&<>]/g, (m) => `\`${m}`);
 }
 
 export function buildPsCommand(command: string, ...args: string[]): string[] {
