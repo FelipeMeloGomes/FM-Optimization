@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import {
-  LayoutDashboard,
+  Home,
   Gauge,
   Wrench,
   Eraser,
@@ -19,7 +19,7 @@ import {
 import logoUrl from '../assets/logo.svg'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Painel' },
+  { to: '/', icon: Home, label: 'Início' },
   { to: '/tweaks', icon: Gauge, label: 'Ajustes' },
   { to: '/utilities', icon: Wrench, label: 'Utilitários' },
   { to: '/cleaner', icon: Eraser, label: 'Limpeza' },

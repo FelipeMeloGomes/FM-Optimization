@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom'
 import { SearchInput } from '../components/SearchInput'
 
 const routeTitles: Record<string, string> = {
-  '/': 'Painel',
+  '/': 'Início',
   '/tweaks': 'Ajustes / Desempenho',
   '/utilities': 'Utilitários',
   '/cleaner': 'Limpeza',
