@@ -30,7 +30,7 @@ const navItems = [
 ] as const
 
 const systemItems = [
-  { to: '/restore-points', icon: Shield, label: 'Pontos de Restauração' },
+  { to: '/restore-points', icon: Shield, label: 'Restauração' },
   { to: '/history', icon: Clock, label: 'Histórico' }
 ] as const
 
