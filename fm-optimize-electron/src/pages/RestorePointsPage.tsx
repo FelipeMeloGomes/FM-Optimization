@@ -1,42 +1,55 @@
-import { useState, useMemo } from 'react'
 import {
-  RefreshCw,
-  Plus,
-  Trash2,
-  RotateCcw,
   AlertTriangle,
+  Clock,
+  Plus,
+  RefreshCw,
+  RotateCcw,
   Search,
   Shield,
-  Clock,
-  CheckCircle
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { useRestorePointContext } from '../contexts/RestorePointContext'
-import { EmptyState, Input, Button, Dialog, DialogContent, DialogHeader, DialogTitle, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Badge } from '../components/ui'
+  Trash2,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui';
+import { useRestorePointContext } from '../contexts/RestorePointContext';
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('pt-BR')
+  return new Date(dateStr).toLocaleString('pt-BR');
 }
 
 export default function RestorePointsPage() {
-  const { state, creating, restoring, refresh, create, remove, restore } = useRestorePointContext()
-  const [newName, setNewName] = useState('')
-  const [search, setSearch] = useState('')
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [confirmRestore, setConfirmRestore] = useState<number | null>(null)
-  const [restoreDone, setRestoreDone] = useState(false)
+  const { state, creating, restoring, refresh, create, remove, restore } = useRestorePointContext();
+  const [newName, setNewName] = useState('');
+  const [search, setSearch] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [confirmRestore, setConfirmRestore] = useState<number | null>(null);
+  const [restoreDone, setRestoreDone] = useState(false);
 
   const handleCreate = async () => {
-    if (!newName.trim()) return
-    await create(newName.trim())
-    setNewName('')
-  }
+    if (!newName.trim()) return;
+    await create(newName.trim());
+    setNewName('');
+  };
 
-  const restorePoints = state.status === 'success' ? state.data : []
+  const restorePoints = state.status === 'success' ? state.data : [];
   const filtered = useMemo(
     () => restorePoints.filter((rp) => rp.description.toLowerCase().includes(search.toLowerCase())),
     [restorePoints, search]
-  )
+  );
 
   if (state.status === 'loading') {
     return (
@@ -44,7 +57,7 @@ export default function RestorePointsPage() {
         <div className="h-32 rounded-xl bg-muted animate-pulse" />
         <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
-    )
+    );
   }
 
   if (state.status === 'error') {
@@ -56,7 +69,7 @@ export default function RestorePointsPage() {
           Tentar novamente
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -71,7 +84,9 @@ export default function RestorePointsPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="size-4 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Restauração</span>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  Restauração
+                </span>
               </div>
               <h2 className="text-lg font-bold text-foreground">
                 Pontos de Restauração do Sistema
@@ -125,7 +140,10 @@ export default function RestorePointsPage() {
         </div>
 
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Search
+            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
           <Input
             placeholder="Buscar pontos de restauração..."
             value={search}
@@ -136,8 +154,14 @@ export default function RestorePointsPage() {
 
         {filtered.length === 0 ? (
           <EmptyState
-            title={search ? 'Nenhum ponto encontrado para esta busca' : 'Nenhum ponto de restauração encontrado'}
-            description={search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'}
+            title={
+              search
+                ? 'Nenhum ponto encontrado para esta busca'
+                : 'Nenhum ponto de restauração encontrado'
+            }
+            description={
+              search ? 'Tente ajustar sua busca' : 'Crie um ponto de restauração para começar'
+            }
           />
         ) : (
           <div className="rounded-xl border border-border overflow-hidden">
@@ -197,7 +221,9 @@ export default function RestorePointsPage() {
       {/* Delete Dialog */}
       <Dialog
         open={confirmDelete !== null}
-        onOpenChange={(open) => { if (!open) setConfirmDelete(null) }}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDelete(null);
+        }}
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -208,7 +234,8 @@ export default function RestorePointsPage() {
               <AlertTriangle className="size-5 text-destructive" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Tem certeza que deseja excluir este ponto de restauração? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir este ponto de restauração? Esta ação não pode ser
+              desfeita.
             </p>
           </div>
           <div className="flex justify-end gap-2">
@@ -219,8 +246,8 @@ export default function RestorePointsPage() {
               variant="destructive"
               size="sm"
               onClick={async () => {
-                await remove(confirmDelete!)
-                setConfirmDelete(null)
+                await remove(confirmDelete!);
+                setConfirmDelete(null);
               }}
             >
               Excluir
@@ -232,7 +259,12 @@ export default function RestorePointsPage() {
       {/* Restore Dialog */}
       <Dialog
         open={confirmRestore !== null || restoreDone}
-        onOpenChange={(open) => { if (!open) { setConfirmRestore(null); setRestoreDone(false) } }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfirmRestore(null);
+            setRestoreDone(false);
+          }
+        }}
       >
         <DialogContent className="max-w-sm">
           {restoreDone ? (
@@ -259,7 +291,8 @@ export default function RestorePointsPage() {
                   <AlertTriangle className="size-5 text-primary" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Tem certeza que deseja restaurar o sistema para este ponto? O computador será reiniciado.
+                  Tem certeza que deseja restaurar o sistema para este ponto? O computador será
+                  reiniciado.
                 </p>
               </div>
               <div className="flex justify-end gap-2">
@@ -270,9 +303,9 @@ export default function RestorePointsPage() {
                   size="sm"
                   disabled={restoring}
                   onClick={async () => {
-                    await restore(confirmRestore!)
-                    setConfirmRestore(null)
-                    setRestoreDone(true)
+                    await restore(confirmRestore!);
+                    setConfirmRestore(null);
+                    setRestoreDone(true);
                   }}
                 >
                   {restoring ? 'Restaurando...' : 'Restaurar'}
@@ -283,5 +316,5 @@ export default function RestorePointsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -1,22 +1,22 @@
-import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import { cn } from '../lib/utils'
 import {
-  Home,
-  Gauge,
-  Wrench,
-  Eraser,
-  Shield,
-  Smartphone,
-  Settings,
   Clock,
+  Cpu,
+  Eraser,
+  Gauge,
+  Home,
+  MousePointerClick,
   PanelLeftClose,
   PanelLeftOpen,
+  Settings,
+  Shield,
+  Smartphone,
   Wifi,
-  MousePointerClick,
-  Cpu
-} from 'lucide-react'
-import logoUrl from '../assets/logo.svg'
+  Wrench,
+} from 'lucide-react';
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import logoUrl from '../assets/logo.svg';
+import { cn } from '../lib/utils';
 
 const navItems = [
   { to: '/', icon: Home, label: 'Início' },
@@ -26,20 +26,18 @@ const navItems = [
   { to: '/rede', icon: Wifi, label: 'Rede' },
   { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag' },
   { to: '/cpu', icon: Cpu, label: 'Processador' },
-  { to: '/apps', icon: Smartphone, label: 'Aplicativos' }
-] as const
+  { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
+] as const;
 
 const systemItems = [
   { to: '/restore-points', icon: Shield, label: 'Restauração' },
-  { to: '/history', icon: Clock, label: 'Histórico' }
-] as const
+  { to: '/history', icon: Clock, label: 'Histórico' },
+] as const;
 
-const bottomItems = [
-  { to: '/settings', icon: Settings, label: 'Configurações' }
-] as const
+const bottomItems = [{ to: '/settings', icon: Settings, label: 'Configurações' }] as const;
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <aside
@@ -79,7 +77,10 @@ export function Sidebar() {
                 {isActive && !collapsed && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
-                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <item.icon
+                  className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                  aria-hidden="true"
+                />
                 <span
                   className={cn(
                     'overflow-hidden whitespace-nowrap transition-all duration-300',
@@ -117,7 +118,10 @@ export function Sidebar() {
                 {isActive && !collapsed && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
-                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <item.icon
+                  className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                  aria-hidden="true"
+                />
                 <span
                   className={cn(
                     'overflow-hidden whitespace-nowrap transition-all duration-300',
@@ -158,7 +162,10 @@ export function Sidebar() {
                 {isActive && !collapsed && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
-                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <item.icon
+                  className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                  aria-hidden="true"
+                />
                 <span
                   className={cn(
                     'overflow-hidden whitespace-nowrap transition-all duration-300',
@@ -196,5 +203,5 @@ export function Sidebar() {
         </span>
       </button>
     </aside>
-  )
+  );
 }

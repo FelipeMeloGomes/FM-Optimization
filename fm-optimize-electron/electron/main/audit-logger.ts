@@ -1,45 +1,49 @@
-import { appendFileSync, existsSync, mkdirSync } from 'fs'
-import { resolve } from 'path'
-import { app } from 'electron'
+import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { app } from 'electron';
 
-type AuditLevel = 'info' | 'warn' | 'error' | 'security'
+type AuditLevel = 'info' | 'warn' | 'error' | 'security';
 
 interface AuditEntry {
-  timestamp: string
-  level: AuditLevel
-  event: string
-  details: Record<string, unknown>
-  pid: number
+  timestamp: string;
+  level: AuditLevel;
+  event: string;
+  details: Record<string, unknown>;
+  pid: number;
 }
 
-const LOG_DIR = resolve(app.getPath('userData'), 'logs')
-const LOG_FILE = resolve(LOG_DIR, 'audit.log')
+const LOG_DIR = resolve(app.getPath('userData'), 'logs');
+const LOG_FILE = resolve(LOG_DIR, 'audit.log');
 
 if (!existsSync(LOG_DIR)) {
-  mkdirSync(LOG_DIR, { recursive: true })
+  mkdirSync(LOG_DIR, { recursive: true });
 }
 
 function writeEntry(entry: AuditEntry): void {
-  appendFileSync(LOG_FILE, JSON.stringify(entry) + '\n', 'utf-8')
+  appendFileSync(LOG_FILE, `${JSON.stringify(entry)}\n`, 'utf-8');
 }
 
-export function auditLog(level: AuditLevel, event: string, details: Record<string, unknown> = {}): void {
+export function auditLog(
+  level: AuditLevel,
+  event: string,
+  details: Record<string, unknown> = {}
+): void {
   const entry: AuditEntry = {
     timestamp: new Date().toISOString(),
     level,
     event,
     details,
-    pid: process.pid
-  }
-  writeEntry(entry)
+    pid: process.pid,
+  };
+  writeEntry(entry);
 }
 
 export function auditSecurity(event: string, details: Record<string, unknown> = {}): void {
-  auditLog('security', event, details)
+  auditLog('security', event, details);
 }
 
 export function auditAdminCheck(result: boolean, context: string): void {
-  auditLog('info', 'admin_check', { result, context })
+  auditLog('info', 'admin_check', { result, context });
 }
 
 export function auditScriptExecution(
@@ -56,20 +60,20 @@ export function auditScriptExecution(
     requiresAdmin,
     adminCheck,
     exitCode,
-    success
-  })
+    success,
+  });
 }
 
 export function auditIpcValidation(channel: string, success: boolean, error?: string): void {
-  auditLog(success ? 'info' : 'warn', 'ipc_validation', { channel, success, error })
+  auditLog(success ? 'info' : 'warn', 'ipc_validation', { channel, success, error });
 }
 
 export function auditPathValidation(scriptId: string, filePath: string, allowed: boolean): void {
-  auditLog(allowed ? 'info' : 'security', 'path_validation', { scriptId, filePath, allowed })
+  auditLog(allowed ? 'info' : 'security', 'path_validation', { scriptId, filePath, allowed });
 }
 
 export function auditDenyListCheck(scriptId: string, allowed: boolean, violations: string[]): void {
   if (!allowed) {
-    auditLog('security', 'deny_list_violation', { scriptId, violations })
+    auditLog('security', 'deny_list_violation', { scriptId, violations });
   }
 }

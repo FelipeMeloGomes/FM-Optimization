@@ -1,14 +1,14 @@
-import { cn } from '@/lib/utils'
-import { Switch } from './switch'
-import { Label } from './label'
+import { cn } from '@/lib/utils';
+import { Label } from './label';
+import { Switch } from './switch';
 
 interface ToggleProps {
-  id?: string
-  label: string
-  description?: string
-  checked?: boolean
-  onChange?: (e: { target: { checked: boolean } }) => void
-  className?: string
+  id?: string;
+  label: string;
+  description?: string;
+  checked?: boolean;
+  onChange?: (e: { target: { checked: boolean } }) => void;
+  className?: string;
 }
 
 export function Toggle({ label, description, id, className, checked, onChange }: ToggleProps) {
@@ -24,9 +24,9 @@ export function Toggle({ label, description, id, className, checked, onChange }:
         id={id}
         checked={checked}
         onCheckedChange={(value) => {
-          onChange?.({ target: { checked: value } })
+          onChange?.({ target: { checked: value } });
         }}
       />
     </div>
-  )
+  );
 }

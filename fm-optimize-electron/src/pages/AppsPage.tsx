@@ -1,35 +1,25 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Smartphone,
-  Shield,
-  Trash2,
-  Settings,
-  Terminal,
-  Play,
-  Square,
-  AlertTriangle,
-  RotateCcw
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { Button, Badge } from '../components/ui'
-import { useScriptContext } from '../contexts/ScriptContext'
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
-import { useSettingsContext } from '../contexts/SettingsContext'
-import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { RISK_STYLES } from '../components/ScriptCard'
-import type { ScriptEntry } from '../../electron/shared/ipc-types'
+import { AlertTriangle, Play, RotateCcw, Shield, Smartphone, Square, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ScriptEntry } from '../../electron/shared/ipc-types';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { RISK_STYLES } from '../components/ScriptCard';
+import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
+import { Badge, Button } from '../components/ui';
+import { useScriptContext } from '../contexts/ScriptContext';
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { cn } from '../lib/utils';
 
 interface AppSection {
-  id: string
-  name: string
-  description: string
-  icon: React.ElementType
-  color: string
-  bgColor: string
-  borderColor: string
-  scriptIds: string[]
-  warning?: string
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  scriptIds: string[];
+  warning?: string;
 }
 
 const APP_SECTIONS: AppSection[] = [
@@ -41,7 +31,7 @@ const APP_SECTIONS: AppSection[] = [
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/20',
-    scriptIds: ['apps-1']
+    scriptIds: ['apps-1'],
   },
   {
     id: 'security',
@@ -51,7 +41,7 @@ const APP_SECTIONS: AppSection[] = [
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/10',
     borderColor: 'border-emerald-500/20',
-    scriptIds: ['apps-2']
+    scriptIds: ['apps-2'],
   },
   {
     id: 'debloat',
@@ -62,9 +52,9 @@ const APP_SECTIONS: AppSection[] = [
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/20',
     scriptIds: ['apps-3', 'builtin-14'],
-    warning: 'Alguns apps do sistema podem ser removidos. Use com cautela.'
-  }
-]
+    warning: 'Alguns apps do sistema podem ser removidos. Use com cautela.',
+  },
+];
 
 function AppSectionCard({
   section,
@@ -72,24 +62,24 @@ function AppSectionCard({
   activeExecution,
   onExecute,
   onCancel,
-  onConfirmExecute
+  onConfirmExecute,
 }: {
-  section: AppSection
-  scripts: ScriptEntry[]
-  activeExecution: string | null
-  onExecute: (id: string) => void
-  onCancel: (id: string) => void
-  onConfirmExecute: (script: ScriptEntry) => void
+  section: AppSection;
+  scripts: ScriptEntry[];
+  activeExecution: string | null;
+  onExecute: (id: string) => void;
+  onCancel: (id: string) => void;
+  onConfirmExecute: (script: ScriptEntry) => void;
 }) {
-  const Icon = section.icon
+  const Icon = section.icon;
 
   const sectionScripts = useMemo(
-    () => scripts.filter(s => section.scriptIds.includes(s.id)),
+    () => scripts.filter((s) => section.scriptIds.includes(s.id)),
     [scripts, section.scriptIds]
-  )
+  );
 
-  const isAnyExecuting = section.scriptIds.some(id => activeExecution === id)
-  const executingScript = sectionScripts.find(s => activeExecution === s.id)
+  const isAnyExecuting = section.scriptIds.some((id) => activeExecution === id);
+  const _executingScript = sectionScripts.find((s) => activeExecution === s.id);
 
   return (
     <div
@@ -102,10 +92,9 @@ function AppSectionCard({
       <div className="p-5">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'flex size-10 items-center justify-center rounded-lg',
-              section.bgColor
-            )}>
+            <div
+              className={cn('flex size-10 items-center justify-center rounded-lg', section.bgColor)}
+            >
               <Icon className={cn('size-5', section.color)} />
             </div>
             <div>
@@ -127,7 +116,7 @@ function AppSectionCard({
 
         <div className="mt-4 space-y-2">
           {sectionScripts.map((script) => {
-            const isScriptExecuting = activeExecution === script.id
+            const isScriptExecuting = activeExecution === script.id;
             return (
               <div
                 key={script.id}
@@ -138,32 +127,48 @@ function AppSectionCard({
                 )}
               >
                 <div className="flex-1 min-w-0">
-<div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate">{script.name}</p>
-                      {script.requiresAdmin && (
-                        <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
-                          <Shield className="size-3" />
-                          Admin
-                        </Badge>
-                      )}
-                      {script.requiresRestart && (
-                        <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
-                          <RotateCcw className="size-3" />
-                          Reiniciar
-                        </Badge>
-                      )}
-                      {script.riskLevel && (
-                        <Badge variant="outline" className={cn('gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0', RISK_STYLES[script.riskLevel].className)}>
-                          {RISK_STYLES[script.riskLevel].label}
-                        </Badge>
-                      )}
-                    </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{script.description}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium truncate">{script.name}</p>
+                    {script.requiresAdmin && (
+                      <Badge
+                        variant="destructive"
+                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
+                      >
+                        <Shield className="size-3" />
+                        Admin
+                      </Badge>
+                    )}
+                    {script.requiresRestart && (
+                      <Badge
+                        variant="outline"
+                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
+                      >
+                        <RotateCcw className="size-3" />
+                        Reiniciar
+                      </Badge>
+                    )}
+                    {script.riskLevel && (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          'gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0',
+                          RISK_STYLES[script.riskLevel].className
+                        )}
+                      >
+                        {RISK_STYLES[script.riskLevel].label}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    {script.description}
+                  </p>
                 </div>
                 <Button
                   variant={isScriptExecuting ? 'destructive' : 'secondary'}
                   size="sm"
-                  onClick={() => isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)}
+                  onClick={() =>
+                    isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)
+                  }
                   className="gap-1.5 shrink-0"
                 >
                   {isScriptExecuting ? (
@@ -179,60 +184,49 @@ function AppSectionCard({
                   )}
                 </Button>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function AppsPage() {
-  const {
-    state,
-    filteredScripts,
-    setCategoryFilter,
-    setSubcategoryFilter,
-  } = useScriptContext()
-  const { activeExecution, execute, cancel } = useScriptExecutionContext()
-  const { settings } = useSettingsContext()
-  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null)
+  const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
+  const { activeExecution, execute, cancel } = useScriptExecutionContext();
+  const { settings } = useSettingsContext();
+  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
 
   useEffect(() => {
-    setCategoryFilter('Apps')
-    setSubcategoryFilter('')
-  }, [setCategoryFilter, setSubcategoryFilter])
+    setCategoryFilter('Apps');
+    setSubcategoryFilter('');
+  }, [setCategoryFilter, setSubcategoryFilter]);
 
   const appsScripts = useMemo(
-    () => filteredScripts.filter(s => s.category === 'Apps'),
+    () => filteredScripts.filter((s) => s.category === 'Apps'),
     [filteredScripts]
-  )
+  );
 
-  const handleExecute = useCallback(
-    (id: string) => execute(id),
-    [execute]
-  )
-  const handleCancel = useCallback(
-    (id: string) => cancel(id),
-    [cancel]
-  )
+  const handleExecute = useCallback((id: string) => execute(id), [execute]);
+  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
 
   const handleConfirmExecute = useCallback(
     (script: ScriptEntry) => {
       if (settings.confirmOnExecute) {
-        setConfirmScript(script)
+        setConfirmScript(script);
       } else {
-        handleExecute(script.id)
+        handleExecute(script.id);
       }
     },
     [settings.confirmOnExecute, handleExecute]
-  )
+  );
 
   const handleConfirm = useCallback(() => {
     if (confirmScript) {
-      handleExecute(confirmScript.id)
+      handleExecute(confirmScript.id);
     }
-  }, [confirmScript, handleExecute])
+  }, [confirmScript, handleExecute]);
 
   if (state.status === 'loading') {
     return (
@@ -244,7 +238,7 @@ export default function AppsPage() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (state.status === 'error') {
@@ -253,7 +247,7 @@ export default function AppsPage() {
         <p className="text-sm">Erro ao carregar scripts</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -266,14 +260,14 @@ export default function AppsPage() {
         <div className="relative p-6">
           <div className="flex items-center gap-2 mb-2">
             <Smartphone className="size-4 text-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Aplicativos</span>
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+              Aplicativos
+            </span>
           </div>
-          <h2 className="text-lg font-bold text-foreground">
-            Gerencie privacidade e bloatware
-          </h2>
+          <h2 className="text-lg font-bold text-foreground">Gerencie privacidade e bloatware</h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-            Controle sua privacidade, reforce a segurança e remova aplicativos desnecessários
-            que consumem recursos do sistema.
+            Controle sua privacidade, reforce a segurança e remova aplicativos desnecessários que
+            consumem recursos do sistema.
           </p>
         </div>
       </div>
@@ -294,11 +288,13 @@ export default function AppsPage() {
       {/* Confirm Dialog */}
       <ConfirmDialog
         open={!!confirmScript}
-        onOpenChange={(open) => { if (!open) setConfirmScript(null) }}
+        onOpenChange={(open) => {
+          if (!open) setConfirmScript(null);
+        }}
         script={confirmScript}
         onConfirm={handleConfirm}
         isExecuting={!!confirmScript && activeExecution === confirmScript.id}
       />
     </div>
-  )
+  );
 }

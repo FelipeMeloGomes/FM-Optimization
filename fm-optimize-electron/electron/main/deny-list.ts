@@ -24,25 +24,25 @@ export const DENY_LIST_PATTERNS = [
   /net\s+localgroup\s+administrators\s+\/\s*add/i,
   /netsh\s+advfirewall\s+set\s+allprofiles\s+state\s+off/i,
   /Set-NetFirewallProfile\s+-Enabled\s+False/i,
-]
+];
 
-export const ALLOWED_EXTENSIONS = ['.bat', '.cmd', '.ps1', '.reg', '.exe', '.txt'] as const
-export type AllowedExtension = typeof ALLOWED_EXTENSIONS[number]
+export const ALLOWED_EXTENSIONS = ['.bat', '.cmd', '.ps1', '.reg', '.exe', '.txt'] as const;
+export type AllowedExtension = (typeof ALLOWED_EXTENSIONS)[number];
 
 export function checkScriptContent(content: string): { allowed: boolean; violations: string[] } {
-  const violations: string[] = []
+  const violations: string[] = [];
   for (const pattern of DENY_LIST_PATTERNS) {
     if (pattern.test(content)) {
-      violations.push(pattern.source)
+      violations.push(pattern.source);
     }
   }
-  return { allowed: true, violations }
+  return { allowed: true, violations };
 }
 
 export function isExtensionAllowed(ext: string): ext is AllowedExtension {
-  return ALLOWED_EXTENSIONS.includes(ext.toLowerCase() as AllowedExtension)
+  return ALLOWED_EXTENSIONS.includes(ext.toLowerCase() as AllowedExtension);
 }
 
 export function sanitizeFileName(name: string): string {
-  return name.replace(/[/\\:*?"<>|]/g, '_')
+  return name.replace(/[/\\:*?"<>|]/g, '_');
 }

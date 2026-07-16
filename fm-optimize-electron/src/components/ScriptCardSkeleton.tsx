@@ -1,4 +1,4 @@
-import { Skeleton } from './ui'
+import { Skeleton } from './ui';
 
 export function ScriptCardSkeleton() {
   return (
@@ -18,5 +18,5 @@ export function ScriptCardSkeleton() {
         <Skeleton className="h-7 w-20 rounded-md" />
       </div>
     </div>
-  )
+  );
 }

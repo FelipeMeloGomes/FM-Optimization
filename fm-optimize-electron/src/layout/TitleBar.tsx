@@ -1,4 +1,4 @@
-import { WindowControls } from '../components/WindowControls'
+import { WindowControls } from '../components/WindowControls';
 
 export function TitleBar() {
   return (
@@ -10,5 +10,5 @@ export function TitleBar() {
         <WindowControls />
       </div>
     </div>
-  )
+  );
 }

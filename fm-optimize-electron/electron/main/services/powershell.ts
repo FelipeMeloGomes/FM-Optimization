@@ -1,7 +1,7 @@
-import { execFile as execFileCb } from 'child_process'
-import { promisify } from 'util'
+import { execFile as execFileCb } from 'node:child_process';
+import { promisify } from 'node:util';
 
-const execFileAsync = promisify(execFileCb)
+const execFileAsync = promisify(execFileCb);
 
 const DANGEROUS_PATTERNS = [
   /\bformat\b/i,
@@ -41,47 +41,49 @@ const DANGEROUS_PATTERNS = [
   /reg\s+add\s+HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run/i,
   /New-ItemProperty\s+-Path\s+HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run/i,
   /New-ItemProperty\s+-Path\s+HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run/i,
-]
+];
 
 function cleanPsOutput(raw: string): string {
   return raw
     .split('\n')
-    .filter((line) => !line.startsWith('#< CLIXML') && !line.startsWith('<Objs') && !line.startsWith('</Objs>'))
+    .filter(
+      (line) =>
+        !line.startsWith('#< CLIXML') && !line.startsWith('<Objs') && !line.startsWith('</Objs>')
+    )
     .join('\n')
-    .trim()
+    .trim();
 }
 
 function sanitizeScript(script: string): { clean: string; violations: string[] } {
-  const violations: string[] = []
-  
+  const violations: string[] = [];
+
   for (const pattern of DANGEROUS_PATTERNS) {
     if (pattern.test(script)) {
-      violations.push(`Matched pattern: ${pattern.source}`)
+      violations.push(`Matched pattern: ${pattern.source}`);
     }
   }
-  
-  return { clean: script, violations }
+
+  return { clean: script, violations };
 }
 
 export async function execPowerShell(script: string): Promise<string> {
-  const { violations } = sanitizeScript(script)
-  
+  const { violations } = sanitizeScript(script);
+
   if (violations.length > 0) {
-    throw new Error(`Script rejected by security policy: ${violations.join(', ')}`)
+    throw new Error(`Script rejected by security policy: ${violations.join(', ')}`);
   }
-  
-  const wrapped = `$ProgressPreference = 'SilentlyContinue'\n${script}`
-  const { stdout } = await execFileAsync('powershell.exe', [
-    '-NoProfile',
-    '-NonInteractive',
-    '-ExecutionPolicy', 'Bypass',
-    '-Command', wrapped
-  ], { timeout: 30000 })
-  
-  return cleanPsOutput(stdout)
+
+  const wrapped = `$ProgressPreference = 'SilentlyContinue'\n${script}`;
+  const { stdout } = await execFileAsync(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', wrapped],
+    { timeout: 30000 }
+  );
+
+  return cleanPsOutput(stdout);
 }
 
 export function validatePowerShellScript(script: string): { valid: boolean; violations: string[] } {
-  const { violations } = sanitizeScript(script)
-  return { valid: violations.length === 0, violations }
+  const { violations } = sanitizeScript(script);
+  return { valid: violations.length === 0, violations };
 }

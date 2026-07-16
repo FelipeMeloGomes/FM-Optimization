@@ -1,8 +1,8 @@
-import { Minus, X } from 'lucide-react'
-import { cn } from '../lib/utils'
+import { Minus, X } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface WindowControlsProps {
-  className?: string
+  className?: string;
 }
 
 export function WindowControls({ className }: WindowControlsProps) {
@@ -23,5 +23,5 @@ export function WindowControls({ className }: WindowControlsProps) {
         <X className="size-4" />
       </button>
     </div>
-  )
+  );
 }

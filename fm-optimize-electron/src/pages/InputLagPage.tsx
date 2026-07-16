@@ -1,38 +1,37 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Keyboard,
-  Mouse,
   Monitor,
-  Zap,
-  Shield,
-  Terminal,
-  Square,
-  Play,
+  Mouse,
   MousePointerClick,
+  Play,
   RotateCcw,
-  ShieldAlert
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { Button, Badge } from '../components/ui'
-import { useScriptContext } from '../contexts/ScriptContext'
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
-import { useSettingsContext } from '../contexts/SettingsContext'
-import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { RISK_STYLES } from '../components/ScriptCard'
-import type { ScriptEntry } from '../../electron/shared/ipc-types'
+  Shield,
+  Square,
+  Terminal,
+  Zap,
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ScriptEntry } from '../../electron/shared/ipc-types';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { RISK_STYLES } from '../components/ScriptCard';
+import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
+import { Badge, Button } from '../components/ui';
+import { useScriptContext } from '../contexts/ScriptContext';
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { cn } from '../lib/utils';
 
 interface DeviceCard {
-  id: string
-  name: string
-  description: string
-  icon: React.ElementType
-  color: string
-  dotColor: string
-  bgColor: string
-  borderColor: string
-  scriptIds: string[]
-  whatItOptimizes: string[]
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  color: string;
+  dotColor: string;
+  bgColor: string;
+  borderColor: string;
+  scriptIds: string[];
+  whatItOptimizes: string[];
 }
 
 const DEVICE_CARDS: DeviceCard[] = [
@@ -49,8 +48,8 @@ const DEVICE_CARDS: DeviceCard[] = [
     whatItOptimizes: [
       'KeyboardDelay reduzido a zero',
       'Resposta instantânea de teclas',
-      'Remoção de atraso de menu'
-    ]
+      'Remoção de atraso de menu',
+    ],
   },
   {
     id: 'mouse',
@@ -65,8 +64,8 @@ const DEVICE_CARDS: DeviceCard[] = [
     whatItOptimizes: [
       'Aceleração do mouse desativada',
       'Movimento 1:1 precisão absoluta',
-      'Tracking consistente em jogos'
-    ]
+      'Tracking consistente em jogos',
+    ],
   },
   {
     id: 'monitor',
@@ -81,27 +80,65 @@ const DEVICE_CARDS: DeviceCard[] = [
     whatItOptimizes: [
       'Tolerância DXGKrnl reduzida',
       'Menor latência de renderização',
-      'Quadros exibidos mais rápido'
-    ]
-  }
-]
+      'Quadros exibidos mais rápido',
+    ],
+  },
+];
 
 interface RegistryItem {
-  id: string
-  name: string
-  description: string
-  scriptId: string
+  id: string;
+  name: string;
+  description: string;
+  scriptId: string;
 }
 
 const REGISTRY_SCRIPTS: RegistryItem[] = [
-  { id: 'r1', name: 'Aplicar Todas Otimizações', description: 'Aplica todas as otimizações de input lag de uma vez: LargeSystemCache, TCPNoDelay, prioridade e mais.', scriptId: 'inputlag-4' },
-  { id: 'r2', name: 'Reduzir Input Lag USB', description: 'Desativa a suspensão seletiva USB para evitar que dispositivos entrem em modo de economia.', scriptId: 'inputlag-5' },
-  { id: 'r3', name: 'TCPNoDelay', description: 'Ativa TCPNoDelay para desabilitar o algoritmo Nagle, reduzindo latência de rede.', scriptId: 'inputlag-6' },
-  { id: 'r4', name: 'Prioridade de Foreground', description: 'Ajusta Win32PrioritySeparation para priorizar aplicações em primeiro plano.', scriptId: 'inputlag-7' },
-  { id: 'r5', name: 'Desativar LargeSystemCache', description: 'Reduz o uso de memória pelo cache do sistema, liberando recursos para applications.', scriptId: 'inputlag-8' },
-  { id: 'r6', name: 'Atraso no Menu', description: 'Remove o atraso de exibição de menus definindo MenuShowDelay como 0.', scriptId: 'inputlag-10' },
-  { id: 'r7', name: 'Taxa de Atualização', description: 'Aumenta a taxa de atualização do Windows desabilitando limitação de frame.', scriptId: 'inputlag-12' }
-]
+  {
+    id: 'r1',
+    name: 'Aplicar Todas Otimizações',
+    description:
+      'Aplica todas as otimizações de input lag de uma vez: LargeSystemCache, TCPNoDelay, prioridade e mais.',
+    scriptId: 'inputlag-4',
+  },
+  {
+    id: 'r2',
+    name: 'Reduzir Input Lag USB',
+    description:
+      'Desativa a suspensão seletiva USB para evitar que dispositivos entrem em modo de economia.',
+    scriptId: 'inputlag-5',
+  },
+  {
+    id: 'r3',
+    name: 'TCPNoDelay',
+    description: 'Ativa TCPNoDelay para desabilitar o algoritmo Nagle, reduzindo latência de rede.',
+    scriptId: 'inputlag-6',
+  },
+  {
+    id: 'r4',
+    name: 'Prioridade de Foreground',
+    description: 'Ajusta Win32PrioritySeparation para priorizar aplicações em primeiro plano.',
+    scriptId: 'inputlag-7',
+  },
+  {
+    id: 'r5',
+    name: 'Desativar LargeSystemCache',
+    description:
+      'Reduz o uso de memória pelo cache do sistema, liberando recursos para applications.',
+    scriptId: 'inputlag-8',
+  },
+  {
+    id: 'r6',
+    name: 'Atraso no Menu',
+    description: 'Remove o atraso de exibição de menus definindo MenuShowDelay como 0.',
+    scriptId: 'inputlag-10',
+  },
+  {
+    id: 'r7',
+    name: 'Taxa de Atualização',
+    description: 'Aumenta a taxa de atualização do Windows desabilitando limitação de frame.',
+    scriptId: 'inputlag-12',
+  },
+];
 
 function DeviceSection({
   card,
@@ -109,25 +146,25 @@ function DeviceSection({
   activeExecution,
   onExecute,
   onCancel,
-  onConfirmExecute
+  onConfirmExecute,
 }: {
-  card: DeviceCard
-  scripts: ScriptEntry[]
-  activeExecution: string | null
-  onExecute: (id: string) => void
-  onCancel: (id: string) => void
-  onConfirmExecute: (script: ScriptEntry) => void
+  card: DeviceCard;
+  scripts: ScriptEntry[];
+  activeExecution: string | null;
+  onExecute: (id: string) => void;
+  onCancel: (id: string) => void;
+  onConfirmExecute: (script: ScriptEntry) => void;
 }) {
-  const [expanded, setExpanded] = useState(false)
-  const Icon = card.icon
+  const [expanded, setExpanded] = useState(false);
+  const Icon = card.icon;
 
   const cardScripts = useMemo(
-    () => scripts.filter(s => card.scriptIds.includes(s.id)),
+    () => scripts.filter((s) => card.scriptIds.includes(s.id)),
     [scripts, card.scriptIds]
-  )
+  );
 
-  const isAnyExecuting = card.scriptIds.some(id => activeExecution === id)
-  const executingScript = cardScripts.find(s => activeExecution === s.id)
+  const isAnyExecuting = card.scriptIds.some((id) => activeExecution === id);
+  const executingScript = cardScripts.find((s) => activeExecution === s.id);
 
   return (
     <div
@@ -140,10 +177,9 @@ function DeviceSection({
       <div className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'flex size-10 items-center justify-center rounded-lg',
-              card.bgColor
-            )}>
+            <div
+              className={cn('flex size-10 items-center justify-center rounded-lg', card.bgColor)}
+            >
               <Icon className={cn('size-5', card.color)} />
             </div>
             <div>
@@ -170,26 +206,24 @@ function DeviceSection({
 
         <div className="mt-4 flex gap-2">
           {isAnyExecuting ? (
-            <>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => executingScript && onCancel(executingScript.id)}
-                className="flex-1 gap-2"
-              >
-                <Square className="size-3.5" />
-                Cancelar
-              </Button>
-            </>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => executingScript && onCancel(executingScript.id)}
+              className="flex-1 gap-2"
+            >
+              <Square className="size-3.5" />
+              Cancelar
+            </Button>
           ) : (
             <Button
               variant="default"
               size="sm"
               onClick={() => {
                 if (cardScripts.length === 1) {
-                  onConfirmExecute(cardScripts[0])
+                  onConfirmExecute(cardScripts[0]);
                 } else {
-                  setExpanded(!expanded)
+                  setExpanded(!expanded);
                 }
               }}
               className="flex-1 gap-2"
@@ -204,7 +238,7 @@ function DeviceSection({
       {expanded && cardScripts.length > 1 && (
         <div className="border-t border-border bg-muted/30 p-4 space-y-2">
           {cardScripts.map((script) => {
-            const isScriptExecuting = activeExecution === script.id
+            const isScriptExecuting = activeExecution === script.id;
             return (
               <div
                 key={script.id}
@@ -218,13 +252,19 @@ function DeviceSection({
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium truncate">{script.name}</p>
                     {script.requiresAdmin && (
-                      <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
+                      <Badge
+                        variant="destructive"
+                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
+                      >
                         <Shield className="size-3" />
                         Admin
                       </Badge>
                     )}
                     {script.requiresRestart && (
-                      <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
+                      <Badge
+                        variant="outline"
+                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
+                      >
                         <RotateCcw className="size-3" />
                         Reiniciar
                       </Badge>
@@ -232,18 +272,25 @@ function DeviceSection({
                     {script.riskLevel && (
                       <Badge
                         variant="outline"
-                        className={cn('gap-1 font-mono text-[10px] px-1.5 py-0', RISK_STYLES[script.riskLevel].className)}
+                        className={cn(
+                          'gap-1 font-mono text-[10px] px-1.5 py-0',
+                          RISK_STYLES[script.riskLevel].className
+                        )}
                       >
                         {RISK_STYLES[script.riskLevel].label}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{script.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    {script.description}
+                  </p>
                 </div>
                 <Button
                   variant={isScriptExecuting ? 'destructive' : 'secondary'}
                   size="sm"
-                  onClick={() => isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)}
+                  onClick={() =>
+                    isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)
+                  }
                   className="gap-1.5 shrink-0"
                 >
                   {isScriptExecuting ? (
@@ -259,65 +306,54 @@ function DeviceSection({
                   )}
                 </Button>
               </div>
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default function InputLagPage() {
-  const {
-    state,
-    filteredScripts,
-    setCategoryFilter,
-    setSubcategoryFilter,
-  } = useScriptContext()
-  const { activeExecution, execute, cancel } = useScriptExecutionContext()
-  const { settings } = useSettingsContext()
-  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null)
+  const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
+  const { activeExecution, execute, cancel } = useScriptExecutionContext();
+  const { settings } = useSettingsContext();
+  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
 
   useEffect(() => {
-    setCategoryFilter('Input Lag')
-    setSubcategoryFilter('')
-  }, [setCategoryFilter, setSubcategoryFilter])
+    setCategoryFilter('Input Lag');
+    setSubcategoryFilter('');
+  }, [setCategoryFilter, setSubcategoryFilter]);
 
   const inputLagScripts = useMemo(
-    () => filteredScripts.filter(s => s.category === 'Input Lag'),
+    () => filteredScripts.filter((s) => s.category === 'Input Lag'),
     [filteredScripts]
-  )
+  );
 
   const registryScripts = useMemo(
-    () => inputLagScripts.filter(s => s.subcategory === 'Regedit'),
+    () => inputLagScripts.filter((s) => s.subcategory === 'Regedit'),
     [inputLagScripts]
-  )
+  );
 
-  const handleExecute = useCallback(
-    (id: string) => execute(id),
-    [execute]
-  )
-  const handleCancel = useCallback(
-    (id: string) => cancel(id),
-    [cancel]
-  )
+  const handleExecute = useCallback((id: string) => execute(id), [execute]);
+  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
 
   const handleConfirmExecute = useCallback(
     (script: ScriptEntry) => {
       if (settings.confirmOnExecute) {
-        setConfirmScript(script)
+        setConfirmScript(script);
       } else {
-        handleExecute(script.id)
+        handleExecute(script.id);
       }
     },
     [settings.confirmOnExecute, handleExecute]
-  )
+  );
 
   const handleConfirm = useCallback(() => {
     if (confirmScript) {
-      handleExecute(confirmScript.id)
+      handleExecute(confirmScript.id);
     }
-  }, [confirmScript, handleExecute])
+  }, [confirmScript, handleExecute]);
 
   if (state.status === 'loading') {
     return (
@@ -334,7 +370,7 @@ export default function InputLagPage() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (state.status === 'error') {
@@ -343,7 +379,7 @@ export default function InputLagPage() {
         <p className="text-sm">Erro ao carregar scripts</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -356,14 +392,14 @@ export default function InputLagPage() {
         <div className="relative p-6">
           <div className="flex items-center gap-2 mb-2">
             <Zap className="size-4 text-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Otimização de Input</span>
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+              Otimização de Input
+            </span>
           </div>
-          <h2 className="text-lg font-bold text-foreground">
-            Reduza o Input Lag do seu PC
-          </h2>
+          <h2 className="text-lg font-bold text-foreground">Reduza o Input Lag do seu PC</h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-            Cada milissegundo conta. Estas otimizações reduzem a latência do teclado, mouse e monitor
-            para uma experiência de jogo mais responsiva e competitiva.
+            Cada milissegundo conta. Estas otimizações reduzem a latência do teclado, mouse e
+            monitor para uma experiência de jogo mais responsiva e competitiva.
           </p>
         </div>
       </div>
@@ -376,7 +412,7 @@ export default function InputLagPage() {
             <h3 className="text-sm font-semibold text-foreground">Dispositivos</h3>
           </div>
           <Badge variant="secondary" className="text-[10px]">
-            {inputLagScripts.filter(s => s.subcategory !== 'Regedit').length} scripts
+            {inputLagScripts.filter((s) => s.subcategory !== 'Regedit').length} scripts
           </Badge>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -408,9 +444,9 @@ export default function InputLagPage() {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {REGISTRY_SCRIPTS.map((item) => {
-            const script = inputLagScripts.find(s => s.id === item.scriptId)
-            if (!script) return null
-            const isExecuting = activeExecution === script.id
+            const script = inputLagScripts.find((s) => s.id === item.scriptId);
+            if (!script) return null;
+            const isExecuting = activeExecution === script.id;
 
             return (
               <div
@@ -423,26 +459,38 @@ export default function InputLagPage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={cn(
-                      'flex size-8 items-center justify-center rounded-lg',
-                      script.requiresAdmin ? 'bg-yellow-500/10' : 'bg-muted'
-                    )}>
-                      <Terminal className={cn(
-                        'size-4',
-                        script.requiresAdmin ? 'text-yellow-400' : 'text-muted-foreground'
-                      )} />
+                    <div
+                      className={cn(
+                        'flex size-8 items-center justify-center rounded-lg',
+                        script.requiresAdmin ? 'bg-yellow-500/10' : 'bg-muted'
+                      )}
+                    >
+                      <Terminal
+                        className={cn(
+                          'size-4',
+                          script.requiresAdmin ? 'text-yellow-400' : 'text-muted-foreground'
+                        )}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-semibold text-foreground truncate">{item.name}</h4>
+                        <h4 className="text-sm font-semibold text-foreground truncate">
+                          {item.name}
+                        </h4>
                         {script.requiresAdmin && (
-                          <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
+                          <Badge
+                            variant="destructive"
+                            className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
+                          >
                             <Shield className="size-3" />
                             Admin
                           </Badge>
                         )}
                         {script.requiresRestart && (
-                          <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
+                          <Badge
+                            variant="outline"
+                            className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
+                          >
                             <RotateCcw className="size-3" />
                             Reiniciar
                           </Badge>
@@ -450,13 +498,18 @@ export default function InputLagPage() {
                         {script.riskLevel && (
                           <Badge
                             variant="outline"
-                            className={cn('gap-1 font-mono text-[10px] px-1.5 py-0', RISK_STYLES[script.riskLevel].className)}
+                            className={cn(
+                              'gap-1 font-mono text-[10px] px-1.5 py-0',
+                              RISK_STYLES[script.riskLevel].className
+                            )}
                           >
                             {RISK_STYLES[script.riskLevel].label}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -485,7 +538,7 @@ export default function InputLagPage() {
                   )}
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
@@ -493,11 +546,13 @@ export default function InputLagPage() {
       {/* Confirm Dialog */}
       <ConfirmDialog
         open={!!confirmScript}
-        onOpenChange={(open) => { if (!open) setConfirmScript(null) }}
+        onOpenChange={(open) => {
+          if (!open) setConfirmScript(null);
+        }}
         script={confirmScript}
         onConfirm={handleConfirm}
         isExecuting={!!confirmScript && activeExecution === confirmScript.id}
       />
     </div>
-  )
+  );
 }

@@ -1,44 +1,35 @@
-import { useCallback, useEffect, useMemo } from 'react'
-import {
-  RefreshCw,
-  Wifi,
-  AlertCircle,
-  Check,
-  Loader2,
-  Zap,
-  Trophy,
-  ArrowDown
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { Button, Badge, Card, CardContent } from '../components/ui'
-import { useDnsContext } from '../contexts/DnsContext'
-import { DNS_PROVIDERS } from '../lib/dns-providers'
-import { useScriptContext } from '../contexts/ScriptContext'
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
-import { ScriptCard } from '../components/ScriptCard'
-import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
+import { AlertCircle, ArrowDown, Check, Loader2, RefreshCw, Trophy, Wifi, Zap } from 'lucide-react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { ScriptCard } from '../components/ScriptCard';
+import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
+import { Badge, Button, Card, CardContent } from '../components/ui';
+import { useDnsContext } from '../contexts/DnsContext';
+import { useScriptContext } from '../contexts/ScriptContext';
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
+import { DNS_PROVIDERS } from '../lib/dns-providers';
+import { cn } from '../lib/utils';
 
-const DNS_SCRIPT_IDS = new Set(['internet-6', 'internet-8', 'internet-9'])
+const DNS_SCRIPT_IDS = new Set(['internet-6', 'internet-8', 'internet-9']);
 
 function getLatencyColor(ms: number): string {
-  if (ms < 15) return 'text-emerald-400'
-  if (ms < 30) return 'text-green-400'
-  if (ms < 50) return 'text-yellow-400'
-  return 'text-orange-400'
+  if (ms < 15) return 'text-emerald-400';
+  if (ms < 30) return 'text-green-400';
+  if (ms < 50) return 'text-yellow-400';
+  return 'text-orange-400';
 }
 
 function getLatencyBg(ms: number): string {
-  if (ms < 15) return 'bg-emerald-500/10 border-emerald-500/30'
-  if (ms < 30) return 'bg-green-500/10 border-green-500/30'
-  if (ms < 50) return 'bg-yellow-500/10 border-yellow-500/30'
-  return 'bg-orange-500/10 border-orange-500/30'
+  if (ms < 15) return 'bg-emerald-500/10 border-emerald-500/30';
+  if (ms < 30) return 'bg-green-500/10 border-green-500/30';
+  if (ms < 50) return 'bg-yellow-500/10 border-yellow-500/30';
+  return 'bg-orange-500/10 border-orange-500/30';
 }
 
 function getLatencyLabel(ms: number): string {
-  if (ms < 15) return 'Excelente'
-  if (ms < 30) return 'Muito bom'
-  if (ms < 50) return 'Bom'
-  return 'Regular'
+  if (ms < 15) return 'Excelente';
+  if (ms < 30) return 'Muito bom';
+  if (ms < 50) return 'Bom';
+  return 'Regular';
 }
 
 export default function NetworkPage() {
@@ -51,70 +42,70 @@ export default function NetworkPage() {
     applyError,
     activeDnsIps,
     runBenchmark,
-    applyDns
-  } = useDnsContext()
+    applyDns,
+  } = useDnsContext();
 
   const {
     state: scriptState,
     filteredScripts,
     setCategoryFilter,
     setSubcategoryFilter,
-  } = useScriptContext()
-  const { activeExecution, execute, cancel } = useScriptExecutionContext()
+  } = useScriptContext();
+  const { activeExecution, execute, cancel } = useScriptExecutionContext();
 
   useEffect(() => {
-    setCategoryFilter('Internet')
-    setSubcategoryFilter('')
-  }, [setCategoryFilter, setSubcategoryFilter])
+    setCategoryFilter('Internet');
+    setSubcategoryFilter('');
+  }, [setCategoryFilter, setSubcategoryFilter]);
 
   const internetScripts = useMemo(
-    () => filteredScripts.filter(
-      s => s.category === 'Internet' && !DNS_SCRIPT_IDS.has(s.id)
-    ),
+    () => filteredScripts.filter((s) => s.category === 'Internet' && !DNS_SCRIPT_IDS.has(s.id)),
     [filteredScripts]
-  )
+  );
 
-  const getLatency = useCallback((primary: string, secondary: string): number | null => {
-    const r1 = benchmarks.get(primary)
-    const r2 = benchmarks.get(secondary)
-    const vals = [r1?.latencyMs, r2?.latencyMs].filter((v): v is number => v !== null && v !== undefined)
-    if (vals.length === 0) return null
-    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
-  }, [benchmarks])
+  const getLatency = useCallback(
+    (primary: string, secondary: string): number | null => {
+      const r1 = benchmarks.get(primary);
+      const r2 = benchmarks.get(secondary);
+      const vals = [r1?.latencyMs, r2?.latencyMs].filter(
+        (v): v is number => v !== null && v !== undefined
+      );
+      if (vals.length === 0) return null;
+      return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+    },
+    [benchmarks]
+  );
 
-  const isActive = useCallback((primary: string, secondary: string): boolean => {
-    if (!primary) return activeDnsIps.length === 0
-    return activeDnsIps.includes(primary) || activeDnsIps.includes(secondary)
-  }, [activeDnsIps])
+  const isActive = useCallback(
+    (primary: string, secondary: string): boolean => {
+      if (!primary) return activeDnsIps.length === 0;
+      return activeDnsIps.includes(primary) || activeDnsIps.includes(secondary);
+    },
+    [activeDnsIps]
+  );
 
   const sortedProviders = useMemo(() => {
     return [...DNS_PROVIDERS].sort((a, b) => {
-      if (a.isDhcp) return 1
-      if (b.isDhcp) return -1
-      const la = getLatency(a.primary, a.secondary)
-      const lb = getLatency(b.primary, b.secondary)
-      if (la === null && lb === null) return 0
-      if (la === null) return 1
-      if (lb === null) return -1
-      return la - lb
-    })
-  }, [getLatency])
+      if (a.isDhcp) return 1;
+      if (b.isDhcp) return -1;
+      const la = getLatency(a.primary, a.secondary);
+      const lb = getLatency(b.primary, b.secondary);
+      if (la === null && lb === null) return 0;
+      if (la === null) return 1;
+      if (lb === null) return -1;
+      return la - lb;
+    });
+  }, [getLatency]);
 
   const fastest = useMemo(() => {
-    const nonDhcp = sortedProviders.filter((p) => !p.isDhcp)
-    return nonDhcp.find((p) => getLatency(p.primary, p.secondary) !== null) || null
-  }, [sortedProviders, getLatency])
+    const nonDhcp = sortedProviders.filter((p) => !p.isDhcp);
+    return nonDhcp.find((p) => getLatency(p.primary, p.secondary) !== null) || null;
+  }, [sortedProviders, getLatency]);
 
-  const fastestLatency = fastest ? getLatency(fastest.primary, fastest.secondary) : null
+  const fastestLatency = fastest ? getLatency(fastest.primary, fastest.secondary) : null;
 
-  const handleExecute = useCallback(
-    (id: string) => execute(id),
-    [execute]
-  )
-  const handleCancel = useCallback(
-    (id: string) => cancel(id),
-    [cancel]
-  )
+  const handleExecute = useCallback((id: string) => execute(id), [execute]);
+  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
 
   return (
     <div className="space-y-6">
@@ -177,7 +168,9 @@ export default function NetworkPage() {
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${benchmarkProgress.total > 0 ? (benchmarkProgress.current / benchmarkProgress.total) * 100 : 0}%` }}
+                  style={{
+                    width: `${benchmarkProgress.total > 0 ? (benchmarkProgress.current / benchmarkProgress.total) * 100 : 0}%`,
+                  }}
                 />
               </div>
             </div>
@@ -215,12 +208,19 @@ export default function NetworkPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className={cn(
-                    'inline-flex items-center gap-1.5 rounded-lg border px-3 py-2',
-                    getLatencyBg(fastestLatency)
-                  )}>
+                  <div
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-lg border px-3 py-2',
+                      getLatencyBg(fastestLatency)
+                    )}
+                  >
                     <Zap className={cn('size-4', getLatencyColor(fastestLatency))} />
-                    <span className={cn('text-2xl font-bold font-mono', getLatencyColor(fastestLatency))}>
+                    <span
+                      className={cn(
+                        'text-2xl font-bold font-mono',
+                        getLatencyColor(fastestLatency)
+                      )}
+                    >
                       {fastestLatency}
                     </span>
                     <span className="text-xs text-muted-foreground">ms</span>
@@ -233,18 +233,24 @@ export default function NetworkPage() {
               <div className="mt-4 flex justify-end">
                 <Button
                   size="lg"
-                  disabled={isActive(fastest.primary, fastest.secondary) || applyStatus === 'loading'}
+                  disabled={
+                    isActive(fastest.primary, fastest.secondary) || applyStatus === 'loading'
+                  }
                   onClick={() => applyDns(fastest)}
                   className="gap-2 px-6 font-semibold shadow-[0_0_20px_rgba(0,68,255,0.3)] hover:shadow-[0_0_30px_rgba(0,68,255,0.5)]"
                 >
-{applyStatus === 'loading' || applyStatus === 'elevating' ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : isActive(fastest.primary, fastest.secondary) ? (
-                      <Check className="size-4" />
-                    ) : (
-                      <Zap className="size-4" />
-                    )}
-                    {isActive(fastest.primary, fastest.secondary) ? 'DNS Ativo' : applyStatus === 'elevating' ? 'Elevando...' : 'Aplicar DNS Mais Rápido'}
+                  {applyStatus === 'loading' || applyStatus === 'elevating' ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : isActive(fastest.primary, fastest.secondary) ? (
+                    <Check className="size-4" />
+                  ) : (
+                    <Zap className="size-4" />
+                  )}
+                  {isActive(fastest.primary, fastest.secondary)
+                    ? 'DNS Ativo'
+                    : applyStatus === 'elevating'
+                      ? 'Elevando...'
+                      : 'Aplicar DNS Mais Rápido'}
                 </Button>
               </div>
             </div>
@@ -260,10 +266,10 @@ export default function NetworkPage() {
 
         <div className="mt-4 space-y-2">
           {sortedProviders.map((provider) => {
-            const latency = getLatency(provider.primary, provider.secondary)
-            const active = isActive(provider.primary, provider.secondary)
-            const isFastest = fastest?.name === provider.name && !provider.isDhcp
-            const Icon = provider.icon
+            const latency = getLatency(provider.primary, provider.secondary);
+            const active = isActive(provider.primary, provider.secondary);
+            const isFastest = fastest?.name === provider.name && !provider.isDhcp;
+            const Icon = provider.icon;
 
             return (
               <Card
@@ -276,11 +282,15 @@ export default function NetworkPage() {
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    <div className={cn(
-                      'flex size-9 items-center justify-center rounded-lg',
-                      active ? 'bg-primary/20' : 'bg-muted'
-                    )}>
-                      <Icon className={cn('size-4', active ? 'text-primary' : 'text-muted-foreground')} />
+                    <div
+                      className={cn(
+                        'flex size-9 items-center justify-center rounded-lg',
+                        active ? 'bg-primary/20' : 'bg-muted'
+                      )}
+                    >
+                      <Icon
+                        className={cn('size-4', active ? 'text-primary' : 'text-muted-foreground')}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -292,7 +302,9 @@ export default function NetworkPage() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{provider.description}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {provider.description}
+                      </p>
                       {!provider.isDhcp && (
                         <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
                           {provider.primary} / {provider.secondary}
@@ -302,12 +314,16 @@ export default function NetworkPage() {
 
                     <div className="flex items-center gap-2">
                       {latency !== null ? (
-                        <div className={cn(
-                          'flex items-center gap-1 rounded-md border px-2 py-1',
-                          getLatencyBg(latency)
-                        )}>
+                        <div
+                          className={cn(
+                            'flex items-center gap-1 rounded-md border px-2 py-1',
+                            getLatencyBg(latency)
+                          )}
+                        >
                           <Zap className={cn('size-3', getLatencyColor(latency))} />
-                          <span className={cn('font-mono text-sm font-bold', getLatencyColor(latency))}>
+                          <span
+                            className={cn('font-mono text-sm font-bold', getLatencyColor(latency))}
+                          >
                             {latency}ms
                           </span>
                         </div>
@@ -317,10 +333,12 @@ export default function NetworkPage() {
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
 
-<Button
+                      <Button
                         variant={active ? 'secondary' : 'default'}
                         size="sm"
-                        disabled={active || applyStatus === 'loading' || applyStatus === 'elevating'}
+                        disabled={
+                          active || applyStatus === 'loading' || applyStatus === 'elevating'
+                        }
                         onClick={() => applyDns(provider)}
                         className="gap-1.5 min-w-[70px]"
                       >
@@ -335,7 +353,7 @@ export default function NetworkPage() {
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
       </div>
@@ -350,9 +368,7 @@ export default function NetworkPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">
-              {internetScripts.length} scripts
-            </Badge>
+            <Badge variant="secondary">{internetScripts.length} scripts</Badge>
           </div>
         </div>
 
@@ -387,5 +403,5 @@ export default function NetworkPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

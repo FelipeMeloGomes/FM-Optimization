@@ -1,80 +1,77 @@
-import { useState, useEffect } from 'react'
 import {
-  Settings,
-  Moon,
-  Shield,
-  RotateCcw,
-  Download,
-  Check,
   AlertTriangle,
-  RefreshCw,
+  Check,
+  Download,
   ExternalLink,
-  Sparkles
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { useSettingsContext } from '../contexts/SettingsContext'
-import { Toggle, Button, Skeleton, Progress, Badge } from '../components/ui'
-import type { UpdateStatus, UpdateInfo, DownloadProgress } from '../../electron/shared/ipc-types'
+  RefreshCw,
+  RotateCcw,
+  Settings,
+  Sparkles,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { DownloadProgress, UpdateInfo, UpdateStatus } from '../../electron/shared/ipc-types';
+import { Badge, Button, Progress, Toggle } from '../components/ui';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
-const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest'
+const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest';
 
 export default function SettingsPage() {
-  const { settings, update, loading } = useSettingsContext()
-  const [appVersion, setAppVersion] = useState('')
-  const [packaged, setPackaged] = useState(false)
-  const [status, setStatus] = useState<UpdateStatus | null>(null)
-  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null)
-  const [progress, setProgress] = useState<DownloadProgress | null>(null)
-  const [errorMsg, setErrorMsg] = useState('')
+  const { settings, update, loading } = useSettingsContext();
+  const [appVersion, setAppVersion] = useState('');
+  const [packaged, setPackaged] = useState(false);
+  const [status, setStatus] = useState<UpdateStatus | null>(null);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [progress, setProgress] = useState<DownloadProgress | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    window.electronAPI.getAppVersion().then(setAppVersion)
-    window.electronAPI.isPackaged().then(setPackaged)
-  }, [])
+    window.electronAPI.getAppVersion().then(setAppVersion);
+    window.electronAPI.isPackaged().then(setPackaged);
+  }, []);
 
   useEffect(() => {
     const unsubStatus = window.electronAPI.onUpdateStatus((s) => {
-      setStatus(s)
-      if (s === 'error') setErrorMsg('Falha ao verificar atualizações.')
-    })
+      setStatus(s);
+      if (s === 'error') setErrorMsg('Falha ao verificar atualizações.');
+    });
     const unsubInfo = window.electronAPI.onUpdateInfo((info) => {
-      setUpdateInfo(info)
-    })
+      setUpdateInfo(info);
+    });
     const unsubProgress = window.electronAPI.onDownloadProgress((p) => {
-      setProgress(p)
-      setStatus('downloading')
-    })
+      setProgress(p);
+      setStatus('downloading');
+    });
     return () => {
-      unsubStatus()
-      unsubInfo()
-      unsubProgress()
-    }
-  }, [])
+      unsubStatus();
+      unsubInfo();
+      unsubProgress();
+    };
+  }, []);
 
   function handleCheck() {
-    setStatus('checking')
-    setUpdateInfo(null)
-    setProgress(null)
-    setErrorMsg('')
+    setStatus('checking');
+    setUpdateInfo(null);
+    setProgress(null);
+    setErrorMsg('');
     window.electronAPI.checkForUpdate().catch(() => {
-      setStatus(packaged ? 'error' : 'not-available')
-      if (packaged) setErrorMsg('Falha ao verificar atualizações.')
-    })
+      setStatus(packaged ? 'error' : 'not-available');
+      if (packaged) setErrorMsg('Falha ao verificar atualizações.');
+    });
   }
 
   function handleDownload() {
     window.electronAPI.downloadUpdate().catch(() => {
-      setStatus('error')
-      setErrorMsg('Falha ao baixar atualização.')
-    })
+      setStatus('error');
+      setErrorMsg('Falha ao baixar atualização.');
+    });
   }
 
   function handleInstall() {
-    window.electronAPI.installUpdate()
+    window.electronAPI.installUpdate();
   }
 
   function handleOpenRelease() {
-    window.open(GITHUB_RELEASES, '_blank')
+    window.open(GITHUB_RELEASES, '_blank');
   }
 
   if (loading) {
@@ -84,7 +81,7 @@ export default function SettingsPage() {
         <div className="h-48 rounded-xl bg-muted animate-pulse" />
         <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
-    )
+    );
   }
 
   return (
@@ -99,11 +96,11 @@ export default function SettingsPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Settings className="size-4 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Configurações</span>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  Configurações
+                </span>
               </div>
-              <h2 className="text-lg font-bold text-foreground">
-                Preferências do Sistema
-              </h2>
+              <h2 className="text-lg font-bold text-foreground">Preferências do Sistema</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Personalize o comportamento do FM Optimize.
               </p>
@@ -188,7 +185,8 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2 mb-2">
                 <Download className="size-4 text-primary" />
                 <p className="text-sm font-medium text-foreground">
-                  Nova versão <span className="text-primary">v{updateInfo.version}</span> disponível!
+                  Nova versão <span className="text-primary">v{updateInfo.version}</span>{' '}
+                  disponível!
                 </p>
               </div>
               <Button onClick={handleDownload} size="sm" className="gap-1.5">
@@ -206,8 +204,7 @@ export default function SettingsPage() {
               </div>
               <Progress value={Math.round(progress.percent)} className="h-2 mb-2" />
               <p className="text-xs text-muted-foreground">
-                {Math.round(progress.percent)}% (
-                {(progress.transferred / 1024 / 1024).toFixed(1)}/
+                {Math.round(progress.percent)}% ({(progress.transferred / 1024 / 1024).toFixed(1)}/
                 {(progress.total / 1024 / 1024).toFixed(1)} MB)
               </p>
             </div>
@@ -217,7 +214,9 @@ export default function SettingsPage() {
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Check className="size-4 text-emerald-400" />
-                <p className="text-sm font-medium text-emerald-400">Atualização baixada com sucesso!</p>
+                <p className="text-sm font-medium text-emerald-400">
+                  Atualização baixada com sucesso!
+                </p>
               </div>
               <Button onClick={handleInstall} size="sm" className="gap-1.5">
                 <RotateCcw className="size-3.5" />
@@ -271,5 +270,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,58 +1,59 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Gauge,
-  Zap,
-  Shield,
-  Monitor,
   Cpu,
-  Settings,
+  Gauge,
+  Monitor,
   Play,
-  Square,
-  Terminal,
   RotateCcw,
-  ShieldAlert
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { Button, Badge } from '../components/ui'
-import { useScriptContext } from '../contexts/ScriptContext'
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
-import { useSettingsContext } from '../contexts/SettingsContext'
-import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { RISK_STYLES } from '../components/ScriptCard'
-import type { ScriptEntry } from '../../electron/shared/ipc-types'
+  Settings,
+  Shield,
+  ShieldAlert,
+  Square,
+  Zap,
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ScriptEntry } from '../../electron/shared/ipc-types';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { RISK_STYLES } from '../components/ScriptCard';
+import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
+import { Badge, Button } from '../components/ui';
+import { useScriptContext } from '../contexts/ScriptContext';
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { cn } from '../lib/utils';
 
 interface TweakSection {
-  id: string
-  name: string
-  description: string
-  icon: React.ElementType
-  color: string
-  bgColor: string
-  borderColor: string
-  scriptIds: string[]
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  scriptIds: string[];
 }
 
 const TWEAK_SECTIONS: TweakSection[] = [
   {
     id: 'visual',
     name: 'Otimização Visual',
-    description: 'Ajuste efeitos visuais do Windows para melhor desempenho sem sacrificar a estética.',
+    description:
+      'Ajuste efeitos visuais do Windows para melhor desempenho sem sacrificar a estética.',
     icon: Monitor,
     color: 'text-cyan-400',
     bgColor: 'bg-cyan-500/10',
     borderColor: 'border-cyan-500/20',
-    scriptIds: ['tweaks-1', 'tweaks-2', 'builtin-32', 'builtin-86']
+    scriptIds: ['tweaks-1', 'tweaks-2', 'builtin-32', 'builtin-86'],
   },
   {
     id: 'performance',
     name: 'Desempenho',
-    description: 'Otimize hardware, planos de energia e serviços do sistema para máximo rendimento.',
+    description:
+      'Otimize hardware, planos de energia e serviços do sistema para máximo rendimento.',
     icon: Zap,
     color: 'text-amber-400',
     bgColor: 'bg-amber-500/10',
     borderColor: 'border-amber-500/20',
-    scriptIds: ['tweaks-3', 'tweaks-4', 'tweaks-5', 'tweaks-6']
+    scriptIds: ['tweaks-3', 'tweaks-4', 'tweaks-5', 'tweaks-6'],
   },
   {
     id: 'network',
@@ -62,29 +63,31 @@ const TWEAK_SECTIONS: TweakSection[] = [
     color: 'text-purple-400',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/20',
-    scriptIds: ['builtin-18']
+    scriptIds: ['builtin-18'],
   },
   {
     id: 'amd',
     name: 'AMD Específico',
-    description: 'Otimizações exclusivas para processadores AMD com ajustes de latência e frame rendering.',
+    description:
+      'Otimizações exclusivas para processadores AMD com ajustes de latência e frame rendering.',
     icon: Cpu,
     color: 'text-red-400',
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/20',
-    scriptIds: ['builtin-4', 'builtin-5', 'builtin-6', 'builtin-7']
+    scriptIds: ['builtin-4', 'builtin-5', 'builtin-6', 'builtin-7'],
   },
   {
     id: 'complete',
     name: 'Otimização Completa',
-    description: 'Pacote completo que aplica todas as otimizações de uma vez. Para quem quer resultado rápido.',
+    description:
+      'Pacote completo que aplica todas as otimizações de uma vez. Para quem quer resultado rápido.',
     icon: Shield,
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/10',
     borderColor: 'border-emerald-500/20',
-    scriptIds: ['builtin-13']
-  }
-]
+    scriptIds: ['builtin-13'],
+  },
+];
 
 function TweakSectionCard({
   section,
@@ -92,24 +95,24 @@ function TweakSectionCard({
   activeExecution,
   onExecute,
   onCancel,
-  onConfirmExecute
+  onConfirmExecute,
 }: {
-  section: TweakSection
-  scripts: ScriptEntry[]
-  activeExecution: string | null
-  onExecute: (id: string) => void
-  onCancel: (id: string) => void
-  onConfirmExecute: (script: ScriptEntry) => void
+  section: TweakSection;
+  scripts: ScriptEntry[];
+  activeExecution: string | null;
+  onExecute: (id: string) => void;
+  onCancel: (id: string) => void;
+  onConfirmExecute: (script: ScriptEntry) => void;
 }) {
-  const Icon = section.icon
+  const Icon = section.icon;
 
   const sectionScripts = useMemo(
-    () => scripts.filter(s => section.scriptIds.includes(s.id)),
+    () => scripts.filter((s) => section.scriptIds.includes(s.id)),
     [scripts, section.scriptIds]
-  )
+  );
 
-  const isAnyExecuting = section.scriptIds.some(id => activeExecution === id)
-  const executingScript = sectionScripts.find(s => activeExecution === s.id)
+  const isAnyExecuting = section.scriptIds.some((id) => activeExecution === id);
+  const _executingScript = sectionScripts.find((s) => activeExecution === s.id);
 
   return (
     <div
@@ -122,10 +125,9 @@ function TweakSectionCard({
       <div className="p-5">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'flex size-10 items-center justify-center rounded-lg',
-              section.bgColor
-            )}>
+            <div
+              className={cn('flex size-10 items-center justify-center rounded-lg', section.bgColor)}
+            >
               <Icon className={cn('size-5', section.color)} />
             </div>
             <div>
@@ -140,7 +142,7 @@ function TweakSectionCard({
 
         <div className="mt-4 space-y-2">
           {sectionScripts.map((script) => {
-            const isScriptExecuting = activeExecution === script.id
+            const isScriptExecuting = activeExecution === script.id;
             return (
               <div
                 key={script.id}
@@ -154,35 +156,55 @@ function TweakSectionCard({
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium truncate">{script.name}</p>
                     {script.requiresAdmin && (
-                      <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
+                      <Badge
+                        variant="destructive"
+                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
+                      >
                         <ShieldAlert className="size-3" />
                         Admin
                       </Badge>
                     )}
                     {script.requiresRestart && (
-                      <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
+                      <Badge
+                        variant="outline"
+                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
+                      >
                         <RotateCcw className="size-3" />
                         Reiniciar
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{script.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    {script.description}
+                  </p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {script.requiresAdmin && (
-                    <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
+                    <Badge
+                      variant="destructive"
+                      className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
+                    >
                       <Shield className="size-3" />
                       Admin
                     </Badge>
                   )}
                   {script.requiresRestart && (
-                    <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400">
+                    <Badge
+                      variant="outline"
+                      className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
+                    >
                       <RotateCcw className="size-3" />
                       Reiniciar
                     </Badge>
                   )}
                   {script.riskLevel && (
-                    <Badge variant="outline" className={cn('gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0', RISK_STYLES[script.riskLevel].className)}>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        'gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0',
+                        RISK_STYLES[script.riskLevel].className
+                      )}
+                    >
                       {RISK_STYLES[script.riskLevel].label}
                     </Badge>
                   )}
@@ -190,7 +212,9 @@ function TweakSectionCard({
                 <Button
                   variant={isScriptExecuting ? 'destructive' : 'secondary'}
                   size="sm"
-                  onClick={() => isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)}
+                  onClick={() =>
+                    isScriptExecuting ? onCancel(script.id) : onConfirmExecute(script)
+                  }
                   className="gap-1.5 shrink-0"
                 >
                   {isScriptExecuting ? (
@@ -206,60 +230,49 @@ function TweakSectionCard({
                   )}
                 </Button>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function TweaksPage() {
-  const {
-    state,
-    filteredScripts,
-    setCategoryFilter,
-    setSubcategoryFilter,
-  } = useScriptContext()
-  const { activeExecution, execute, cancel } = useScriptExecutionContext()
-  const { settings } = useSettingsContext()
-  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null)
+  const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
+  const { activeExecution, execute, cancel } = useScriptExecutionContext();
+  const { settings } = useSettingsContext();
+  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
 
   useEffect(() => {
-    setCategoryFilter('Tweaks')
-    setSubcategoryFilter('')
-  }, [setCategoryFilter, setSubcategoryFilter])
+    setCategoryFilter('Tweaks');
+    setSubcategoryFilter('');
+  }, [setCategoryFilter, setSubcategoryFilter]);
 
   const tweaksScripts = useMemo(
-    () => filteredScripts.filter(s => s.category === 'Tweaks'),
+    () => filteredScripts.filter((s) => s.category === 'Tweaks'),
     [filteredScripts]
-  )
+  );
 
-  const handleExecute = useCallback(
-    (id: string) => execute(id),
-    [execute]
-  )
-  const handleCancel = useCallback(
-    (id: string) => cancel(id),
-    [cancel]
-  )
+  const handleExecute = useCallback((id: string) => execute(id), [execute]);
+  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
 
   const handleConfirmExecute = useCallback(
     (script: ScriptEntry) => {
       if (settings.confirmOnExecute) {
-        setConfirmScript(script)
+        setConfirmScript(script);
       } else {
-        handleExecute(script.id)
+        handleExecute(script.id);
       }
     },
     [settings.confirmOnExecute, handleExecute]
-  )
+  );
 
   const handleConfirm = useCallback(() => {
     if (confirmScript) {
-      handleExecute(confirmScript.id)
+      handleExecute(confirmScript.id);
     }
-  }, [confirmScript, handleExecute])
+  }, [confirmScript, handleExecute]);
 
   if (state.status === 'loading') {
     return (
@@ -271,7 +284,7 @@ export default function TweaksPage() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (state.status === 'error') {
@@ -280,7 +293,7 @@ export default function TweaksPage() {
         <p className="text-sm">Erro ao carregar scripts</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -293,14 +306,16 @@ export default function TweaksPage() {
         <div className="relative p-6">
           <div className="flex items-center gap-2 mb-2">
             <Gauge className="size-4 text-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Ajustes e Desempenho</span>
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+              Ajustes e Desempenho
+            </span>
           </div>
           <h2 className="text-lg font-bold text-foreground">
             Otimize seu Windows para máximo desempenho
           </h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-            Ajustes visuais, otimizações de hardware e configurações de sistema para extrair
-            o máximo do seu computador em jogos e aplicações.
+            Ajustes visuais, otimizações de hardware e configurações de sistema para extrair o
+            máximo do seu computador em jogos e aplicações.
           </p>
         </div>
       </div>
@@ -321,11 +336,13 @@ export default function TweaksPage() {
       {/* Confirm Dialog */}
       <ConfirmDialog
         open={!!confirmScript}
-        onOpenChange={(open) => { if (!open) setConfirmScript(null) }}
+        onOpenChange={(open) => {
+          if (!open) setConfirmScript(null);
+        }}
         script={confirmScript}
         onConfirm={handleConfirm}
         isExecuting={!!confirmScript && activeExecution === confirmScript.id}
       />
     </div>
-  )
+  );
 }

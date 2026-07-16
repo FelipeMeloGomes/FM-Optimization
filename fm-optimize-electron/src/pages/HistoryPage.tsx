@@ -1,41 +1,48 @@
-import { useMemo } from 'react'
 import {
-  RefreshCw,
-  Clock,
-  XCircle,
-  CheckCircle,
+  AlertOctagon,
   AlertTriangle,
+  CheckCircle,
+  Clock,
   History,
+  XCircle,
   Zap,
-  AlertOctagon
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { useHistoryContext } from '../contexts/HistoryContext'
-import { EmptyState, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui'
+} from 'lucide-react';
+import { useMemo } from 'react';
+import {
+  Badge,
+  EmptyState,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui';
+import { useHistoryContext } from '../contexts/HistoryContext';
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('pt-BR')
+  return new Date(dateStr).toLocaleString('pt-BR');
 }
 
 function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  const s = Math.floor(ms / 1000)
-  if (s < 60) return `${s}s`
-  const m = Math.floor(s / 60)
-  return `${m}m ${s % 60}s`
+  if (ms < 1000) return `${ms}ms`;
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  return `${m}m ${s % 60}s`;
 }
 
 export default function HistoryPage() {
-  const { state } = useHistoryContext()
+  const { state } = useHistoryContext();
 
   const stats = useMemo(() => {
-    if (state.status !== 'success') return null
-    const history = state.data
-    const success = history.filter(h => h.exitCode === 0).length
-    const failed = history.filter(h => h.exitCode != null && h.exitCode > 0).length
-    const cancelled = history.filter(h => h.wasCancelled).length
-    return { total: history.length, success, failed, cancelled }
-  }, [state])
+    if (state.status !== 'success') return null;
+    const history = state.data;
+    const success = history.filter((h) => h.exitCode === 0).length;
+    const failed = history.filter((h) => h.exitCode != null && h.exitCode > 0).length;
+    const cancelled = history.filter((h) => h.wasCancelled).length;
+    return { total: history.length, success, failed, cancelled };
+  }, [state]);
 
   if (state.status === 'loading') {
     return (
@@ -43,7 +50,7 @@ export default function HistoryPage() {
         <div className="h-32 rounded-xl bg-muted animate-pulse" />
         <div className="h-64 rounded-xl bg-muted animate-pulse" />
       </div>
-    )
+    );
   }
 
   if (state.status === 'error') {
@@ -52,10 +59,10 @@ export default function HistoryPage() {
         <p className="text-sm">Erro ao carregar histórico</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
-    )
+    );
   }
 
-  const history = state.data
+  const history = state.data;
 
   return (
     <div className="space-y-6">
@@ -69,11 +76,11 @@ export default function HistoryPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <History className="size-4 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Histórico</span>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  Histórico
+                </span>
               </div>
-              <h2 className="text-lg font-bold text-foreground">
-                Histórico de Execuções
-              </h2>
+              <h2 className="text-lg font-bold text-foreground">Histórico de Execuções</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Acompanhe todas as execuções de scripts realizadas no sistema.
               </p>
@@ -102,7 +109,9 @@ export default function HistoryPage() {
               <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/10">
                 <CheckCircle className="size-3.5 text-emerald-400" />
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase">Sucesso</span>
+              <span className="text-[10px] font-medium text-muted-foreground uppercase">
+                Sucesso
+              </span>
             </div>
             <p className="text-xl font-bold text-emerald-400">{stats.success}</p>
           </div>
@@ -120,7 +129,9 @@ export default function HistoryPage() {
               <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10">
                 <XCircle className="size-3.5 text-amber-400" />
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase">Cancelados</span>
+              <span className="text-[10px] font-medium text-muted-foreground uppercase">
+                Cancelados
+              </span>
             </div>
             <p className="text-xl font-bold text-amber-400">{stats.cancelled}</p>
           </div>
@@ -171,7 +182,10 @@ export default function HistoryPage() {
                         </Badge>
                       )}
                       {entry.exitCode === 0 && (
-                        <Badge variant="secondary" className="gap-1 text-emerald-400 bg-emerald-500/10">
+                        <Badge
+                          variant="secondary"
+                          className="gap-1 text-emerald-400 bg-emerald-500/10"
+                        >
                           <CheckCircle className="size-3" /> Sucesso
                         </Badge>
                       )}
@@ -190,5 +204,5 @@ export default function HistoryPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

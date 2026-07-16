@@ -550,12 +550,7 @@
   },
   {
     "id": "internet-1",
-    "tags": [
-      "tcp",
-      "ip",
-      "rede",
-      "otimizacao"
-    ],
+    "tags": ["tcp", "ip", "rede", "otimizacao"],
     "category": "Internet",
     "description": "Ajusta os parametros TCP/IP do Windows, incluindo autotuning, chimney, congestion provider, ECN, RSS e RSC para melhor desempenho de rede.",
     "subcategory": "",
@@ -569,11 +564,7 @@
   },
   {
     "id": "internet-2",
-    "tags": [
-      "mtu",
-      "rede",
-      "pacotes"
-    ],
+    "tags": ["mtu", "rede", "pacotes"],
     "category": "Internet",
     "description": "Ajusta a Unidade Maxima de Transmissao (MTU) para 1492 nas interfaces Wi-Fi e Ethernet, otimizando pacotes de rede.",
     "subcategory": "",
@@ -587,12 +578,7 @@
   },
   {
     "id": "internet-3",
-    "tags": [
-      "qos",
-      "fila",
-      "pacotes",
-      "largura de banda"
-    ],
+    "tags": ["qos", "fila", "pacotes", "largura de banda"],
     "category": "Internet",
     "description": "Ajusta o limite da fila de pacotes QoS para 0, removendo a restricao de largura de banda reservada pelo sistema.",
     "subcategory": "",
@@ -606,13 +592,7 @@
   },
   {
     "id": "internet-4",
-    "tags": [
-      "afd",
-      "registro",
-      "rede",
-      "driver",
-      "tweaks"
-    ],
+    "tags": ["afd", "registro", "rede", "driver", "tweaks"],
     "category": "Internet",
     "description": "Aplica otimizacoes avancadas no driver AFD (Ancillary Function Driver) para maximizar o desempenho de rede via registro do Windows.",
     "subcategory": "",
@@ -626,12 +606,7 @@
   },
   {
     "id": "internet-5",
-    "tags": [
-      "auto-tuning",
-      "tcp",
-      "janela de recebimento",
-      "rede"
-    ],
+    "tags": ["auto-tuning", "tcp", "janela de recebimento", "rede"],
     "category": "Internet",
     "description": "Desabilita o autoajuste da janela de recebimento TCP (Receive Window Auto-Tuning), util para resolver problemas de velocidade em algumas conexoes.",
     "subcategory": "",
@@ -645,12 +620,7 @@
   },
   {
     "id": "internet-6",
-    "tags": [
-      "dns",
-      "google",
-      "resolucao de nomes",
-      "rede"
-    ],
+    "tags": ["dns", "google", "resolucao de nomes", "rede"],
     "category": "Internet",
     "description": "Configura os servidores DNS do Google (8.8.8.8 e 8.8.4.4) nas interfaces Wi-Fi e Ethernet para melhorar a velocidade de resolucao de nomes.",
     "subcategory": "",
@@ -664,12 +634,7 @@
   },
   {
     "id": "internet-7",
-    "tags": [
-      "largura de banda",
-      "limite",
-      "QoS",
-      "rede"
-    ],
+    "tags": ["largura de banda", "limite", "QoS", "rede"],
     "category": "Internet",
     "description": "Remove o limite de largura de banda reservada pelo Windows, liberando toda a banda disponivel para uso.",
     "subcategory": "",
@@ -683,12 +648,7 @@
   },
   {
     "id": "internet-8",
-    "tags": [
-      "dns",
-      "cache",
-      "prioridade",
-      "rede"
-    ],
+    "tags": ["dns", "cache", "prioridade", "rede"],
     "category": "Internet",
     "description": "Otimiza os parametros de cache e prioridade do servico DNS do Windows para resolucao de nomes mais rapida e eficiente.",
     "subcategory": "",
@@ -702,13 +662,7 @@
   },
   {
     "id": "internet-9",
-    "tags": [
-      "rede",
-      "reiniciar",
-      "cache",
-      "winsock",
-      "ipconfig"
-    ],
+    "tags": ["rede", "reiniciar", "cache", "winsock", "ipconfig"],
     "category": "Internet",
     "description": "Reinicia as configuracoes de rede: libera e renova IP, limpa cache DNS e reseta o Winsock para corrigir problemas de conexao.",
     "subcategory": "",
@@ -723,12 +677,7 @@
   },
   {
     "id": "internet-10",
-    "tags": [
-      "firewall",
-      "windows",
-      "rede",
-      "seguranca"
-    ],
+    "tags": ["firewall", "windows", "rede", "seguranca"],
     "category": "Internet",
     "description": "Aplica otimizacoes no firewall do Windows, desabilitando notificacoes, respostas unicast e configuracoes de perfil Domain e Standard.",
     "subcategory": "",
@@ -742,12 +691,7 @@
   },
   {
     "id": "internet-11",
-    "tags": [
-      "reverter",
-      "restaurar",
-      "padrao",
-      "rede"
-    ],
+    "tags": ["reverter", "restaurar", "padrao", "rede"],
     "category": "Internet",
     "description": "Reverte todas as otimizacoes de Internet para os padroes do Windows, removendo registros adicionados e restaurando configuracoes originais.",
     "subcategory": "",
@@ -928,12 +872,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "boot",
-      "bcdedit",
-      "hpet"
-    ],
+    "tags": ["amd", "boot", "bcdedit", "hpet"],
     "requiresAdmin": true,
     "requiresRestart": true,
     "name": "Otimizacao AMD (Geral)",
@@ -948,12 +887,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "limpeza",
-      "cache",
-      "temp"
-    ],
+    "tags": ["amd", "limpeza", "cache", "temp"],
     "requiresAdmin": true,
     "requiresRestart": true,
     "name": "Super Limpeza",
@@ -968,11 +902,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "cache",
-      "limpeza"
-    ],
+    "tags": ["amd", "cache", "limpeza"],
     "requiresAdmin": true,
     "name": "Limpar Cache",
     "extension": "bat",
@@ -986,12 +916,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "fps",
-      "limpeza",
-      "event logs"
-    ],
+    "tags": ["amd", "fps", "limpeza", "event logs"],
     "requiresAdmin": true,
     "name": "Limpeza +FPS",
     "extension": "bat",
@@ -1005,12 +930,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "limpeza",
-      "temp",
-      "prefetch"
-    ],
+    "tags": ["amd", "limpeza", "temp", "prefetch"],
     "requiresAdmin": true,
     "name": "Limpeza Basica",
     "extension": "bat",
@@ -1024,12 +944,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "limpeza",
-      "navegadores",
-      "temp"
-    ],
+    "tags": ["amd", "limpeza", "navegadores", "temp"],
     "requiresAdmin": true,
     "name": "Limpeza Completa de Navegadores",
     "extension": "bat",
@@ -1043,11 +958,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "logs",
-      "limpeza"
-    ],
+    "tags": ["amd", "logs", "limpeza"],
     "requiresAdmin": true,
     "name": "Deletar Arquivos de Logs",
     "extension": "bat",
@@ -1061,11 +972,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "temp",
-      "limpeza"
-    ],
+    "tags": ["amd", "temp", "limpeza"],
     "requiresAdmin": true,
     "name": "Limpar Temp",
     "extension": "bat",
@@ -1079,12 +986,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "cache",
-      "limpeza",
-      "bluestacks"
-    ],
+    "tags": ["amd", "cache", "limpeza", "bluestacks"],
     "requiresAdmin": true,
     "name": "Limpeza de Cache",
     "extension": "bat",
@@ -1098,12 +1000,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "rede",
-      "tcp",
-      "conexao"
-    ],
+    "tags": ["amd", "rede", "tcp", "conexao"],
     "requiresAdmin": true,
     "name": "Melhorar Conexao de Rede",
     "extension": "bat",
@@ -1117,11 +1014,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "servicos",
-      "startup"
-    ],
+    "tags": ["amd", "servicos", "startup"],
     "requiresAdmin": true,
     "name": "Desabilitar Servicos",
     "extension": "cmd",
@@ -1135,11 +1028,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "servicos",
-      "startup"
-    ],
+    "tags": ["amd", "servicos", "startup"],
     "requiresAdmin": true,
     "name": "Desabilitar Servicos (Versao 2)",
     "extension": "cmd",
@@ -1153,12 +1042,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "memoria",
-      "ram",
-      "otimizacao"
-    ],
+    "tags": ["amd", "memoria", "ram", "otimizacao"],
     "requiresAdmin": true,
     "name": "Otimizador de Memoria",
     "extension": "bat",
@@ -1172,12 +1056,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "dns",
-      "rede",
-      "internet"
-    ],
+    "tags": ["amd", "dns", "rede", "internet"],
     "requiresAdmin": true,
     "name": "Otimizar Internet",
     "extension": "cmd",
@@ -1191,12 +1070,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "boot",
-      "bcdedit",
-      "boost"
-    ],
+    "tags": ["amd", "boot", "bcdedit", "boost"],
     "requiresAdmin": true,
     "requiresRestart": true,
     "name": "Boost AMD (Boot)",
@@ -1211,12 +1085,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "fps",
-      "jogos",
-      "gpu"
-    ],
+    "tags": ["amd", "fps", "jogos", "gpu"],
     "requiresAdmin": true,
     "name": "Otimizar FPS nos Jogos",
     "extension": "reg",
@@ -1230,12 +1099,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "cpu",
-      "nucleos",
-      "processador"
-    ],
+    "tags": ["amd", "cpu", "nucleos", "processador"],
     "requiresAdmin": true,
     "name": "Ativar Nucleos do Processador",
     "extension": "reg",
@@ -1249,12 +1113,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "gpu",
-      "video",
-      "desempenho"
-    ],
+    "tags": ["amd", "gpu", "video", "desempenho"],
     "requiresAdmin": true,
     "name": "Aumentar Desempenho GPU",
     "extension": "reg",
@@ -1268,12 +1127,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "pc fraco",
-      "resposta",
-      "desempenho"
-    ],
+    "tags": ["amd", "pc fraco", "resposta", "desempenho"],
     "requiresAdmin": true,
     "name": "Diminuir Resposta PC Fraco",
     "extension": "reg",
@@ -1287,11 +1141,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "notificacoes",
-      "distracao"
-    ],
+    "tags": ["amd", "notificacoes", "distracao"],
     "requiresAdmin": true,
     "name": "Desabilitar Centro de Notificacoes",
     "extension": "reg",
@@ -1305,12 +1155,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "jogos",
-      "gpu",
-      "otimizacao"
-    ],
+    "tags": ["amd", "jogos", "gpu", "otimizacao"],
     "requiresAdmin": true,
     "name": "Otimizacoes para Jogos",
     "extension": "reg",
@@ -1324,12 +1169,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "cpu",
-      "spooler",
-      "impressora"
-    ],
+    "tags": ["amd", "cpu", "spooler", "impressora"],
     "requiresAdmin": true,
     "name": "Liberar Uso de CPU",
     "extension": "reg",
@@ -1343,11 +1183,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "pc fraco",
-      "desempenho"
-    ],
+    "tags": ["amd", "pc fraco", "desempenho"],
     "requiresAdmin": true,
     "name": "Otimizacoes PC Fraco",
     "extension": "reg",
@@ -1361,12 +1197,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "cpu",
-      "prioridade",
-      "jogos"
-    ],
+    "tags": ["amd", "cpu", "prioridade", "jogos"],
     "requiresAdmin": true,
     "name": "Prioridade CPU",
     "extension": "reg",
@@ -1380,11 +1211,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "prefetch",
-      "desempenho"
-    ],
+    "tags": ["amd", "prefetch", "desempenho"],
     "requiresAdmin": true,
     "name": "Desativar Prefetcher",
     "extension": "reg",
@@ -1398,11 +1225,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "superfetch",
-      "desempenho"
-    ],
+    "tags": ["amd", "superfetch", "desempenho"],
     "requiresAdmin": true,
     "name": "Desativar Superfetch",
     "extension": "reg",
@@ -1416,12 +1239,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "rede",
-      "ndu",
-      "desempenho"
-    ],
+    "tags": ["amd", "rede", "ndu", "desempenho"],
     "requiresAdmin": true,
     "name": "Desativar Uso de Rede",
     "extension": "reg",
@@ -1435,13 +1253,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "fps",
-      "mouse",
-      "rede",
-      "prioridade"
-    ],
+    "tags": ["amd", "fps", "mouse", "rede", "prioridade"],
     "requiresAdmin": true,
     "name": "Priorizar FPS",
     "extension": "reg",
@@ -1455,12 +1267,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "gpu",
-      "video",
-      "prioridade"
-    ],
+    "tags": ["amd", "gpu", "video", "prioridade"],
     "requiresAdmin": true,
     "name": "Priorizar Placa de Video",
     "extension": "reg",
@@ -1474,12 +1281,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 4GB",
     "extension": "reg",
@@ -1493,12 +1295,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 6GB",
     "extension": "reg",
@@ -1512,12 +1309,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 8GB",
     "extension": "reg",
@@ -1531,12 +1323,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 12GB",
     "extension": "reg",
@@ -1550,12 +1337,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 16GB",
     "extension": "reg",
@@ -1569,12 +1351,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 32GB",
     "extension": "reg",
@@ -1588,12 +1365,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["amd", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 64GB",
     "extension": "reg",
@@ -1607,12 +1379,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "amd",
-      "ram",
-      "memoria",
-      "reset"
-    ],
+    "tags": ["amd", "ram", "memoria", "reset"],
     "requiresAdmin": true,
     "name": "Resetar RAM Padrao",
     "extension": "reg",
@@ -1626,12 +1393,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "bcdedit",
-      "boot",
-      "otimizacao"
-    ],
+    "tags": ["intel", "bcdedit", "boot", "otimizacao"],
     "requiresAdmin": true,
     "requiresRestart": true,
     "name": "Otimizacao Intel (Geral)",
@@ -1646,12 +1408,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "fps",
-      "limpeza",
-      "event logs"
-    ],
+    "tags": ["intel", "fps", "limpeza", "event logs"],
     "requiresAdmin": true,
     "name": "Limpeza +FPS",
     "extension": "bat",
@@ -1665,12 +1422,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "rede",
-      "tcp",
-      "conexao"
-    ],
+    "tags": ["intel", "rede", "tcp", "conexao"],
     "requiresAdmin": true,
     "name": "Melhorar Conexao de Rede",
     "extension": "bat",
@@ -1684,11 +1436,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "servicos",
-      "startup"
-    ],
+    "tags": ["intel", "servicos", "startup"],
     "requiresAdmin": true,
     "name": "Desabilitar Servicos",
     "extension": "cmd",
@@ -1702,11 +1450,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "servicos",
-      "startup"
-    ],
+    "tags": ["intel", "servicos", "startup"],
     "requiresAdmin": true,
     "name": "Desabilitar Servicos (Versao 2)",
     "extension": "cmd",
@@ -1720,12 +1464,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "dns",
-      "rede",
-      "internet"
-    ],
+    "tags": ["intel", "dns", "rede", "internet"],
     "requiresAdmin": true,
     "name": "Otimizar Internet",
     "extension": "cmd",
@@ -1739,12 +1478,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "memoria",
-      "ram",
-      "otimizacao"
-    ],
+    "tags": ["intel", "memoria", "ram", "otimizacao"],
     "requiresAdmin": true,
     "name": "Otimizador de Memoria",
     "extension": "bat",
@@ -1758,12 +1492,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "boot",
-      "bcdedit",
-      "boost"
-    ],
+    "tags": ["intel", "boot", "bcdedit", "boost"],
     "requiresAdmin": true,
     "requiresRestart": true,
     "name": "Boost Intel (Boot)",
@@ -1778,12 +1507,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "limpeza",
-      "temp",
-      "prefetch"
-    ],
+    "tags": ["intel", "limpeza", "temp", "prefetch"],
     "requiresAdmin": true,
     "name": "Limpeza Basica",
     "extension": "bat",
@@ -1797,12 +1521,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "limpeza",
-      "navegadores",
-      "temp"
-    ],
+    "tags": ["intel", "limpeza", "navegadores", "temp"],
     "requiresAdmin": true,
     "name": "Limpeza Completa de Navegadores",
     "extension": "bat",
@@ -1816,11 +1535,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "logs",
-      "limpeza"
-    ],
+    "tags": ["intel", "logs", "limpeza"],
     "requiresAdmin": true,
     "name": "Deletar Arquivos de Logs",
     "extension": "bat",
@@ -1834,11 +1549,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "temp",
-      "limpeza"
-    ],
+    "tags": ["intel", "temp", "limpeza"],
     "requiresAdmin": true,
     "name": "Limpar Temp",
     "extension": "bat",
@@ -1852,12 +1563,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "cache",
-      "limpeza",
-      "bluestacks"
-    ],
+    "tags": ["intel", "cache", "limpeza", "bluestacks"],
     "requiresAdmin": true,
     "name": "Limpeza de Cache",
     "extension": "bat",
@@ -1871,11 +1577,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "cache",
-      "limpeza"
-    ],
+    "tags": ["intel", "cache", "limpeza"],
     "requiresAdmin": true,
     "name": "Limpar Cache",
     "extension": "bat",
@@ -1889,13 +1591,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "limpeza",
-      "cache",
-      "sfc",
-      "completa"
-    ],
+    "tags": ["intel", "limpeza", "cache", "sfc", "completa"],
     "requiresAdmin": true,
     "requiresRestart": true,
     "name": "Super Limpeza",
@@ -1910,12 +1606,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "cpu",
-      "prioridade",
-      "jogos"
-    ],
+    "tags": ["intel", "cpu", "prioridade", "jogos"],
     "requiresAdmin": true,
     "name": "Prioridade CPU",
     "extension": "reg",
@@ -1929,12 +1620,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "pc fraco",
-      "resposta",
-      "desempenho"
-    ],
+    "tags": ["intel", "pc fraco", "resposta", "desempenho"],
     "requiresAdmin": true,
     "name": "Otimizacoes PC Fraco",
     "extension": "reg",
@@ -1948,12 +1634,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "cpu",
-      "spooler",
-      "impressora"
-    ],
+    "tags": ["intel", "cpu", "spooler", "impressora"],
     "requiresAdmin": true,
     "name": "Liberar Uso de CPU",
     "extension": "reg",
@@ -1967,12 +1648,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "jogos",
-      "gpu",
-      "otimizacao"
-    ],
+    "tags": ["intel", "jogos", "gpu", "otimizacao"],
     "requiresAdmin": true,
     "name": "Otimizacoes para Jogos",
     "extension": "reg",
@@ -1986,11 +1662,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "notificacoes",
-      "distracao"
-    ],
+    "tags": ["intel", "notificacoes", "distracao"],
     "requiresAdmin": true,
     "name": "Desabilitar Centro de Notificacoes",
     "extension": "reg",
@@ -2004,12 +1676,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "pc fraco",
-      "resposta",
-      "desempenho"
-    ],
+    "tags": ["intel", "pc fraco", "resposta", "desempenho"],
     "requiresAdmin": true,
     "name": "Diminuir Resposta PC Fraco",
     "extension": "reg",
@@ -2023,12 +1690,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "gpu",
-      "video",
-      "desempenho"
-    ],
+    "tags": ["intel", "gpu", "video", "desempenho"],
     "requiresAdmin": true,
     "name": "Aumentar Desempenho GPU",
     "extension": "reg",
@@ -2042,12 +1704,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "cpu",
-      "nucleos",
-      "processador"
-    ],
+    "tags": ["intel", "cpu", "nucleos", "processador"],
     "requiresAdmin": true,
     "name": "Ativar Nucleos do Processador",
     "extension": "reg",
@@ -2061,12 +1718,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "fps",
-      "jogos",
-      "gpu"
-    ],
+    "tags": ["intel", "fps", "jogos", "gpu"],
     "requiresAdmin": true,
     "name": "Otimizar FPS nos Jogos",
     "extension": "reg",
@@ -2080,12 +1732,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "gpu",
-      "video",
-      "prioridade"
-    ],
+    "tags": ["intel", "gpu", "video", "prioridade"],
     "requiresAdmin": true,
     "name": "Priorizar Placa de Video",
     "extension": "reg",
@@ -2099,13 +1746,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "fps",
-      "mouse",
-      "rede",
-      "prioridade"
-    ],
+    "tags": ["intel", "fps", "mouse", "rede", "prioridade"],
     "requiresAdmin": true,
     "name": "Priorizar FPS",
     "extension": "reg",
@@ -2119,12 +1760,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "rede",
-      "ndu",
-      "desempenho"
-    ],
+    "tags": ["intel", "rede", "ndu", "desempenho"],
     "requiresAdmin": true,
     "name": "Desativar Uso de Rede",
     "extension": "reg",
@@ -2138,11 +1774,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "superfetch",
-      "desempenho"
-    ],
+    "tags": ["intel", "superfetch", "desempenho"],
     "requiresAdmin": true,
     "name": "Desativar Superfetch",
     "extension": "reg",
@@ -2156,11 +1788,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "prefetch",
-      "desempenho"
-    ],
+    "tags": ["intel", "prefetch", "desempenho"],
     "requiresAdmin": true,
     "name": "Desativar Prefetcher",
     "extension": "reg",
@@ -2174,12 +1802,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 4GB",
     "extension": "reg",
@@ -2193,12 +1816,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 6GB",
     "extension": "reg",
@@ -2212,12 +1830,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 8GB",
     "extension": "reg",
@@ -2231,12 +1844,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 12GB",
     "extension": "reg",
@@ -2250,12 +1858,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 16GB",
     "extension": "reg",
@@ -2269,12 +1872,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 32GB",
     "extension": "reg",
@@ -2288,12 +1886,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "svcHost"
-    ],
+    "tags": ["intel", "ram", "memoria", "svcHost"],
     "requiresAdmin": true,
     "name": "Liberar RAM 64GB",
     "extension": "reg",
@@ -2307,12 +1900,7 @@
     "riskLevel": "moderate"
   },
   {
-    "tags": [
-      "intel",
-      "ram",
-      "memoria",
-      "reset"
-    ],
+    "tags": ["intel", "ram", "memoria", "reset"],
     "requiresAdmin": true,
     "name": "Resetar RAM Padrao",
     "extension": "reg",

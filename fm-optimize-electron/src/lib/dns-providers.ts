@@ -1,21 +1,13 @@
-import {
-  Cloud,
-  Shield,
-  Globe,
-  ShieldCheck,
-  ShieldAlert,
-  Baby,
-  Settings
-} from 'lucide-react'
+import { Baby, Cloud, Globe, Settings, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 export interface DnsProvider {
-  name: string
-  primary: string
-  secondary: string
-  description: string
-  icon: typeof Cloud
-  features: string[]
-  isDhcp?: boolean
+  name: string;
+  primary: string;
+  secondary: string;
+  description: string;
+  icon: typeof Cloud;
+  features: string[];
+  isDhcp?: boolean;
 }
 
 export const DNS_PROVIDERS: DnsProvider[] = [
@@ -25,7 +17,7 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     secondary: '1.0.0.1',
     description: 'Privacidade extrema. Sem logs de consulta.',
     icon: Cloud,
-    features: ['Privacidade', 'Sem logs']
+    features: ['Privacidade', 'Sem logs'],
   },
   {
     name: 'Google',
@@ -33,7 +25,7 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     secondary: '8.8.4.4',
     description: 'Rápido e confiável. Mantido pelo Google.',
     icon: Globe,
-    features: ['Velocidade', 'Confiável']
+    features: ['Velocidade', 'Confiável'],
   },
   {
     name: 'Quad9',
@@ -41,7 +33,7 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     secondary: '149.112.112.112',
     description: 'Bloqueia malware e phishing automaticamente.',
     icon: ShieldCheck,
-    features: ['Segurança', 'Anti-malware']
+    features: ['Segurança', 'Anti-malware'],
   },
   {
     name: 'OpenDNS',
@@ -49,7 +41,7 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     secondary: '208.67.220.220',
     description: 'Filtragem de conteúdo e proteção familiar.',
     icon: Shield,
-    features: ['Filtragem', 'Família']
+    features: ['Filtragem', 'Família'],
   },
   {
     name: 'AdGuard',
@@ -57,7 +49,7 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     secondary: '94.140.15.15',
     description: 'Bloqueia anúncios e rastreadores.',
     icon: ShieldAlert,
-    features: ['Anúncios', 'Rastreadores']
+    features: ['Anúncios', 'Rastreadores'],
   },
   {
     name: 'CleanBrowsing',
@@ -65,7 +57,7 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     secondary: '185.228.169.168',
     description: 'Segurança familiar. Bloqueia conteúdo adulto.',
     icon: Baby,
-    features: ['Família', 'Segurança']
+    features: ['Família', 'Segurança'],
   },
   {
     name: 'DHCP (Padrão)',
@@ -74,6 +66,6 @@ export const DNS_PROVIDERS: DnsProvider[] = [
     description: 'Restaura configuração de rede do provedor.',
     icon: Settings,
     features: ['Padrão'],
-    isDhcp: true
-  }
-]
+    isDhcp: true,
+  },
+];

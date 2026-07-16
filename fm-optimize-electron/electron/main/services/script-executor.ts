@@ -1,29 +1,34 @@
-import { spawn, execSync, ChildProcess } from 'child_process'
-import { BrowserWindow } from 'electron'
-import { extractScriptToTemp, getScriptById } from './script-registry'
-import { isAdmin } from './admin-check'
-import { loadSettings, addHistoryEntry } from './data-service'
-import { auditScriptExecution, auditAdminCheck } from '../audit-logger'
-import { validateScriptPath } from '../path-validation'
-import type { ScriptOutput, ScriptEnded, ScriptEntry, ExecutionHistoryEntry } from '../../shared/ipc-types'
+import { type ChildProcess, execSync, spawn } from 'node:child_process';
+import { BrowserWindow } from 'electron';
+import type {
+  ExecutionHistoryEntry,
+  ScriptEnded,
+  ScriptEntry,
+  ScriptOutput,
+} from '../../shared/ipc-types';
+import { auditAdminCheck, auditScriptExecution } from '../audit-logger';
+import { validateScriptPath } from '../path-validation';
+import { isAdmin } from './admin-check';
+import { addHistoryEntry, loadSettings } from './data-service';
+import { extractScriptToTemp, getScriptById } from './script-registry';
 
-const activeProcesses = new Map<string, ChildProcess>()
+const activeProcesses = new Map<string, ChildProcess>();
 
 function sendOutput(win: BrowserWindow, data: ScriptOutput): void {
   if (!win.isDestroyed()) {
-    win.webContents.send('script-output', JSON.stringify(data))
+    win.webContents.send('script-output', JSON.stringify(data));
   }
 }
 
 function sendEnded(win: BrowserWindow, data: ScriptEnded): void {
   if (!win.isDestroyed()) {
-    win.webContents.send('script-ended', JSON.stringify(data))
+    win.webContents.send('script-ended', JSON.stringify(data));
   }
 }
 
 function sendError(win: BrowserWindow, scriptId: string, text: string): void {
   if (!win.isDestroyed()) {
-    win.webContents.send('script-error', JSON.stringify({ scriptId, type: 'stderr', text }))
+    win.webContents.send('script-error', JSON.stringify({ scriptId, type: 'stderr', text }));
   }
 }
 
@@ -43,144 +48,169 @@ function createHistoryEntry(
     endTime: new Date(endTime).toISOString(),
     durationMs: endTime - startTime,
     exitCode,
-    wasCancelled
-  }
+    wasCancelled,
+  };
 }
 
 export function executeScript(id: string): string {
-  const win = BrowserWindow.getFocusedWindow()
-  if (!win) throw new Error('Nenhuma janela ativa')
+  const win = BrowserWindow.getFocusedWindow();
+  if (!win) throw new Error('Nenhuma janela ativa');
 
   if (activeProcesses.has(id)) {
-    throw new Error(`Script "${id}" já está em execução`)
+    throw new Error(`Script "${id}" já está em execução`);
   }
 
-  const script = getScriptById(id)
-  const requiresAdmin = script?.requiresAdmin ?? false
-  const adminCheck = requiresAdmin ? isAdmin() : true
-  auditAdminCheck(adminCheck, `script:${id}`)
+  const script = getScriptById(id);
+  const requiresAdmin = script?.requiresAdmin ?? false;
+  const adminCheck = requiresAdmin ? isAdmin() : true;
+  auditAdminCheck(adminCheck, `script:${id}`);
   if (requiresAdmin && !adminCheck) {
     throw new Error(
       'Este script requer privilégios de administrador. Execute o programa como administrador.'
-    )
+    );
   }
 
-  const filePath = extractScriptToTemp(id)
+  const filePath = extractScriptToTemp(id);
 
-  const pathValidation = validateScriptPath(filePath)
+  const pathValidation = validateScriptPath(filePath);
   if (!pathValidation.valid) {
-    throw new Error(`Path validation failed: ${pathValidation.error}`)
+    throw new Error(`Path validation failed: ${pathValidation.error}`);
   }
 
-  const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined
+  const ext = filePath.split('.').pop()?.toLowerCase() as ScriptExtension | undefined;
 
   if (ext === 'txt') {
     const proc = spawn('cmd.exe', ['/c', 'start', '', filePath], {
       detached: true,
-      stdio: 'ignore'
-    })
-    proc.unref()
-    sendEnded(win, { id, code: 0 })
-    const now = Date.now()
-    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false))
-    auditScriptExecution(id, script?.name || id, false, true, 0, true)
-    return 'opened'
+      stdio: 'ignore',
+    });
+    proc.unref();
+    sendEnded(win, { id, code: 0 });
+    const now = Date.now();
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false));
+    auditScriptExecution(id, script?.name || id, false, true, 0, true);
+    return 'opened';
   }
 
   if (loadSettings().autoRestorePoint && script) {
-    const safeName = script.name.replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '').trim()
+    const safeName = script.name
+      .replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '')
+      .trim();
     if (safeName) {
-      spawn('powershell.exe', [
-        '-NoProfile',
-        '-Command',
-        `Checkpoint-Computer -Description "Antes de executar: ${safeName}" -RestorePointType MODIFY_SETTINGS`
-      ], { stdio: 'ignore', detached: true }).unref()
+      spawn(
+        'powershell.exe',
+        [
+          '-NoProfile',
+          '-Command',
+          `Checkpoint-Computer -Description "Antes de executar: ${safeName}" -RestorePointType MODIFY_SETTINGS`,
+        ],
+        { stdio: 'ignore', detached: true }
+      ).unref();
     }
   }
 
-  const { command, args } = getCommand(ext, filePath)
+  const { command, args } = getCommand(ext, filePath);
   const proc = spawn(command, args, {
     windowsHide: true,
-    stdio: ['ignore', 'pipe', 'pipe']
-  })
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
 
-  activeProcesses.set(id, proc)
+  activeProcesses.set(id, proc);
 
   proc.stdout?.on('data', (data: Buffer) => {
-    sendOutput(win, { scriptId: id, type: 'stdout', text: data.toString() })
-  })
+    sendOutput(win, { scriptId: id, type: 'stdout', text: data.toString() });
+  });
 
   proc.stderr?.on('data', (data: Buffer) => {
-    const text = data.toString()
-    sendOutput(win, { scriptId: id, type: 'stderr', text })
-    sendError(win, id, text)
-  })
+    const text = data.toString();
+    sendOutput(win, { scriptId: id, type: 'stderr', text });
+    sendError(win, id, text);
+  });
 
-  const startTime = Date.now()
+  const startTime = Date.now();
 
   proc.on('close', (code) => {
-    activeProcesses.delete(id)
-    sendEnded(win, { id, code })
-    const endTime = Date.now()
-    addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, code, false))
-    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, script?.requiresAdmin ? isAdmin() : true, code, code === 0)
-  })
+    activeProcesses.delete(id);
+    sendEnded(win, { id, code });
+    const endTime = Date.now();
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, code, false));
+    auditScriptExecution(
+      id,
+      script?.name || id,
+      script?.requiresAdmin ?? false,
+      script?.requiresAdmin ? isAdmin() : true,
+      code,
+      code === 0
+    );
+  });
 
   proc.on('error', (err) => {
-    activeProcesses.delete(id)
-    sendOutput(win, { scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` })
-    sendError(win, id, `Error: ${err.message}\n`)
-    sendEnded(win, { id, code: -1 })
-    const endTime = Date.now()
-    addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, -1, false))
-    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, script?.requiresAdmin ? isAdmin() : true, -1, false)
-  })
+    activeProcesses.delete(id);
+    sendOutput(win, { scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` });
+    sendError(win, id, `Error: ${err.message}\n`);
+    sendEnded(win, { id, code: -1 });
+    const endTime = Date.now();
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, -1, false));
+    auditScriptExecution(
+      id,
+      script?.name || id,
+      script?.requiresAdmin ?? false,
+      script?.requiresAdmin ? isAdmin() : true,
+      -1,
+      false
+    );
+  });
 
-  return 'started'
+  return 'started';
 }
 
 export function cancelExecution(id: string): void {
-  const proc = activeProcesses.get(id)
-  if (proc && proc.pid) {
+  const proc = activeProcesses.get(id);
+  if (proc?.pid) {
     try {
-      proc.kill('SIGTERM')
+      proc.kill('SIGTERM');
     } catch {
       try {
-        execSync(`taskkill /F /T /PID ${proc.pid}`, { timeout: 5000 })
-      } catch { /* already dead */ }
+        execSync(`taskkill /F /T /PID ${proc.pid}`, { timeout: 5000 });
+      } catch {
+        /* already dead */
+      }
     }
-    const script = getScriptById(id)
-    const now = Date.now()
-    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, null, true))
-    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, true, null, false)
-    activeProcesses.delete(id)
+    const script = getScriptById(id);
+    const now = Date.now();
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, null, true));
+    auditScriptExecution(id, script?.name || id, script?.requiresAdmin ?? false, true, null, false);
+    activeProcesses.delete(id);
   }
 }
 
-type ScriptExtension = ScriptEntry['extension']
+type ScriptExtension = ScriptEntry['extension'];
 
-function getCommand(ext: ScriptExtension | undefined, filePath: string): { command: string; args: string[] } {
+function getCommand(
+  ext: ScriptExtension | undefined,
+  filePath: string
+): { command: string; args: string[] } {
   if (ext === undefined) {
-    return { command: 'cmd.exe', args: ['/c', filePath] }
+    return { command: 'cmd.exe', args: ['/c', filePath] };
   }
   switch (ext) {
     case 'bat':
     case 'cmd':
-      return { command: 'cmd.exe', args: ['/c', filePath] }
+      return { command: 'cmd.exe', args: ['/c', filePath] };
     case 'ps1':
       return {
         command: 'powershell.exe',
-        args: ['-ExecutionPolicy', 'Bypass', '-File', filePath]
-      }
+        args: ['-ExecutionPolicy', 'Bypass', '-File', filePath],
+      };
     case 'reg':
-      return { command: 'regedit.exe', args: ['/s', filePath] }
+      return { command: 'regedit.exe', args: ['/s', filePath] };
     case 'exe':
-      return { command: filePath, args: [] }
+      return { command: filePath, args: [] };
     case 'txt':
-      return { command: 'notepad.exe', args: [filePath] }
+      return { command: 'notepad.exe', args: [filePath] };
     default: {
-      const _exhaustive: never = ext
-      return _exhaustive
+      const _exhaustive: never = ext;
+      return _exhaustive;
     }
   }
 }

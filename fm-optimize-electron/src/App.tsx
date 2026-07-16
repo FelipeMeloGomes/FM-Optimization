@@ -1,37 +1,36 @@
-import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { AppLayout } from './layout/AppLayout'
-import { ErrorBoundary } from './components/ErrorBoundary'
-import { Skeleton } from './components/ui'
-import { ScriptProvider } from './contexts/ScriptContext'
-import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext'
-import { SystemProvider } from './contexts/SystemContext'
-import { RestorePointProvider } from './contexts/RestorePointContext'
-import { HistoryProvider } from './contexts/HistoryContext'
-import { SettingsProvider } from './contexts/SettingsContext'
-import { DnsProvider } from './contexts/DnsContext'
-import { composeProviders } from './lib/compose-providers'
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Skeleton } from './components/ui';
+import { DnsProvider } from './contexts/DnsContext';
+import { HistoryProvider } from './contexts/HistoryContext';
+import { RestorePointProvider } from './contexts/RestorePointContext';
+import { ScriptProvider } from './contexts/ScriptContext';
+import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext';
+import { SettingsProvider } from './contexts/SettingsContext';
+import { SystemProvider } from './contexts/SystemContext';
+import { AppLayout } from './layout/AppLayout';
+import { composeProviders } from './lib/compose-providers';
 
-const DashboardPage = lazy(() => import('./pages/DashboardPage'))
-const ScriptsPage = lazy(() => import('./pages/ScriptsPage'))
-const RestorePointsPage = lazy(() => import('./pages/RestorePointsPage'))
-const HistoryPage = lazy(() => import('./pages/HistoryPage'))
-const SettingsPage = lazy(() => import('./pages/SettingsPage'))
-const CleanerPage = lazy(() => import('./pages/CleanerPage'))
-const CpuPage = lazy(() => import('./pages/CpuPage'))
-const NetworkPage = lazy(() => import('./pages/NetworkPage'))
-const InputLagPage = lazy(() => import('./pages/InputLagPage'))
-const TweaksPage = lazy(() => import('./pages/TweaksPage'))
-const UtilitiesPage = lazy(() => import('./pages/UtilitiesPage'))
-const AppsPage = lazy(() => import('./pages/AppsPage'))
-
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const _ScriptsPage = lazy(() => import('./pages/ScriptsPage'));
+const RestorePointsPage = lazy(() => import('./pages/RestorePointsPage'));
+const HistoryPage = lazy(() => import('./pages/HistoryPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const CleanerPage = lazy(() => import('./pages/CleanerPage'));
+const CpuPage = lazy(() => import('./pages/CpuPage'));
+const NetworkPage = lazy(() => import('./pages/NetworkPage'));
+const InputLagPage = lazy(() => import('./pages/InputLagPage'));
+const TweaksPage = lazy(() => import('./pages/TweaksPage'));
+const UtilitiesPage = lazy(() => import('./pages/UtilitiesPage'));
+const AppsPage = lazy(() => import('./pages/AppsPage'));
 
 function PageLoader() {
   return (
     <div className="flex items-center justify-center py-20">
       <Skeleton className="size-6 rounded-full" />
     </div>
-  )
+  );
 }
 
 const AllProviders = composeProviders(
@@ -42,7 +41,7 @@ const AllProviders = composeProviders(
   RestorePointProvider,
   HistoryProvider,
   DnsProvider
-)
+);
 
 export default function App() {
   return (
@@ -68,5 +67,5 @@ export default function App() {
         </ErrorBoundary>
       </Suspense>
     </AllProviders>
-  )
+  );
 }

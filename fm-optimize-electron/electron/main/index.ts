@@ -1,133 +1,133 @@
-import { app, BrowserWindow, shell, Menu } from 'electron'
-import { join, resolve } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { autoUpdater } from 'electron-updater'
-import { registerIpcHandlers } from './ipc-handlers'
-import { executeScript } from './services/script-executor'
+import { join, resolve } from 'node:path';
+import { electronApp, is, optimizer } from '@electron-toolkit/utils';
+import { app, BrowserWindow, Menu, shell } from 'electron';
+import { autoUpdater } from 'electron-updater';
+import { registerIpcHandlers } from './ipc-handlers';
+import { executeScript } from './services/script-executor';
 
-let mainWindow: BrowserWindow | null = null
+let mainWindow: BrowserWindow | null = null;
 
-export { mainWindow }
+export { mainWindow };
 
 // Handle elevated script execution argument
 function handleElevatedScript(): boolean {
-  const args = process.argv.slice(1)
-  const elevateIndex = args.indexOf('--elevate-script')
+  const args = process.argv.slice(1);
+  const elevateIndex = args.indexOf('--elevate-script');
   if (elevateIndex !== -1 && elevateIndex + 1 < args.length) {
-    const scriptId = args[elevateIndex + 1]
+    const scriptId = args[elevateIndex + 1];
     // Wait a bit for window to be ready, then execute
     setTimeout(() => {
       if (mainWindow) {
         try {
-          executeScript(scriptId)
+          executeScript(scriptId);
         } catch (e) {
-          console.error('Failed to execute elevated script:', e)
+          console.error('Failed to execute elevated script:', e);
         }
       }
-    }, 1000)
-    return true
+    }, 1000);
+    return true;
   }
 
   // Handle elevated DNS apply argument
-  const elevateDnsIndex = args.indexOf('--elevate-dns')
+  const elevateDnsIndex = args.indexOf('--elevate-dns');
   if (elevateDnsIndex !== -1 && elevateDnsIndex + 2 < args.length) {
-    const interfaceIndex = parseInt(args[elevateDnsIndex + 1], 10)
-    const addressesJson = args[elevateDnsIndex + 2]
-    if (!isNaN(interfaceIndex) && addressesJson) {
+    const interfaceIndex = parseInt(args[elevateDnsIndex + 1], 10);
+    const addressesJson = args[elevateDnsIndex + 2];
+    if (!Number.isNaN(interfaceIndex) && addressesJson) {
       setTimeout(() => {
         if (mainWindow) {
           try {
-            const addresses = JSON.parse(addressesJson)
-            applyDnsElevated(interfaceIndex, addresses)
+            const addresses = JSON.parse(addressesJson);
+            applyDnsElevated(interfaceIndex, addresses);
           } catch (e) {
-            console.error('Failed to apply elevated DNS:', e)
+            console.error('Failed to apply elevated DNS:', e);
           }
         }
-      }, 1000)
+      }, 1000);
     }
-    return true
+    return true;
   }
 
-  return false
+  return false;
 }
 
 async function applyDnsElevated(interfaceIndex: number, addresses: string[]): Promise<void> {
-  const { execPowerShell } = await import('./services/powershell')
-  
+  const { execPowerShell } = await import('./services/powershell');
+
   if (addresses.length === 0) {
     const ps = `
       $ErrorActionPreference = 'Stop'
       Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ResetServerAddresses
-    `
-    await execPowerShell(ps)
+    `;
+    await execPowerShell(ps);
   } else {
-    const addrList = addresses.map((a) => `"${a}"`).join(',')
+    const addrList = addresses.map((a) => `"${a}"`).join(',');
     const ps = `
       $ErrorActionPreference = 'Stop'
       Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses (${addrList})
       ipconfig /flushdns | Out-Null
-    `
-    await execPowerShell(ps)
+    `;
+    await execPowerShell(ps);
   }
-  
+
   // Notify renderer of success
-  sendToRenderer('dns-applied', { success: true })
+  sendToRenderer('dns-applied', { success: true });
 }
 
 function iconPath(): string {
   return app.isPackaged
     ? resolve(process.resourcesPath, 'icon.ico')
-    : join(__dirname, '../../resources/icon.ico')
+    : join(__dirname, '../../resources/icon.ico');
 }
 
 function sendToRenderer(channel: string, ...args: unknown[]): void {
-  mainWindow?.webContents.send(channel, ...args)
+  mainWindow?.webContents.send(channel, ...args);
 }
 
 function setupAutoUpdater(): void {
-  autoUpdater.autoDownload = false
-  autoUpdater.autoInstallOnAppQuit = false
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
 
   autoUpdater.on('checking-for-update', () => {
-    sendToRenderer('update-status', 'checking')
-  })
+    sendToRenderer('update-status', 'checking');
+  });
 
   autoUpdater.on('update-available', (info) => {
-    sendToRenderer('update-status', 'available')
+    sendToRenderer('update-status', 'available');
     sendToRenderer('update-info', {
       version: info.version,
-      releaseDate: info.releaseDate
-    })
-  })
+      releaseDate: info.releaseDate,
+    });
+  });
 
   autoUpdater.on('update-not-available', () => {
-    sendToRenderer('update-status', 'not-available')
-  })
+    sendToRenderer('update-status', 'not-available');
+  });
 
   autoUpdater.on('download-progress', (progress) => {
-    sendToRenderer('update-status', 'downloading')
+    sendToRenderer('update-status', 'downloading');
     sendToRenderer('download-progress', {
       percent: progress.percent,
       bytesPerSecond: progress.bytesPerSecond,
       total: progress.total,
-      transferred: progress.transferred
-    })
-  })
+      transferred: progress.transferred,
+    });
+  });
 
   autoUpdater.on('update-downloaded', () => {
-    sendToRenderer('update-status', 'ready')
-  })
+    sendToRenderer('update-status', 'ready');
+  });
 
   autoUpdater.on('error', (err) => {
-    sendToRenderer('update-status', 'error')
-    sendToRenderer('update-info', { version: '', error: err.message })
-  })
+    sendToRenderer('update-status', 'error');
+    sendToRenderer('update-info', { version: '', error: err.message });
+  });
 
   autoUpdater.setFeedURL({
     provider: 'github',
     owner: 'FelipeMeloGomes',
-    repo: 'FM-Optimization'
-  })
+    repo: 'FM-Optimization',
+  });
 }
 
 function createWindow(): void {
@@ -144,51 +144,53 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
       contextIsolation: true,
-      nodeIntegration: false
-    }
-  })
+      nodeIntegration: false,
+    },
+  });
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow?.show()
-  })
+    mainWindow?.show();
+  });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     try {
-      const parsed = new URL(details.url)
+      const parsed = new URL(details.url);
       if (['https:', 'http:', 'mailto:'].includes(parsed.protocol)) {
-        shell.openExternal(details.url)
+        shell.openExternal(details.url);
       }
-    } catch { /* invalid URL */ }
-    return { action: 'deny' }
-  })
+    } catch {
+      /* invalid URL */
+    }
+    return { action: 'deny' };
+  });
 
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  if (is.dev && process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 }
 
 app.whenReady().then(() => {
-  Menu.setApplicationMenu(null)
-  electronApp.setAppUserModelId('com.fmoptimize')
+  Menu.setApplicationMenu(null);
+  electronApp.setAppUserModelId('com.fmoptimize');
 
   app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
+    optimizer.watchWindowShortcuts(window);
+  });
 
-  registerIpcHandlers()
-  setupAutoUpdater()
-  createWindow()
+  registerIpcHandlers();
+  setupAutoUpdater();
+  createWindow();
 
   // Handle elevated script execution after window is created
-  handleElevatedScript()
+  handleElevatedScript();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
-})
+  if (process.platform !== 'darwin') app.quit();
+});

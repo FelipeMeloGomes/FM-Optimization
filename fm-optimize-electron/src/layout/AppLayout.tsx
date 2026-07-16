@@ -1,7 +1,7 @@
-import { Outlet } from 'react-router-dom'
-import { Sidebar } from './Sidebar'
-import { TitleBar } from './TitleBar'
-import { CircuitBackground } from '../components/CircuitBackground'
+import { Outlet } from 'react-router-dom';
+import { CircuitBackground } from '../components/CircuitBackground';
+import { Sidebar } from './Sidebar';
+import { TitleBar } from './TitleBar';
 
 export function AppLayout() {
   return (
@@ -17,5 +17,5 @@ export function AppLayout() {
         </div>
       </div>
     </div>
-  )
+  );
 }

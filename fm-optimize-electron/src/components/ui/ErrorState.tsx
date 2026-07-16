@@ -1,8 +1,8 @@
-import { Button } from './button'
+import { Button } from './button';
 
 interface ErrorStateProps {
-  message: string
-  onRetry?: () => void
+  message: string;
+  onRetry?: () => void;
 }
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
@@ -15,5 +15,5 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         </Button>
       )}
     </div>
-  )
+  );
 }

@@ -1,16 +1,13 @@
-import { type ReactNode, type ElementType } from 'react'
+import type { ElementType, ReactNode } from 'react';
 
 interface ProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function composeProviders(
   ...providers: Array<ElementType<ProviderProps>>
 ): React.FC<{ children: ReactNode }> {
   return function ComposedProviders({ children }) {
-    return providers.reduceRight(
-      (content, Provider) => <Provider>{content}</Provider>,
-      children
-    )
-  }
+    return providers.reduceRight((content, Provider) => <Provider>{content}</Provider>, children);
+  };
 }

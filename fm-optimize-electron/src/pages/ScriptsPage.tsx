@@ -1,12 +1,12 @@
-import { useCallback, useEffect } from 'react'
-import { Button, EmptyState, Badge } from '../components/ui'
-import { useScriptContext } from '../contexts/ScriptContext'
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
-import { ScriptCard } from '../components/ScriptCard'
-import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
+import { useCallback, useEffect } from 'react';
+import { ScriptCard } from '../components/ScriptCard';
+import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
+import { Badge, Button, EmptyState } from '../components/ui';
+import { useScriptContext } from '../contexts/ScriptContext';
+import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
 
 interface ScriptsPageProps {
-  category: string
+  category: string;
 }
 
 export default function ScriptsPage({ category }: ScriptsPageProps) {
@@ -17,22 +17,16 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     setSubcategoryFilter,
     subcategoryFilter,
     subcategories,
-  } = useScriptContext()
-  const { activeExecution, execute, cancel } = useScriptExecutionContext()
+  } = useScriptContext();
+  const { activeExecution, execute, cancel } = useScriptExecutionContext();
 
   useEffect(() => {
-    setCategoryFilter(category)
-    setSubcategoryFilter('')
-  }, [category, setCategoryFilter, setSubcategoryFilter])
+    setCategoryFilter(category);
+    setSubcategoryFilter('');
+  }, [category, setCategoryFilter, setSubcategoryFilter]);
 
-  const handleExecute = useCallback(
-    (id: string) => execute(id),
-    [execute]
-  )
-  const handleCancel = useCallback(
-    (id: string) => cancel(id),
-    [cancel]
-  )
+  const handleExecute = useCallback((id: string) => execute(id), [execute]);
+  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
 
   if (state.status === 'loading') {
     return (
@@ -41,7 +35,7 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
           <ScriptCardSkeleton key={i} />
         ))}
       </div>
-    )
+    );
   }
 
   if (state.status === 'error') {
@@ -50,15 +44,13 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
         <p className="text-sm">Erro ao carregar scripts</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
-    )
+    );
   }
 
   return (
     <div>
       <div className="mb-4 flex items-center gap-2">
-        <Badge variant="secondary">
-          {filteredScripts.length} scripts
-        </Badge>
+        <Badge variant="secondary">{filteredScripts.length} scripts</Badge>
       </div>
 
       {subcategories.length > 0 && (
@@ -93,16 +85,16 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {filteredScripts.map((script) => (
-          <ScriptCard
-            key={script.id}
-            script={script}
-            isExecuting={activeExecution === script.id}
-            onExecute={() => handleExecute(script.id)}
-            onCancel={() => handleCancel(script.id)}
-          />
+            <ScriptCard
+              key={script.id}
+              script={script}
+              isExecuting={activeExecution === script.id}
+              onExecute={() => handleExecute(script.id)}
+              onCancel={() => handleCancel(script.id)}
+            />
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }

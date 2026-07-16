@@ -1,88 +1,136 @@
-import { memo, useState, useRef, useEffect } from 'react'
 import {
+  ChevronDown,
+  Cpu,
+  Eraser,
+  FileText,
+  Gauge,
+  Info,
+  MousePointerClick,
   Play,
+  RotateCcw,
+  Shield,
+  ShieldAlert,
+  Smartphone,
   Square,
   Terminal,
-  ShieldAlert,
-  Info,
-  ChevronDown,
-  FileText,
-  Shield,
-  Zap,
-  Gauge,
-  Wrench,
-  Eraser,
-  Globe,
-  Smartphone,
   Wifi,
-  MousePointerClick,
-  Cpu,
-  Settings,
-  RotateCcw,
-  AlertTriangle
-} from 'lucide-react'
-import { cn } from '../lib/utils'
-import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle } from './ui'
-import { useSettingsContext } from '../contexts/SettingsContext'
-import type { ScriptEntry } from '../../electron/shared/ipc-types'
+  Wrench,
+  Zap,
+} from 'lucide-react';
+import { memo, useEffect, useRef, useState } from 'react';
+import type { ScriptEntry } from '../../electron/shared/ipc-types';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { cn } from '../lib/utils';
+import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle } from './ui';
 
 export const RISK_STYLES: Record<string, { className: string; label: string }> = {
   safe: { className: 'bg-green-500/20 text-green-400 border-green-500/30', label: 'Seguro' },
-  moderate: { className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', label: 'Moderado' },
-  deep: { className: 'bg-red-500/20 text-red-400 border-red-500/30', label: 'Completo' }
-}
+  moderate: {
+    className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    label: 'Moderado',
+  },
+  deep: { className: 'bg-red-500/20 text-red-400 border-red-500/30', label: 'Completo' },
+};
 
 interface ScriptCardProps {
-  script: ScriptEntry
-  isExecuting: boolean
-  onExecute: () => void
-  onCancel: () => void
+  script: ScriptEntry;
+  isExecuting: boolean;
+  onExecute: () => void;
+  onCancel: () => void;
 }
 
-const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; color: string; bgColor: string; borderColor: string }> = {
-  Tweaks: { icon: Gauge, color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', borderColor: 'border-cyan-500/20' },
-  Utilities: { icon: Wrench, color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/20' },
-  Cleaner: { icon: Eraser, color: 'text-green-400', bgColor: 'bg-green-500/10', borderColor: 'border-green-500/20' },
-  Apps: { icon: Smartphone, color: 'text-pink-400', bgColor: 'bg-pink-500/10', borderColor: 'border-pink-500/20' },
-  Internet: { icon: Wifi, color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/20' },
-  'Input Lag': { icon: MousePointerClick, color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', borderColor: 'border-yellow-500/20' },
-  AMD: { icon: Cpu, color: 'text-red-400', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/20' },
-  Intel: { icon: Cpu, color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/20' }
-}
+const CATEGORY_CONFIG: Record<
+  string,
+  { icon: React.ElementType; color: string; bgColor: string; borderColor: string }
+> = {
+  Tweaks: {
+    icon: Gauge,
+    color: 'text-cyan-400',
+    bgColor: 'bg-cyan-500/10',
+    borderColor: 'border-cyan-500/20',
+  },
+  Utilities: {
+    icon: Wrench,
+    color: 'text-orange-400',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/20',
+  },
+  Cleaner: {
+    icon: Eraser,
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/20',
+  },
+  Apps: {
+    icon: Smartphone,
+    color: 'text-pink-400',
+    bgColor: 'bg-pink-500/10',
+    borderColor: 'border-pink-500/20',
+  },
+  Internet: {
+    icon: Wifi,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/20',
+  },
+  'Input Lag': {
+    icon: MousePointerClick,
+    color: 'text-yellow-400',
+    bgColor: 'bg-yellow-500/10',
+    borderColor: 'border-yellow-500/20',
+  },
+  AMD: {
+    icon: Cpu,
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-500/20',
+  },
+  Intel: {
+    icon: Cpu,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/20',
+  },
+};
 
-const DEFAULT_CONFIG = { icon: Zap, color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/20' }
+const DEFAULT_CONFIG = {
+  icon: Zap,
+  color: 'text-primary',
+  bgColor: 'bg-primary/10',
+  borderColor: 'border-primary/20',
+};
 
 export const ScriptCard = memo(function ScriptCard({
   script,
   isExecuting,
   onExecute,
-  onCancel
+  onCancel,
 }: ScriptCardProps) {
-  const [expanded, setExpanded] = useState(false)
-  const [showGuide, setShowGuide] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [showRestartPrompt, setShowRestartPrompt] = useState(false)
-  const wasExecuting = useRef(false)
-  const { settings } = useSettingsContext()
-  const isTxt = script.extension === 'txt'
+  const [expanded, setExpanded] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showRestartPrompt, setShowRestartPrompt] = useState(false);
+  const wasExecuting = useRef(false);
+  const { settings } = useSettingsContext();
+  const isTxt = script.extension === 'txt';
 
   useEffect(() => {
     if (wasExecuting.current && !isExecuting && script.requiresRestart) {
-      setShowRestartPrompt(true)
+      setShowRestartPrompt(true);
     }
-    wasExecuting.current = isExecuting
-  }, [isExecuting, script.requiresRestart])
+    wasExecuting.current = isExecuting;
+  }, [isExecuting, script.requiresRestart]);
 
-  const config = CATEGORY_CONFIG[script.category] || DEFAULT_CONFIG
-  const Icon = config.icon
+  const config = CATEGORY_CONFIG[script.category] || DEFAULT_CONFIG;
+  const Icon = config.icon;
 
   function handleExecute() {
     if (isTxt) {
-      onExecute()
+      onExecute();
     } else if (settings.confirmOnExecute) {
-      setShowConfirm(true)
+      setShowConfirm(true);
     } else {
-      onExecute()
+      onExecute();
     }
   }
 
@@ -97,10 +145,9 @@ export const ScriptCard = memo(function ScriptCard({
       >
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'flex size-10 items-center justify-center rounded-lg',
-              config.bgColor
-            )}>
+            <div
+              className={cn('flex size-10 items-center justify-center rounded-lg', config.bgColor)}
+            >
               <Icon className={cn('size-5', config.color)} />
             </div>
             <div className="flex-1 min-w-0">
@@ -112,8 +159,7 @@ export const ScriptCard = memo(function ScriptCard({
               </h3>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary" className="gap-1 font-mono text-[10px] px-1.5 py-0">
-                  <Terminal className="size-3" aria-hidden="true" />
-                  .{script.extension}
+                  <Terminal className="size-3" aria-hidden="true" />.{script.extension}
                 </Badge>
                 {script.requiresAdmin && (
                   <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0">
@@ -122,13 +168,22 @@ export const ScriptCard = memo(function ScriptCard({
                   </Badge>
                 )}
                 {script.requiresRestart && (
-                  <Badge variant="outline" className="gap-1 font-mono text-[10px] px-1.5 py-0 border-amber-500/50 text-amber-400">
+                  <Badge
+                    variant="outline"
+                    className="gap-1 font-mono text-[10px] px-1.5 py-0 border-amber-500/50 text-amber-400"
+                  >
                     <RotateCcw className="size-3" aria-hidden="true" />
                     Reiniciar
                   </Badge>
                 )}
                 {script.riskLevel && (
-                  <Badge variant="outline" className={cn('gap-1 font-mono text-[10px] px-1.5 py-0', RISK_STYLES[script.riskLevel].className)}>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'gap-1 font-mono text-[10px] px-1.5 py-0',
+                      RISK_STYLES[script.riskLevel].className
+                    )}
+                  >
                     {RISK_STYLES[script.riskLevel].label}
                   </Badge>
                 )}
@@ -147,7 +202,10 @@ export const ScriptCard = memo(function ScriptCard({
             {script.description}
           </p>
           <button
-            onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v) }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }}
             className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
           >
             <ChevronDown
@@ -194,18 +252,16 @@ export const ScriptCard = memo(function ScriptCard({
 
         <div className="mt-4 flex gap-2">
           {isExecuting ? (
-            <>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={onCancel}
-                className="flex-1 gap-2"
-                aria-label="Cancelar execução"
-              >
-                <Square className="size-3.5" aria-hidden="true" />
-                Cancelar
-              </Button>
-            </>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={onCancel}
+              className="flex-1 gap-2"
+              aria-label="Cancelar execução"
+            >
+              <Square className="size-3.5" aria-hidden="true" />
+              Cancelar
+            </Button>
           ) : (
             <Button
               variant="default"
@@ -214,7 +270,11 @@ export const ScriptCard = memo(function ScriptCard({
               className="flex-1 gap-2"
               aria-label={isTxt ? 'Abrir guia' : 'Executar script'}
             >
-              {isTxt ? <FileText className="size-3.5" aria-hidden="true" /> : <Play className="size-3.5" aria-hidden="true" />}
+              {isTxt ? (
+                <FileText className="size-3.5" aria-hidden="true" />
+              ) : (
+                <Play className="size-3.5" aria-hidden="true" />
+              )}
               {isTxt ? 'Abrir' : 'Executar'}
             </Button>
           )}
@@ -243,7 +303,12 @@ export const ScriptCard = memo(function ScriptCard({
         )}
       </div>
 
-      <Dialog open={showConfirm} onOpenChange={(open) => { if (!open) setShowConfirm(false) }}>
+      <Dialog
+        open={showConfirm}
+        onOpenChange={(open) => {
+          if (!open) setShowConfirm(false);
+        }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{isTxt ? 'Abrir guia' : 'Confirmar Execução'}</DialogTitle>
@@ -253,8 +318,7 @@ export const ScriptCard = memo(function ScriptCard({
               <p className="text-sm font-semibold text-foreground">{script.name}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <Badge variant="secondary" className="gap-1 font-mono text-xs">
-                  <Terminal className="size-3" aria-hidden="true" />
-                  .{script.extension}
+                  <Terminal className="size-3" aria-hidden="true" />.{script.extension}
                 </Badge>
                 {script.requiresAdmin && (
                   <Badge variant="destructive" className="gap-1 font-mono text-xs">
@@ -263,23 +327,36 @@ export const ScriptCard = memo(function ScriptCard({
                   </Badge>
                 )}
                 {script.requiresRestart && (
-                  <Badge variant="outline" className="gap-1 font-mono text-xs border-amber-500/50 text-amber-400">
+                  <Badge
+                    variant="outline"
+                    className="gap-1 font-mono text-xs border-amber-500/50 text-amber-400"
+                  >
                     <RotateCcw className="size-3" aria-hidden="true" />
                     Reiniciar
                   </Badge>
                 )}
                 {script.riskLevel && (
-                  <Badge variant="outline" className={cn('gap-1 font-mono text-xs', RISK_STYLES[script.riskLevel].className)}>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'gap-1 font-mono text-xs',
+                      RISK_STYLES[script.riskLevel].className
+                    )}
+                  >
                     {RISK_STYLES[script.riskLevel].label}
                   </Badge>
                 )}
               </div>
             </div>
-            <p className="text-[13px] leading-relaxed text-muted-foreground">{script.description}</p>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              {script.description}
+            </p>
             {script.requiresRestart && (
               <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5">
                 <RotateCcw className="size-4 text-amber-400 shrink-0" />
-                <p className="text-xs text-amber-400 font-medium">Este script requer reinício do PC para que as mudanças tenham efeito.</p>
+                <p className="text-xs text-amber-400 font-medium">
+                  Este script requer reinício do PC para que as mudanças tenham efeito.
+                </p>
               </div>
             )}
             <div className="flex justify-end gap-2">
@@ -289,8 +366,8 @@ export const ScriptCard = memo(function ScriptCard({
               <Button
                 size="sm"
                 onClick={() => {
-                  setShowConfirm(false)
-                  onExecute()
+                  setShowConfirm(false);
+                  onExecute();
                 }}
               >
                 Confirmar
@@ -300,5 +377,5 @@ export const ScriptCard = memo(function ScriptCard({
         </DialogContent>
       </Dialog>
     </>
-  )
-})
+  );
+});

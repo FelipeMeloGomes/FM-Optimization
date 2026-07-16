@@ -1,25 +1,25 @@
-import { Component, type ReactNode, type ErrorInfo } from 'react'
-import { AlertTriangle, RefreshCw } from 'lucide-react'
-import { Button } from './ui'
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Button } from './ui';
 
 interface Props {
-  children: ReactNode
+  children: ReactNode;
 }
 
 interface State {
-  hasError: boolean
-  error: Error | null
+  hasError: boolean;
+  error: Error | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: null }
+  state: State = { hasError: false, error: null };
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('[ErrorBoundary]', error, info.componentStack)
+    console.error('[ErrorBoundary]', error, info.componentStack);
   }
 
   render() {
@@ -40,8 +40,8 @@ export class ErrorBoundary extends Component<Props, State> {
             Tentar novamente
           </Button>
         </div>
-      )
+      );
     }
-    return this.props.children
+    return this.props.children;
   }
 }
