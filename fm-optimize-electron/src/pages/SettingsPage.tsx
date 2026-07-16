@@ -167,21 +167,33 @@ export default function SettingsPage() {
           </div>
 
           {status === 'checking' && (
-            <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center gap-3 rounded-lg bg-muted/50 p-3"
+            >
               <RefreshCw className="size-4 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Verificando atualizações...</p>
             </div>
           )}
 
           {status === 'not-available' && (
-            <div className="flex items-center gap-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center gap-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3"
+            >
               <Check className="size-4 text-emerald-400" />
               <p className="text-sm text-emerald-400">Você já está na versão mais recente.</p>
             </div>
           )}
 
           {status === 'available' && updateInfo && (
-            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-lg bg-primary/5 border border-primary/20 p-4"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <Download className="size-4 text-primary" />
                 <p className="text-sm font-medium text-foreground">
@@ -197,7 +209,11 @@ export default function SettingsPage() {
           )}
 
           {status === 'downloading' && progress && (
-            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-lg bg-primary/5 border border-primary/20 p-4"
+            >
               <div className="flex items-center gap-2 mb-3">
                 <RefreshCw className="size-4 animate-spin text-primary" />
                 <p className="text-sm font-medium text-foreground">Baixando atualização...</p>
@@ -211,7 +227,11 @@ export default function SettingsPage() {
           )}
 
           {status === 'ready' && (
-            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-4">
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-4"
+            >
               <div className="flex items-center gap-2 mb-3">
                 <Check className="size-4 text-emerald-400" />
                 <p className="text-sm font-medium text-emerald-400">
@@ -226,7 +246,10 @@ export default function SettingsPage() {
           )}
 
           {status === 'error' && (
-            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4">
+            <div
+              role="alert"
+              className="rounded-lg bg-destructive/10 border border-destructive/20 p-4"
+            >
               <div className="flex items-center gap-2 mb-3">
                 <AlertTriangle className="size-4 text-destructive" />
                 <p className="text-sm font-medium text-destructive">{errorMsg}</p>

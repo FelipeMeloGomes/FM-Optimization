@@ -169,7 +169,11 @@ function NetworkPageContent() {
         </Card>
 
         {benchmarkStatus === 'loading' && (
-          <div className="mt-4 flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+          <div
+            role="status"
+            aria-live="polite"
+            className="mt-4 flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3"
+          >
             <Loader2 className="size-4 animate-spin text-primary" />
             <div className="flex-1">
               <p className="text-sm font-medium">Testando velocidade dos DNSs...</p>
@@ -189,7 +193,10 @@ function NetworkPageContent() {
         )}
 
         {applyError && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          <div
+            role="alert"
+            className="mt-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+          >
             <AlertCircle className="size-4 shrink-0" />
             {applyError}
           </div>
