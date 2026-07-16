@@ -145,7 +145,12 @@ export default function DashboardPage() {
                     {systemHealth.health}%
                   </div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                    Saúde
+                    Saúde:{' '}
+                    {systemHealth.health >= 80
+                      ? 'Saudável'
+                      : systemHealth.health >= 50
+                        ? 'Atenção'
+                        : 'Crítico'}
                   </p>
                 </div>
               )}

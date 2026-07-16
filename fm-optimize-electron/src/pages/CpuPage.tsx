@@ -242,7 +242,15 @@ export default function CpuPage() {
                       : 'text-emerald-400'
                 )}
               >
-                {cpuState.status === 'success' ? `${cpuState.data.usage}%` : '—'}
+                {cpuState.status === 'success'
+                  ? `${cpuState.data.usage}% ${
+                      cpuState.data.usage > 80
+                        ? '(Alto)'
+                        : cpuState.data.usage > 50
+                          ? '(Médio)'
+                          : '(Normal)'
+                    }`
+                  : '—'}
               </p>
             </div>
           </div>

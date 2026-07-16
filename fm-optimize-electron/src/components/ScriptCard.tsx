@@ -211,9 +211,10 @@ export const ScriptCard = memo(function ScriptCard({
           }}
           className="cursor-pointer"
           aria-expanded={expanded}
-          aria-controls="guide-content"
+          aria-controls="script-desc"
         >
           <p
+            id="script-desc"
             className={cn(
               'text-[13px] leading-relaxed text-muted-foreground hover:text-foreground transition-colors',
               !expanded && 'line-clamp-2'
@@ -230,7 +231,7 @@ export const ScriptCard = memo(function ScriptCard({
           }}
           className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
           aria-expanded={expanded}
-          aria-controls="guide-content"
+          aria-controls="script-desc"
         >
           <ChevronDown
             className={cn(
@@ -267,7 +268,10 @@ export const ScriptCard = memo(function ScriptCard({
       )}
 
       {script.requiresRestart && (
-        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80">
+        <div
+          aria-live="polite"
+          className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80"
+        >
           <RotateCcw className="size-3" />
           <span>Requer reinício do PC após execução</span>
         </div>

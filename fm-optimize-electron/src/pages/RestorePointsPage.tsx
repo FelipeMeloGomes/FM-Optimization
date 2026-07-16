@@ -109,7 +109,11 @@ export default function RestorePointsPage() {
           <h3 className="text-sm font-semibold text-foreground">Criar Novo Ponto</h3>
         </div>
         <div className="flex items-center gap-3">
+          <label htmlFor="rp-name" className="sr-only">
+            Nome do ponto de restauração
+          </label>
           <Input
+            id="rp-name"
             placeholder="Nome do ponto de restauração..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
@@ -132,6 +136,12 @@ export default function RestorePointsPage() {
         </div>
       </div>
 
+      <div aria-live="polite" className="sr-only">
+        {creating ? 'Criando ponto de restauração...' : ''}
+        {restoring ? 'Restaurando sistema...' : ''}
+        {restoreDone ? 'Sistema restaurado com sucesso' : ''}
+      </div>
+
       {/* Search and Table */}
       <div>
         <div className="flex items-center gap-2 mb-4">
@@ -144,7 +154,11 @@ export default function RestorePointsPage() {
             className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
+          <label htmlFor="rp-search" className="sr-only">
+            Buscar pontos de restauração
+          </label>
           <Input
+            id="rp-search"
             placeholder="Buscar pontos de restauração..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -196,6 +210,7 @@ export default function RestorePointsPage() {
                           size="icon"
                           onClick={() => setConfirmRestore(rp.sequenceNumber)}
                           title="Restaurar sistema para este ponto"
+                          aria-label={`Restaurar sistema para o ponto ${rp.description}`}
                           className="size-8"
                         >
                           <RotateCcw className="size-3.5" />
@@ -204,6 +219,8 @@ export default function RestorePointsPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setConfirmDelete(rp.sequenceNumber)}
+                          title="Excluir ponto de restauração"
+                          aria-label={`Excluir o ponto ${rp.description}`}
                           className="size-8"
                         >
                           <Trash2 className="size-3.5 text-destructive" />
