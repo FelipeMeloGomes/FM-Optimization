@@ -10,22 +10,23 @@ import {
   Clock,
   Wifi,
   MousePointerClick,
-  Cpu
+  Cpu,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
-  SidebarSeparator
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar
 } from '../components/ui/sidebar'
+import { cn } from '../lib/utils'
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Painel' },
@@ -47,21 +48,41 @@ const bottomItems = [
   { to: '/settings', icon: Settings, label: 'Configurações' }
 ] as const
 
+function SidebarCollapseButton() {
+  const { toggleSidebar } = useSidebar()
+
+  return (
+    <SidebarMenuButton
+      onClick={toggleSidebar}
+      tooltip="Recolher"
+      className="mt-auto text-muted-foreground"
+    >
+      <PanelLeftClose className="size-5 group-data-[state=collapsed]:hidden" />
+      <PanelLeftOpen className="size-5 hidden group-data-[state=collapsed]:block" />
+      <span>Recolher</span>
+    </SidebarMenuButton>
+  )
+}
+
 export function AppSidebar() {
+  const { state } = useSidebar()
+  const collapsed = state === 'collapsed'
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <NavLink to="/">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-                  FM
+              <NavLink to="/" className={cn('justify-center', !collapsed && 'justify-start')}>
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+                  {collapsed ? 'F' : 'FM'}
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">FM Optimize</span>
-                  <span className="truncate text-xs text-muted-foreground">Otimização Windows</span>
-                </div>
+                {!collapsed && (
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">FM Optimize</span>
+                  </div>
+                )}
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -69,51 +90,23 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Otimização</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild tooltip={item.label}>
-                    <NavLink
-                      to={item.to}
-                      end={item.to === '/'}
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <SidebarMenu>
+          {navItems.map((item) => (
+            <SidebarMenuItem key={item.to}>
+              <SidebarMenuButton asChild tooltip={item.label}>
+                <NavLink to={item.to} end={item.to === '/'}>
+                  <item.icon />
+                  <span>{item.label}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
 
         <SidebarSeparator />
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemItems.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild tooltip={item.label}>
-                    <NavLink to={item.to}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
         <SidebarMenu>
-          {bottomItems.map((item) => (
+          {systemItems.map((item) => (
             <SidebarMenuItem key={item.to}>
               <SidebarMenuButton asChild tooltip={item.label}>
                 <NavLink to={item.to}>
@@ -124,9 +117,26 @@ export function AppSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
-      </SidebarFooter>
+      </SidebarContent>
 
-      <SidebarRail />
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarSeparator />
+          {bottomItems.map((item) => (
+            <SidebarMenuItem key={item.to}>
+              <SidebarMenuButton asChild tooltip={item.label}>
+                <NavLink to={item.to}>
+                  <item.icon />
+                  <span>{item.label}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+          <SidebarMenuItem>
+            <SidebarCollapseButton />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }
