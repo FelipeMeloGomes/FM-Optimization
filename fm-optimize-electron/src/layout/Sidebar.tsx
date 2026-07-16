@@ -16,6 +16,7 @@ import {
   MousePointerClick,
   Cpu
 } from 'lucide-react'
+import logoUrl from '../assets/logo.svg'
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Painel' },
@@ -47,8 +48,15 @@ export function Sidebar() {
         collapsed ? 'w-16' : 'w-48'
       )}
     >
-      <div className={cn('mb-4 text-primary text-xl font-bold', collapsed && 'text-center')}>
-        {collapsed ? 'F' : 'FM'}
+      <div className={cn('mb-4 flex items-center', collapsed ? 'justify-center' : 'justify-start')}>
+        <img
+          src={logoUrl}
+          alt="FM Optimize"
+          className={cn(
+            'object-contain transition-all duration-300',
+            collapsed ? 'size-8 blur-[0.5px]' : 'size-10'
+          )}
+        />
       </div>
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => (
@@ -80,6 +88,11 @@ export function Sidebar() {
                 >
                   {item.label}
                 </span>
+                {collapsed && (
+                  <span className="pointer-events-none absolute left-full ml-2 rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 z-50">
+                    {item.label}
+                  </span>
+                )}
               </>
             )}
           </NavLink>
@@ -113,6 +126,11 @@ export function Sidebar() {
                 >
                   {item.label}
                 </span>
+                {collapsed && (
+                  <span className="pointer-events-none absolute left-full ml-2 rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 z-50">
+                    {item.label}
+                  </span>
+                )}
               </>
             )}
           </NavLink>
@@ -149,6 +167,11 @@ export function Sidebar() {
                 >
                   {item.label}
                 </span>
+                {collapsed && (
+                  <span className="pointer-events-none absolute left-full ml-2 rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 z-50">
+                    {item.label}
+                  </span>
+                )}
               </>
             )}
           </NavLink>

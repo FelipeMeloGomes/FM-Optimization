@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0044ff"/>
+      <stop offset="70%" stop-color="#0033cc"/>
+      <stop offset="100%" stop-color="#001a66"/>
+    </radialGradient>
+    <linearGradient id="gearOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="40%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="gearInner" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo -->
+  <circle cx="256" cy="256" r="248" fill="url(#bgGrad)" stroke="#0044ff" stroke-width="3"/>
+
+  <!-- Sombra da engrenagem (deslocada) -->
+  <g opacity="0.25">
+    <circle cx="260" cy="260" r="155" fill="#000"/>
+    <circle cx="260" cy="260" r="135" fill="#000"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(0 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(45 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(90 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(135 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(180 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(225 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(270 256 256)"/>
+    <rect x="230" y="40" width="60" height="64" rx="10" fill="#000" transform="rotate(315 256 256)"/>
+  </g>
+
+  <!-- Dentes da engrenagem -->
+  <g>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(0 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(45 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(90 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(135 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(180 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(225 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(270 256 256)"/>
+    <rect x="226" y="36" width="60" height="64" rx="10" fill="url(#gearOuter)" transform="rotate(315 256 256)"/>
+  </g>
+
+  <!-- Corpo da engrenagem -->
+  <circle cx="256" cy="256" r="155" fill="url(#gearOuter)"/>
+  <circle cx="256" cy="256" r="135" fill="url(#gearInner)"/>
+
+  <!-- Anel interno -->
+  <circle cx="256" cy="256" r="100" fill="url(#bgGrad)" stroke="#334155" stroke-width="5"/>
+  <circle cx="256" cy="256" r="100" fill="none" stroke="#0044ff" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- FM -->
+  <text x="256" y="278" font-family="'Inter','Segoe UI',Arial,sans-serif" font-size="88" font-weight="900" fill="#f8fafc" text-anchor="middle" letter-spacing="8">FM</text>
+</svg>
