@@ -10,6 +10,7 @@ export interface GpuInfo {
   name: string
   vram: string
   driverVersion: string
+  usage: number
 }
 
 export interface MemoryInfo {
@@ -163,4 +164,7 @@ export interface ElectronAPI {
   getNetworkInfo(): Promise<NetworkInfo>
   benchmarkDns(addresses: string[]): Promise<BenchmarkResult[]>
   applyDns(interfaceIndex: number, addresses: string[]): Promise<void>
+  minimizeWindow(): Promise<void>
+  maximizeWindow(): Promise<void>
+  closeWindow(): Promise<void>
 }

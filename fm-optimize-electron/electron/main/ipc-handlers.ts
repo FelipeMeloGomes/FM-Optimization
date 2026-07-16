@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, BrowserWindow } from 'electron'
 import { loadScripts, getScriptContent, extractScriptToTemp } from './services/script-registry'
 import { getSystemInfo } from './services/system-info'
 import { executeScript, cancelExecution } from './services/script-executor'
@@ -175,5 +175,23 @@ export function registerIpcHandlers(): void {
     } catch (e: unknown) {
       return { success: false, error: e instanceof Error ? e.message : String(e) }
     }
+  })
+
+  ipcMain.handle('window-minimize', () => {
+    BrowserWindow.getFocusedWindow()?.minimize()
+    return { success: true }
+  })
+
+  ipcMain.handle('window-maximize', () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win) {
+      win.isMaximized() ? win.unmaximize() : win.maximize()
+    }
+    return { success: true }
+  })
+
+  ipcMain.handle('window-close', () => {
+    BrowserWindow.getFocusedWindow()?.close()
+    return { success: true }
   })
 }

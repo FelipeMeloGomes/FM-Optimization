@@ -90,7 +90,10 @@ const electronAPI: ElectronAPI = {
   },
   getNetworkInfo: () => ipc<NetworkInfo>('get-network-info'),
   benchmarkDns: (addresses: string[]) => ipc<BenchmarkResult[]>('benchmark-dns', addresses),
-  applyDns: (interfaceIndex: number, addresses: string[]) => ipcVoid('apply-dns', interfaceIndex, addresses)
+  applyDns: (interfaceIndex: number, addresses: string[]) => ipcVoid('apply-dns', interfaceIndex, addresses),
+  minimizeWindow: () => ipcVoid('window-minimize'),
+  maximizeWindow: () => ipcVoid('window-maximize'),
+  closeWindow: () => ipcVoid('window-close')
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)

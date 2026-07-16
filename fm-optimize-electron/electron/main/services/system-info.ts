@@ -4,11 +4,13 @@ import type { DashboardData, CpuInfo, GpuInfo, MemoryInfo, OsInfo, StorageDrive 
 
 function execPowerShell(script: string): string {
   try {
-    const buf = Buffer.from(script, 'utf16le')
-    return execSync(`powershell.exe -NoProfile -EncodedCommand ${buf.toString('base64')}`, {
+    const fullScript = `$ProgressPreference = 'SilentlyContinue'\n${script}`
+    const buf = Buffer.from(fullScript, 'utf16le')
+    const raw = execSync(`powershell.exe -NoProfile -EncodedCommand ${buf.toString('base64')}`, {
       encoding: 'utf-8',
       timeout: 10000
     }).trim()
+    return raw.replace(/#< CLIXML>.*?<\/Objs>/gs, '').trim()
   } catch (e: unknown) {
     console.error('PowerShell execution failed:', e instanceof Error ? e.message : String(e))
     return ''
@@ -23,15 +25,31 @@ function formatBytes(bytes: number): string {
 function getCpuInfo(): CpuInfo {
   const cpu = cpus()[0]
   const model = cpu?.model || 'Unknown'
-  const output = execPowerShell(
-    '(Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average'
+
+  const cpuDetail = execPowerShell(
+    'Get-CimInstance Win32_Processor | Select-Object -First 1 NumberOfCores,NumberOfLogicalProcessors | ConvertTo-Json'
   )
-  const usage = output ? Math.round(parseFloat(output)) : 0
+
+  let cores = cpus().length
+  let logicalProcessors = cpus().length
+
+  if (cpuDetail) {
+    try {
+      const parsed = JSON.parse(cpuDetail)
+      if (parsed.NumberOfCores) cores = parsed.NumberOfCores
+      if (parsed.NumberOfLogicalProcessors) logicalProcessors = parsed.NumberOfLogicalProcessors
+    } catch { /* fallback to cpus().length */ }
+  }
+
+  const usageOutput = execPowerShell(
+    '$cpu = Get-Counter "\\Processor(_Total)\\% Processor Time"; [math]::Round($cpu.CounterSamples.CookedValue)'
+  )
+  const usage = usageOutput ? parseInt(usageOutput.trim()) || 0 : 0
 
   return {
     model,
-    cores: cpus().length,
-    logicalProcessors: cpus().length,
+    cores,
+    logicalProcessors,
     architecture: arch(),
     usage
   }
@@ -39,20 +57,63 @@ function getCpuInfo(): CpuInfo {
 
 function getGpuInfo(): GpuInfo {
   const output = execPowerShell(
-    'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,@{N="VRAM";E={$_.AdapterRAM/1GB}},DriverVersion | ConvertTo-Json -Depth 3'
+    'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,DriverVersion | ConvertTo-Json -Depth 3'
   )
-  if (!output) return { name: 'N/A', vram: 'N/A', driverVersion: 'N/A' }
+  if (!output) return { name: 'N/A', vram: 'N/A', driverVersion: 'N/A', usage: 0 }
+
+  let name = 'N/A'
+  let driverVersion = 'N/A'
 
   try {
     const parsed = JSON.parse(output)
-    return {
-      name: parsed.Name || 'N/A',
-      vram: parsed.VRAM ? `${Math.round(parsed.VRAM)} GB` : 'N/A',
-      driverVersion: parsed.DriverVersion || 'N/A'
+    name = parsed.Name || 'N/A'
+    driverVersion = parsed.DriverVersion || 'N/A'
+  } catch { /* use defaults */ }
+
+  let vram = 'N/A'
+  const nvidiaVram = execPowerShell(
+    'nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>$null'
+  )
+  if (nvidiaVram) {
+    const val = parseInt(nvidiaVram.trim())
+    if (!isNaN(val)) vram = `${Math.round(val / 1024)} GB`
+  } else {
+    const adapterRam = execPowerShell(
+      '(Get-CimInstance Win32_VideoController | Select-Object -First 1).AdapterRAM'
+    )
+    if (adapterRam) {
+      const val = parseInt(adapterRam.trim())
+      if (!isNaN(val) && val > 0) vram = `${Math.round(val / (1024 * 1024 * 1024))} GB`
     }
-  } catch {
-    return { name: 'N/A', vram: 'N/A', driverVersion: 'N/A' }
+    if (vram === 'N/A') {
+      const regVram = execPowerShell(
+        "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\0000' -Name 'HardwareInformation.MemorySize' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'HardwareInformation.MemorySize'"
+      )
+      if (regVram) {
+        const val = parseInt(regVram.trim())
+        if (!isNaN(val) && val > 0) vram = `${Math.round(val / (1024 * 1024 * 1024))} GB`
+      }
+    }
   }
+
+  let usage = 0
+  const nvidiaSmi = execPowerShell(
+    'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>$null'
+  )
+  if (nvidiaSmi) {
+    const val = parseInt(nvidiaSmi.trim())
+    if (!isNaN(val)) usage = val
+  } else {
+    const gpuUsage = execPowerShell(
+      "$counters = (Get-Counter '\\GPU Engine(*)\\Utilization Percentage').CounterSamples | Where-Object { $_.CookedValue -gt 0 }; $max = ($counters | Measure-Object -Property CookedValue -Maximum).Maximum; [math]::Round($max)"
+    )
+    if (gpuUsage) {
+      const val = parseInt(gpuUsage.trim())
+      if (!isNaN(val)) usage = val
+    }
+  }
+
+  return { name, vram, driverVersion, usage }
 }
 
 function getMemoryInfo(): MemoryInfo {

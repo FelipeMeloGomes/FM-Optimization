@@ -157,14 +157,16 @@ export default function DashboardPage() {
             label="CPU"
             value={data.cpu.model}
             detail={`${data.cpu.cores} núcleos · ${data.cpu.usage}% uso`}
+            progress={data.cpu.usage}
             status={getCpuStatus(data.cpu.usage)}
           />
           <DashboardWidget
             icon={Monitor}
             label="GPU"
             value={data.gpu.name}
-            detail={`${data.gpu.vram} VRAM`}
-            status="default"
+            detail={`${data.gpu.vram} VRAM · ${data.gpu.usage}% uso`}
+            progress={data.gpu.usage}
+            status={getCpuStatus(data.gpu.usage)}
           />
           <DashboardWidget
             icon={MemoryStick}

@@ -13,11 +13,12 @@ import {
   Eraser
 } from 'lucide-react'
 import { cn } from '../lib/utils'
-import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui'
+import { Button, Badge } from '../components/ui'
 import { useScriptContext } from '../contexts/ScriptContext'
 import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
 import { useSettingsContext } from '../contexts/SettingsContext'
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 
 interface CleanerCard {
   id: string
@@ -315,43 +316,13 @@ export default function CleanerPage() {
         })}
       </div>
 
-      <Dialog open={!!confirmScript} onOpenChange={(open) => { if (!open) setConfirmScript(null) }}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Confirmar Execução</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-4">
-            {confirmScript && (
-              <>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{confirmScript.name}</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    <Badge variant="secondary" className="gap-1 font-mono text-xs">
-                      <Terminal className="size-3" aria-hidden="true" />
-                      .bat
-                    </Badge>
-                    {getScriptData(confirmScript.id)?.requiresAdmin && (
-                      <Badge variant="destructive" className="gap-1 font-mono text-xs">
-                        <ShieldAlert className="size-3" aria-hidden="true" />
-                        Admin
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                <p className="text-[13px] leading-relaxed text-muted-foreground">{confirmScript.description}</p>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setConfirmScript(null)}>
-                    Cancelar
-                  </Button>
-                  <Button size="sm" onClick={handleConfirm}>
-                    Confirmar
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={!!confirmScript}
+        onOpenChange={(open) => { if (!open) setConfirmScript(null) }}
+        script={confirmScript}
+        onConfirm={handleConfirm}
+      />
     </div>
   )
 }

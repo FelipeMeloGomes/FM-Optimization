@@ -70,6 +70,7 @@ function createWindow(): void {
     height: 800,
     minWidth: 960,
     minHeight: 600,
+    frame: false,
     show: false,
     title: 'FM Optimize',
     icon: iconPath(),
