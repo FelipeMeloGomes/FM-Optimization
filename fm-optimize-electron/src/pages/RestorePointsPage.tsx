@@ -6,6 +6,7 @@ import {
   RotateCcw,
   Search,
   Shield,
+  ShieldAlert,
   Trash2,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -32,7 +33,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function RestorePointsPage() {
-  const { state, creating, restoring, refresh, create, remove, restore } = useRestorePointContext();
+  const { state, creating, restoring, isAdmin, adminRequired, refresh, create, remove, restore } =
+    useRestorePointContext();
   const [newName, setNewName] = useState('');
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
@@ -61,6 +63,30 @@ export default function RestorePointsPage() {
   }
 
   if (state.status === 'error') {
+    const needsAdmin = adminRequired || (!isAdmin && !state.error);
+    if (needsAdmin) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+          <div className="flex size-14 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10">
+            <ShieldAlert className="size-7 text-amber-400" />
+          </div>
+          <div className="max-w-md space-y-2">
+            <p className="text-base font-semibold text-foreground">
+              Permissão de administrador necessária
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Para visualizar, criar e restaurar pontos de restauração, o programa precisa ser
+              executado como administrador. Feche o FM-Optimize e abra-o novamente com botão direito
+              {' → '}
+              <span className="font-medium text-foreground">"Executar como administrador"</span>.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={refresh}>
+            Tentar novamente
+          </Button>
+        </div>
+      );
+    }
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
         <p className="text-sm">Erro ao carregar pontos de restauração</p>
