@@ -8,7 +8,14 @@ import { RestorePointProvider } from './contexts/RestorePointContext';
 import { ScriptProvider } from './contexts/ScriptContext';
 import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext';
 import { SettingsProvider } from './contexts/SettingsContext';
-import { SystemProvider } from './contexts/SystemContext';
+import {
+  CpuProvider,
+  GpuProvider,
+  MemoryProvider,
+  OsProvider,
+  StorageProvider,
+  SystemProvider,
+} from './contexts/SystemContext';
 import { AppLayout } from './layout/AppLayout';
 import { composeProviders } from './lib/compose-providers';
 
@@ -36,6 +43,11 @@ function PageLoader() {
 const AllProviders = composeProviders(
   SettingsProvider,
   SystemProvider,
+  CpuProvider,
+  GpuProvider,
+  MemoryProvider,
+  OsProvider,
+  StorageProvider,
   ScriptExecutionProvider,
   ScriptProvider,
   RestorePointProvider,

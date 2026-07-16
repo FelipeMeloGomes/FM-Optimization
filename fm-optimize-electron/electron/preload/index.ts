@@ -2,16 +2,21 @@ import { contextBridge, type IpcRendererEvent, ipcRenderer } from 'electron';
 import type {
   AppSettings,
   BenchmarkResult,
+  CpuInfo,
   DashboardData,
   DownloadProgress,
   ElectronAPI,
   ExecutionHistoryEntry,
+  GpuInfo,
   IpcResult,
+  MemoryInfo,
   NetworkInfo,
+  OsInfo,
   RestorePointEntry,
   ScriptEnded,
   ScriptEntry,
   ScriptOutput,
+  StorageDrive,
   UpdateInfo,
   UpdateStatus,
 } from '../shared/ipc-types';
@@ -112,6 +117,11 @@ setupListeners();
 
 const electronAPI: ElectronAPI = {
   getSystemInfo: () => ipc<DashboardData>('get-system-info'),
+  getCpuInfo: () => ipc<CpuInfo>('get-cpu-info'),
+  getGpuInfo: () => ipc<GpuInfo>('get-gpu-info'),
+  getMemoryInfo: () => ipc<MemoryInfo>('get-memory-info'),
+  getOsInfo: () => ipc<OsInfo>('get-os-info'),
+  getStorageDrives: () => ipc<StorageDrive[]>('get-storage-drives'),
   getScripts: () => ipc<ScriptEntry[]>('get-scripts'),
   getScriptContent: (id) => ipc<string>('get-script-content', id),
   extractScript: (id) => ipc<string>('extract-script', id),

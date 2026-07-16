@@ -8,29 +8,30 @@ import { Badge, Button, Card, CardContent } from '../components/ui';
 import { useScriptContext } from '../contexts/ScriptContext';
 import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
 import { useSettingsContext } from '../contexts/SettingsContext';
-import { useSystemContext } from '../contexts/SystemContext';
+import { useCpuContext, useMemoryContext } from '../contexts/SystemContext';
 import { type CpuVendor, detectCpuVendor, getCpuCategory } from '../lib/cpu-vendor';
 import { cn } from '../lib/utils';
 
 export default function CpuPage() {
-  const { state: systemState } = useSystemContext();
+  const { state: cpuState } = useCpuContext();
+  const { state: memoryState } = useMemoryContext();
   const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
   const { activeExecution, execute, cancel } = useScriptExecutionContext();
   const { settings } = useSettingsContext();
   const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
 
   const cpuVendor: CpuVendor = useMemo(() => {
-    if (systemState.status !== 'success') return 'unknown';
-    return detectCpuVendor(systemState.data.cpu.model);
-  }, [systemState]);
+    if (cpuState.status !== 'success') return 'unknown';
+    return detectCpuVendor(cpuState.data.model);
+  }, [cpuState]);
 
   const category = getCpuCategory(cpuVendor);
 
   const ramAmount = useMemo(() => {
-    if (systemState.status !== 'success') return null;
-    const match = systemState.data.memory.total.match(/(\d+(?:\.\d+)?)/);
+    if (memoryState.status !== 'success') return null;
+    const match = memoryState.data.total.match(/(\d+(?:\.\d+)?)/);
     return match ? parseFloat(match[1]) : null;
-  }, [systemState]);
+  }, [memoryState]);
 
   const getRamScriptId = useCallback((vendor: CpuVendor, ramGb: number): string | null => {
     const prefix = vendor === 'amd' ? 'amd' : 'intel';
@@ -85,7 +86,7 @@ export default function CpuPage() {
     }
   }, [confirmScript, handleExecute]);
 
-  if (systemState.status === 'loading') {
+  if (cpuState.status === 'loading') {
     return (
       <div className="space-y-4">
         <div className="h-32 rounded-xl bg-muted animate-pulse" />
@@ -112,9 +113,9 @@ export default function CpuPage() {
           <p className="mt-1 text-xs text-muted-foreground">
             Não foi detectado um processador Intel ou AMD no sistema.
           </p>
-          {systemState.status === 'success' && (
+          {cpuState.status === 'success' && (
             <p className="mt-2 font-mono text-xs text-muted-foreground">
-              Detectado: {systemState.data.cpu.model}
+              Detectado: {cpuState.data.model}
             </p>
           )}
         </div>
@@ -179,7 +180,7 @@ export default function CpuPage() {
                 Otimizações para {isAmd ? 'AMD' : 'Intel'}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {systemState.status === 'success' ? systemState.data.cpu.model : '—'}
+                {cpuState.status === 'success' ? cpuState.data.model : '—'}
               </p>
             </div>
             <Badge
@@ -210,19 +211,19 @@ export default function CpuPage() {
             <div className="flex-1">
               <p className="text-xs text-muted-foreground">Processador</p>
               <p className="text-sm font-medium">
-                {systemState.status === 'success' ? systemState.data.cpu.model : '—'}
+                {cpuState.status === 'success' ? cpuState.data.model : '—'}
               </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Núcleos</p>
               <p className="text-sm font-medium">
-                {systemState.status === 'success' ? systemState.data.cpu.cores : '—'}
+                {cpuState.status === 'success' ? cpuState.data.cores : '—'}
               </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Threads</p>
               <p className="text-sm font-medium">
-                {systemState.status === 'success' ? systemState.data.cpu.logicalProcessors : '—'}
+                {cpuState.status === 'success' ? cpuState.data.logicalProcessors : '—'}
               </p>
             </div>
             <div className="text-right">
@@ -234,14 +235,14 @@ export default function CpuPage() {
               <p
                 className={cn(
                   'text-sm font-medium',
-                  systemState.status === 'success' && systemState.data.cpu.usage > 80
+                  cpuState.status === 'success' && cpuState.data.usage > 80
                     ? 'text-red-400'
-                    : systemState.status === 'success' && systemState.data.cpu.usage > 50
+                    : cpuState.status === 'success' && cpuState.data.usage > 50
                       ? 'text-amber-400'
                       : 'text-emerald-400'
                 )}
               >
-                {systemState.status === 'success' ? `${systemState.data.cpu.usage}%` : '—'}
+                {cpuState.status === 'success' ? `${cpuState.data.usage}%` : '—'}
               </p>
             </div>
           </div>
