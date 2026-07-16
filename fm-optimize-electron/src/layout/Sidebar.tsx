@@ -76,7 +76,7 @@ export function Sidebar() {
           >
             {({ isActive }) => (
               <>
-                {isActive && (
+                {isActive && !collapsed && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
                 <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
@@ -114,7 +114,7 @@ export function Sidebar() {
           >
             {({ isActive }) => (
               <>
-                {isActive && (
+                {isActive && !collapsed && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
                 <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
@@ -155,7 +155,7 @@ export function Sidebar() {
           >
             {({ isActive }) => (
               <>
-                {isActive && (
+                {isActive && !collapsed && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
                 )}
                 <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
