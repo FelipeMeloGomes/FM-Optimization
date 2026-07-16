@@ -49,6 +49,12 @@ Electron 35 · React 19 · TypeScript · Vite · Tailwind CSS 4 · Framer Motion
 
 ---
 
+## Segurança
+
+O app executa comandos PowerShell no sistema. Todo dado que entra via IPC é validado (Zod) e passa por rate-limit antes de tocar o sistema. Comandos usam argumentos parametrizados e escapados (`psEscape`) para bloquear injeção. A elevação de privilégios usa allowlist de scripts e revalidação de argumentos. Veja `fm-optimize-electron/docs/SECURITY.md`.
+
+---
+
 ## Início rápido
 
 ```bash
@@ -63,3 +69,21 @@ npm run build   # produção (gera em out/)
 ## Download
 
 [fmoptimize.vercel.app](https://fmoptimize.vercel.app) · [GitHub Releases](https://github.com/FelipeMeloGomes/FM-Optimization/releases)
+
+---
+
+## Para desenvolvedores
+
+Documentação técnica em `fm-optimize-electron/docs/`:
+
+- [ARCHITECTURE.md](fm-optimize-electron/docs/ARCHITECTURE.md) — camadas, fluxo IPC, providers modulares
+- [SECURITY.md](fm-optimize-electron/docs/SECURITY.md) — controles de segurança e modelo de ameaça
+- [DEVELOPMENT.md](fm-optimize-electron/docs/DEVELOPMENT.md) — setup, scripts, convenções, como adicionar handlers IPC
+
+```bash
+cd fm-optimize-electron
+npm install
+npm run dev      # desenvolvimento
+npm run build    # produção (out/)
+npm test         # testes do main process (Vitest)
+```
