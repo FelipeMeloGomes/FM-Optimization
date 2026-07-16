@@ -11,7 +11,9 @@ import type {
   DashboardData,
   ScriptEntry,
   RestorePointEntry,
-  AppSettings
+  AppSettings,
+  NetworkInfo,
+  BenchmarkResult
 } from '../shared/ipc-types'
 
 function ipc<T>(channel: string, ...args: unknown[]): Promise<T> {
@@ -87,7 +89,10 @@ const electronAPI: ElectronAPI = {
     const listener = (_e: IpcRendererEvent, data: DownloadProgress) => cb(data)
     ipcRenderer.on('download-progress', listener)
     return () => ipcRenderer.removeListener('download-progress', listener)
-  }
+  },
+  getNetworkInfo: () => ipc<NetworkInfo>('get-network-info'),
+  benchmarkDns: (addresses: string[]) => ipc<BenchmarkResult[]>('benchmark-dns', addresses),
+  applyDns: (interfaceIndex: number, addresses: string[]) => ipcVoid('apply-dns', interfaceIndex, addresses)
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)

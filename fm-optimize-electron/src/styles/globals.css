@@ -94,10 +94,17 @@ body {
   font-family: var(--font-sans);
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
 }
 
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-background);
@@ -108,4 +115,9 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-muted-foreground);
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
 }

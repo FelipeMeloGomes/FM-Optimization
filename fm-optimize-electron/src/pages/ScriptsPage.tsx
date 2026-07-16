@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { Star } from 'lucide-react'
 import { cn } from '../lib/utils'
-import { EmptyState } from '../components/ui'
+import { Button, EmptyState, Badge } from '../components/ui'
 import { useScriptContext } from '../contexts/ScriptContext'
 import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext'
 import { ScriptCard } from '../components/ScriptCard'
@@ -42,7 +42,7 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
 
   if (state.status === 'loading') {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {Array.from({ length: 8 }).map((_, i) => (
           <ScriptCardSkeleton key={i} />
         ))}
@@ -52,9 +52,9 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
 
   if (state.status === 'error') {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+      <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
         <p className="text-sm">Erro ao carregar scripts</p>
-        <p className="text-xs text-destructive mt-2">{state.error}</p>
+        <p className="text-xs text-destructive">{state.error}</p>
       </div>
     )
   }
@@ -62,49 +62,43 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
   return (
     <div>
       <div className="mb-4 flex items-center gap-2">
-        <button
+        <Button
+          variant={showFavoritesOnly ? 'secondary' : 'ghost'}
+          size="sm"
           onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors',
-            showFavoritesOnly
-              ? 'bg-yellow-400/20 text-yellow-400'
-              : 'bg-muted text-muted-foreground hover:text-foreground'
+            'gap-1.5',
+            showFavoritesOnly && 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30 hover:text-yellow-400'
           )}
         >
-          <Star className={cn('h-3.5 w-3.5', showFavoritesOnly && 'fill-yellow-400')} />
+          <Star className={cn('size-3.5', showFavoritesOnly && 'fill-yellow-400')} />
           Favoritos
-        </button>
-        <span className="text-xs text-muted-foreground">
+        </Button>
+        <Badge variant="secondary">
           {filteredScripts.length} scripts
-        </span>
+        </Badge>
       </div>
 
       {subcategories.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-1.5">
-          <button
+          <Button
+            variant={!subcategoryFilter ? 'default' : 'ghost'}
+            size="sm"
             onClick={() => setSubcategoryFilter('')}
-            className={cn(
-              'rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors',
-              !subcategoryFilter
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:text-foreground'
-            )}
+            className="text-[11px]"
           >
             Todas
-          </button>
+          </Button>
           {subcategories.map((sub) => (
-            <button
+            <Button
               key={sub}
+              variant={subcategoryFilter === sub ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setSubcategoryFilter(sub)}
-              className={cn(
-                'rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors',
-                subcategoryFilter === sub
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:text-foreground'
-              )}
+              className="text-[11px]"
             >
               {sub}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -115,7 +109,7 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
           description="Tente ajustar sua busca ou filtro"
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {filteredScripts.map((script) => (
           <ScriptCard
             key={script.id}
@@ -132,5 +126,3 @@ export default function ScriptsPage({ category }: ScriptsPageProps) {
     </div>
   )
 }
-
-

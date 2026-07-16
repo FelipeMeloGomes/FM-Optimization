@@ -1,7 +1,7 @@
 import { Cpu, Monitor, MemoryStick, HardDrive, Clock, Activity } from 'lucide-react'
 import { useSystemContext } from '../contexts/SystemContext'
 import { DashboardWidget } from '../components/DashboardWidget'
-import { Button } from '../components/ui'
+import { Button, Skeleton } from '../components/ui'
 
 function formatUptime(seconds: number): string {
   const d = Math.floor(seconds / 86400)
@@ -17,7 +17,11 @@ export default function DashboardPage() {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-xl bg-card border border-border" />
+          <div key={i} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
         ))}
       </div>
     )
@@ -25,12 +29,12 @@ export default function DashboardPage() {
 
   if (state.status === 'error') {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-        <p className="mb-2 text-sm">Erro ao carregar informações do sistema</p>
-        <p className="mb-4 text-xs text-destructive">{state.error}</p>
-        <button onClick={refresh} className="rounded-lg bg-primary px-4 py-2 text-xs text-primary-foreground">
+      <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
+        <p className="text-sm">Erro ao carregar informações do sistema</p>
+        <p className="text-xs text-destructive">{state.error}</p>
+        <Button variant="outline" size="sm" onClick={refresh}>
           Tentar novamente
-        </button>
+        </Button>
       </div>
     )
   }

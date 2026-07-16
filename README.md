@@ -30,10 +30,12 @@
 ## Funcionalidades
 
 - **Dashboard** — CPU, GPU, memória, armazenamento com barra de uso e tempo de atividade
-- **41 scripts** — Tweaks, Cleaner, DNS Manager, Apps, Utilities
+- **Scripts de otimização** — Tweaks, Utilitários, Limpeza, Rede, Apps, Input Lag, Processador (Intel/AMD)
+- **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + scripts de otimização de internet
+- **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows
+- **Processador** — detecção automática de fabricante (Intel/AMD) com scripts específicos
 - **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar scripts)
 - **Histórico de Execução** — registro de todos os scripts executados com duração e status
-- **Log ao vivo** — terminal com filtro por nível de log
 - **Favoritos** — scripts marcados com estrela para acesso rápido
 - **Busca + Filtros** — busca textual e filtro por subcategoria
 - **Mini-guia** — explicação simples do que cada script faz e quando usar

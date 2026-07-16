@@ -1,0 +1,116 @@
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import type { NetworkInfo, BenchmarkResult } from '../../electron/shared/ipc-types'
+import { DNS_PROVIDERS, type DnsProvider } from '../lib/dns-providers'
+
+interface DnsContextValue {
+  networkInfo: NetworkInfo | null
+  benchmarks: Map<string, BenchmarkResult>
+  benchmarkStatus: 'idle' | 'loading' | 'done'
+  benchmarkProgress: { current: number; total: number }
+  applyStatus: 'idle' | 'loading' | 'error'
+  applyError: string | null
+  activeDnsIps: string[]
+  runBenchmark: () => Promise<void>
+  applyDns: (provider: DnsProvider) => Promise<void>
+}
+
+const DnsContext = createContext<DnsContextValue | null>(null)
+
+export function DnsProvider({ children }: { children: ReactNode }) {
+  const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null)
+  const [benchmarks, setBenchmarks] = useState<Map<string, BenchmarkResult>>(new Map())
+  const [benchmarkStatus, setBenchmarkStatus] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [benchmarkProgress, setBenchmarkProgress] = useState({ current: 0, total: 0 })
+  const [applyStatus, setApplyStatus] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [applyError, setApplyError] = useState<string | null>(null)
+  const [activeDnsIps, setActiveDnsIps] = useState<string[]>([])
+
+  const fetchNetworkInfo = useCallback(async () => {
+    try {
+      const info = await window.electronAPI.getNetworkInfo()
+      setNetworkInfo(info)
+      setActiveDnsIps(info.currentDns)
+      return info
+    } catch {
+      return null
+    }
+  }, [])
+
+  const runBenchmark = useCallback(async () => {
+    setBenchmarkStatus('loading')
+    setBenchmarks(new Map())
+    const addresses = DNS_PROVIDERS.filter((p) => !p.isDhcp).flatMap((p) => [p.primary, p.secondary])
+    setBenchmarkProgress({ current: 0, total: addresses.length })
+
+    try {
+      const results = await window.electronAPI.benchmarkDns(addresses)
+      const map = new Map<string, BenchmarkResult>()
+      for (const r of results) {
+        map.set(r.address, r)
+        setBenchmarkProgress((prev) => ({ ...prev, current: prev.current + 1 }))
+        setBenchmarks(new Map(map))
+      }
+      setBenchmarkStatus('done')
+    } catch {
+      setBenchmarkStatus('done')
+    }
+  }, [])
+
+  const applyDns = useCallback(async (provider: DnsProvider) => {
+    if (!networkInfo) return
+    setApplyStatus('loading')
+    setApplyError(null)
+    try {
+      const addresses = provider.isDhcp ? [] : [provider.primary, provider.secondary]
+      await window.electronAPI.applyDns(networkInfo.interfaceIndex, addresses)
+      setActiveDnsIps(addresses)
+      setApplyStatus('idle')
+    } catch (e: unknown) {
+      setApplyStatus('error')
+      setApplyError(typeof e === 'string' ? e : (e as Error).message)
+      setTimeout(() => setApplyStatus('idle'), 3000)
+    }
+  }, [networkInfo])
+
+  useEffect(() => {
+    fetchNetworkInfo().then((info) => {
+      if (info) {
+        const addresses = DNS_PROVIDERS.filter((p) => !p.isDhcp).flatMap((p) => [p.primary, p.secondary])
+        setBenchmarkStatus('loading')
+        setBenchmarkProgress({ current: 0, total: addresses.length })
+
+        window.electronAPI.benchmarkDns(addresses).then((results) => {
+          const map = new Map<string, BenchmarkResult>()
+          for (const r of results) {
+            map.set(r.address, r)
+            setBenchmarkProgress((prev) => ({ ...prev, current: prev.current + 1 }))
+            setBenchmarks(new Map(map))
+          }
+          setBenchmarkStatus('done')
+        }).catch(() => setBenchmarkStatus('done'))
+      }
+    })
+  }, [fetchNetworkInfo])
+
+  return (
+    <DnsContext.Provider value={{
+      networkInfo,
+      benchmarks,
+      benchmarkStatus,
+      benchmarkProgress,
+      applyStatus,
+      applyError,
+      activeDnsIps,
+      runBenchmark,
+      applyDns
+    }}>
+      {children}
+    </DnsContext.Provider>
+  )
+}
+
+export function useDnsContext(): DnsContextValue {
+  const ctx = useContext(DnsContext)
+  if (!ctx) throw new Error('useDnsContext must be used within DnsProvider')
+  return ctx
+}

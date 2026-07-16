@@ -8,7 +8,9 @@ const routeTitles: Record<string, string> = {
   '/cleaner': 'Limpeza',
   '/restore-points': 'Pontos de Restauração',
   '/history': 'Histórico de Execução',
-  '/dns': 'Gerenciador de DNS',
+  '/rede': 'Rede',
+  '/input-lag': 'Input Lag',
+  '/cpu': 'Processador',
   '/apps': 'Apps e Privacidade',
   '/settings': 'Configurações'
 }
@@ -20,7 +22,7 @@ export function TopBar() {
 
   return (
     <header className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
-      <h1 className="text-lg font-semibold">{title}</h1>
+      <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
       {showSearch && <SearchInput />}
     </header>
   )

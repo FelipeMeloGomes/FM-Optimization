@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSettingsContext } from '../contexts/SettingsContext'
-import { Toggle, Button } from '../components/ui'
+import { Toggle, Button, Skeleton, Progress } from '../components/ui'
 import type { UpdateStatus, UpdateInfo, DownloadProgress } from '../../electron/shared/ipc-types'
 
 const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest'
@@ -67,17 +67,17 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Skeleton className="size-6 rounded-full" />
       </div>
     )
   }
 
   return (
-    <div className="max-w-lg space-y-8">
+    <div className="flex max-w-lg flex-col gap-8">
       <section>
-        <h2 className="mb-6 text-lg font-semibold">Preferências</h2>
-        <div className="space-y-4">
-          <div className="rounded-lg border border-border bg-card p-4">
+        <h2 className="mb-6 text-lg font-semibold tracking-tight">Preferências</h2>
+        <div className="flex flex-col gap-3">
+          <div className="rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:bg-card/80">
             <Toggle
               id="dark-mode"
               label="Modo escuro"
@@ -87,17 +87,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-4">
-            <Toggle
-              id="auto-open-log"
-              label="Auto-abrir Log"
-              description="Abrir painel de log automaticamente"
-              checked={settings.autoOpenLog}
-              onChange={(e) => update({ autoOpenLog: e.target.checked })}
-            />
-          </div>
-
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:bg-card/80">
             <Toggle
               id="confirm-execution"
               label="Confirmar Execução"
@@ -107,7 +97,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:bg-card/80">
             <Toggle
               id="auto-restore-point"
               label="Restore Point Automático"
@@ -120,7 +110,7 @@ export default function SettingsPage() {
       </section>
 
       <section>
-        <h2 className="mb-6 text-lg font-semibold">Atualizações</h2>
+        <h2 className="mb-6 text-lg font-semibold tracking-tight">Atualizações</h2>
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="mb-3 text-sm text-muted-foreground">
             Versão atual: <span className="font-medium text-foreground">{appVersion || '...'}</span>
@@ -128,7 +118,7 @@ export default function SettingsPage() {
 
           {status === 'checking' && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              <Skeleton className="size-4 rounded-full" />
               Verificando atualizações...
             </div>
           )}
@@ -140,7 +130,7 @@ export default function SettingsPage() {
           )}
 
           {status === 'available' && updateInfo && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <p className="text-sm">
                 Nova versão{' '}
                 <span className="font-semibold text-primary">v{updateInfo.version}</span>
@@ -153,14 +143,9 @@ export default function SettingsPage() {
           )}
 
           {status === 'downloading' && progress && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="text-sm text-muted-foreground">Baixando atualização...</p>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${Math.round(progress.percent)}%` }}
-                />
-              </div>
+              <Progress value={Math.round(progress.percent)} className="h-2" />
               <p className="text-xs text-muted-foreground">
                 {Math.round(progress.percent)}% (
                 {(progress.transferred / 1024 / 1024).toFixed(1)}/
@@ -170,7 +155,7 @@ export default function SettingsPage() {
           )}
 
           {status === 'ready' && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <p className="text-sm text-green-500">
                 Atualização baixada com sucesso!
               </p>
@@ -181,7 +166,7 @@ export default function SettingsPage() {
           )}
 
           {status === 'error' && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <p className="text-sm text-destructive">{errorMsg}</p>
               <Button onClick={handleCheck} variant="secondary" size="sm">
                 Tentar novamente

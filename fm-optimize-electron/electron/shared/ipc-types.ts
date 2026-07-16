@@ -69,7 +69,6 @@ export interface RestorePointEntry {
 
 export interface AppSettings {
   theme: 'dark' | 'light'
-  autoOpenLog: boolean
   confirmOnExecute: boolean
   autoRestorePoint: boolean
 }
@@ -112,6 +111,17 @@ export interface DownloadProgress {
   transferred: number
 }
 
+export interface NetworkInfo {
+  interfaceName: string
+  interfaceIndex: number
+  currentDns: string[]
+}
+
+export interface BenchmarkResult {
+  address: string
+  latencyMs: number | null
+}
+
 export interface IpcResult<T = void> {
   success: boolean
   data?: T
@@ -152,4 +162,7 @@ export interface ElectronAPI {
   onUpdateInfo(cb: (data: UpdateInfo) => void): () => void
   getExecutionHistory(): Promise<ExecutionHistoryEntry[]>
   onDownloadProgress(cb: (data: DownloadProgress) => void): () => void
+  getNetworkInfo(): Promise<NetworkInfo>
+  benchmarkDns(addresses: string[]): Promise<BenchmarkResult[]>
+  applyDns(interfaceIndex: number, addresses: string[]): Promise<void>
 }

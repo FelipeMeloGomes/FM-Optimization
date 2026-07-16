@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { cn } from '../lib/utils'
+import { Card, CardHeader, CardTitle, CardContent, Progress } from './ui'
 import type { LucideIcon } from 'lucide-react'
 
 interface DashboardWidgetProps {
@@ -11,29 +12,26 @@ interface DashboardWidgetProps {
   className?: string
 }
 
-const progressColor = (p: number): string => {
-  if (p >= 90) return 'bg-red-500'
-  if (p >= 70) return 'bg-yellow-500'
-  return 'bg-green-500'
-}
-
 export const DashboardWidget = memo(function DashboardWidget({ icon: Icon, label, value, detail, progress, className }: DashboardWidgetProps) {
   return (
-    <div className={cn('rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:shadow-[0_0_12px_rgba(0,68,255,0.15)]', className)}>
-      <div className="mb-2 flex items-center gap-2 text-muted-foreground">
-        <Icon className="h-4 w-4" aria-hidden="true" />
-        <span className="text-xs uppercase tracking-wider">{label}</span>
-      </div>
-      <div className="text-lg font-semibold text-foreground tabular-nums">{value || '—'}</div>
-      {detail && <div className="mt-1 text-xs text-muted-foreground">{detail}</div>}
-      {progress !== undefined && (
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={`${label}: ${value}`}>
-          <div
-            className={cn('h-full rounded-full transition-all', progressColor(progress))}
-            style={{ width: `${Math.min(progress, 100)}%` }}
+    <Card className={cn('transition-all duration-200 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(0,68,255,0.15)]', className)}>
+      <CardHeader className="flex-row items-center gap-2 p-4 pb-2">
+        <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+        <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        <div className="text-lg font-semibold text-foreground tabular-nums">{value || '—'}</div>
+        {detail && <div className="mt-1 text-xs text-muted-foreground">{detail}</div>}
+        {progress !== undefined && (
+          <Progress
+            value={progress}
+            className="mt-2 h-1.5"
+            aria-label={`${label}: ${value}`}
           />
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   )
 })

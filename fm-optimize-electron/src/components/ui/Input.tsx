@@ -1,33 +1,22 @@
-import { forwardRef, type InputHTMLAttributes } from 'react'
-import { cn } from '../../lib/utils'
+import * as React from "react"
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string
-  error?: string
-}
+import { cn } from "@/lib/utils"
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => (
-    <div className="flex flex-col gap-1.5">
-      {label && (
-        <label htmlFor={id} className="text-xs text-muted-foreground">
-          {label}
-        </label>
-      )}
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
       <input
-        id={id}
+        type={type}
         className={cn(
-          'flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
-          error && 'border-destructive focus-visible:ring-destructive',
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-primary/50 hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           className
         )}
         ref={ref}
         {...props}
       />
-      {error && <span className="text-xs text-destructive">{error}</span>}
-    </div>
-  )
+    )
+  }
 )
-Input.displayName = 'Input'
+Input.displayName = "Input"
 
 export { Input }

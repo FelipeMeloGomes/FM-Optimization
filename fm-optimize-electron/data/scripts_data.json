@@ -1,0 +1,16 @@
+{
+  "favorites": [],
+  "customScripts": [],
+  "executionHistory": [
+    {
+      "id": "cleaner-3_1784160959163",
+      "scriptId": "cleaner-3",
+      "scriptName": "Limpeza de Navegadores",
+      "startTime": "2026-07-16T00:15:59.163Z",
+      "endTime": "2026-07-16T00:15:59.979Z",
+      "durationMs": 816,
+      "exitCode": 0,
+      "wasCancelled": false
+    }
+  ]
+}

@@ -7,7 +7,6 @@ import {
   Wrench,
   Eraser,
   Shield,
-  Globe,
   Smartphone,
   Settings,
   Clock,
@@ -25,11 +24,9 @@ const navItems = [
   { to: '/cleaner', icon: Eraser, label: 'Limpeza' },
   { to: '/restore-points', icon: Shield, label: 'Pontos de Restauração' },
   { to: '/history', icon: Clock, label: 'Histórico' },
-  { to: '/dns', icon: Globe, label: 'DNS' },
-  { to: '/internet', icon: Wifi, label: 'Internet' },
+  { to: '/rede', icon: Wifi, label: 'Rede' },
   { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag' },
-  { to: '/amd', icon: Cpu, label: 'AMD' },
-  { to: '/intel', icon: Cpu, label: 'Intel' },
+  { to: '/cpu', icon: Cpu, label: 'Processador' },
   { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
   { to: '/settings', icon: Settings, label: 'Configurações' }
 ] as const
@@ -40,7 +37,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex flex-col gap-2 border-r border-border bg-sidebar-background px-3 py-4 transition-[width] duration-200',
+        'flex flex-col gap-2 border-r border-border bg-sidebar-background px-3 py-4 transition-[width] duration-300 ease-in-out',
         collapsed ? 'w-16' : 'w-48'
       )}
     >
@@ -55,7 +52,7 @@ export function Sidebar() {
             end={item.to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
                 isActive
                   ? 'bg-primary/20 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -63,21 +60,42 @@ export function Sidebar() {
               )
             }
           >
-            <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-            {!collapsed && <span>{item.label}</span>}
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
+                )}
+                <item.icon className="size-5 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <span
+                  className={cn(
+                    'overflow-hidden whitespace-nowrap transition-all duration-300',
+                    collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                  )}
+                >
+                  {item.label}
+                </span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
       <button
         onClick={() => setCollapsed((v) => !v)}
         className={cn(
-          'mt-auto flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
+          'mt-auto flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground',
           collapsed && 'justify-center px-0'
         )}
         aria-label={collapsed ? 'Expandir sidebar' : 'Recolher sidebar'}
       >
-        {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
-        {!collapsed && <span>Recolher</span>}
+        {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
+        <span
+          className={cn(
+            'overflow-hidden whitespace-nowrap transition-all duration-300',
+            collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+          )}
+        >
+          Recolher
+        </span>
       </button>
     </aside>
   )

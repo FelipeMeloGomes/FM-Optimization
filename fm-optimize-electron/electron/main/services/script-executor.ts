@@ -3,7 +3,7 @@ import { BrowserWindow } from 'electron'
 import { extractScriptToTemp, getScriptById } from './script-registry'
 import { isAdmin } from './admin-check'
 import { loadSettings, addHistoryEntry } from './data-service'
-import type { ScriptOutput, ScriptEnded, ScriptEntry } from '../../shared/ipc-types'
+import type { ScriptOutput, ScriptEnded, ScriptEntry, ExecutionHistoryEntry } from '../../shared/ipc-types'
 
 const activeProcesses = new Map<string, ChildProcess>()
 
@@ -16,6 +16,32 @@ function sendOutput(win: BrowserWindow, data: ScriptOutput): void {
 function sendEnded(win: BrowserWindow, data: ScriptEnded): void {
   if (!win.isDestroyed()) {
     win.webContents.send('script-ended', JSON.stringify(data))
+  }
+}
+
+function sendError(win: BrowserWindow, scriptId: string, text: string): void {
+  if (!win.isDestroyed()) {
+    win.webContents.send('script-error', JSON.stringify({ scriptId, type: 'stderr', text }))
+  }
+}
+
+function createHistoryEntry(
+  scriptId: string,
+  scriptName: string,
+  startTime: number,
+  endTime: number,
+  exitCode: number | null,
+  wasCancelled: boolean
+): ExecutionHistoryEntry {
+  return {
+    id: `${scriptId}_${startTime}`,
+    scriptId,
+    scriptName,
+    startTime: new Date(startTime).toISOString(),
+    endTime: new Date(endTime).toISOString(),
+    durationMs: endTime - startTime,
+    exitCode,
+    wasCancelled
   }
 }
 
@@ -44,16 +70,8 @@ export function executeScript(id: string): string {
     })
     proc.unref()
     sendEnded(win, { id, code: 0 })
-    addHistoryEntry({
-      id: `${id}_${Date.now()}`,
-      scriptId: id,
-      scriptName: script?.name || id,
-      startTime: new Date().toISOString(),
-      endTime: new Date().toISOString(),
-      durationMs: 0,
-      exitCode: 0,
-      wasCancelled: false
-    })
+    const now = Date.now()
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false))
     return 'opened'
   }
 
@@ -81,48 +99,27 @@ export function executeScript(id: string): string {
   })
 
   proc.stderr?.on('data', (data: Buffer) => {
-    sendOutput(win, { scriptId: id, type: 'stderr', text: data.toString() })
-    if (!win.isDestroyed()) {
-      win.webContents.send('script-error', JSON.stringify({ scriptId: id, type: 'stderr', text: data.toString() }))
-    }
+    const text = data.toString()
+    sendOutput(win, { scriptId: id, type: 'stderr', text })
+    sendError(win, id, text)
   })
 
   const startTime = Date.now()
-  const historyEntryId = `${id}_${startTime}`
 
   proc.on('close', (code) => {
     activeProcesses.delete(id)
     sendEnded(win, { id, code })
     const endTime = Date.now()
-    addHistoryEntry({
-      id: historyEntryId,
-      scriptId: id,
-      scriptName: script?.name || id,
-      startTime: new Date(startTime).toISOString(),
-      endTime: new Date(endTime).toISOString(),
-      durationMs: endTime - startTime,
-      exitCode: code,
-      wasCancelled: false
-    })
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, code, false))
   })
 
   proc.on('error', (err) => {
     activeProcesses.delete(id)
     sendOutput(win, { scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` })
-    if (!win.isDestroyed()) {
-      win.webContents.send('script-error', JSON.stringify({ scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` }))
-    }
+    sendError(win, id, `Error: ${err.message}\n`)
     sendEnded(win, { id, code: -1 })
-    addHistoryEntry({
-      id: historyEntryId,
-      scriptId: id,
-      scriptName: script?.name || id,
-      startTime: new Date(startTime).toISOString(),
-      endTime: new Date().toISOString(),
-      durationMs: Date.now() - startTime,
-      exitCode: -1,
-      wasCancelled: false
-    })
+    const endTime = Date.now()
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, -1, false))
   })
 
   return 'started'
@@ -139,16 +136,8 @@ export function cancelExecution(id: string): void {
       } catch { /* already dead */ }
     }
     const script = getScriptById(id)
-    addHistoryEntry({
-      id: `${id}_${Date.now()}`,
-      scriptId: id,
-      scriptName: script?.name || id,
-      startTime: new Date().toISOString(),
-      endTime: new Date().toISOString(),
-      durationMs: 0,
-      exitCode: null,
-      wasCancelled: true
-    })
+    const now = Date.now()
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, null, true))
     activeProcesses.delete(id)
   }
 }

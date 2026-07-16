@@ -11,7 +11,6 @@ interface UserData {
 
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
-  autoOpenLog: true,
   confirmOnExecute: true,
   autoRestorePoint: true
 }
@@ -77,7 +76,6 @@ export function loadSettings(): AppSettings {
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS
     return {
       theme: ['dark', 'light'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
-      autoOpenLog: typeof parsed.autoOpenLog === 'boolean' ? parsed.autoOpenLog : DEFAULT_SETTINGS.autoOpenLog,
       confirmOnExecute: typeof parsed.confirmOnExecute === 'boolean' ? parsed.confirmOnExecute : DEFAULT_SETTINGS.confirmOnExecute,
       autoRestorePoint: typeof parsed.autoRestorePoint === 'boolean' ? parsed.autoRestorePoint : DEFAULT_SETTINGS.autoRestorePoint
     }
