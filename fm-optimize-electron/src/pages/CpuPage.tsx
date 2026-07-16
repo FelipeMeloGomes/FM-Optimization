@@ -38,6 +38,28 @@ export default function CpuPage() {
 
   const category = getCpuCategory(cpuVendor)
 
+  const ramAmount = useMemo(() => {
+    if (systemState.status !== 'success') return null
+    const match = systemState.data.memory.total.match(/(\d+(?:\.\d+)?)/)
+    return match ? parseFloat(match[1]) : null
+  }, [systemState])
+
+  const getRamScriptId = useCallback((vendor: CpuVendor, ramGb: number): string | null => {
+    const prefix = vendor === 'amd' ? 'amd' : 'intel'
+    if (ramGb <= 4) return `${prefix}-30`
+    if (ramGb <= 6) return `${prefix}-31`
+    if (ramGb <= 8) return `${prefix}-32`
+    if (ramGb <= 12) return `${prefix}-33`
+    if (ramGb <= 16) return `${prefix}-34`
+    if (ramGb <= 32) return `${prefix}-35`
+    return `${prefix}-36`
+  }, [])
+
+  const recommendedRamScriptId = useMemo(() => {
+    if (!ramAmount || cpuVendor === 'unknown') return null
+    return getRamScriptId(cpuVendor, ramAmount)
+  }, [ramAmount, cpuVendor, getRamScriptId])
+
   useEffect(() => {
     if (category) {
       setCategoryFilter(category)
@@ -45,10 +67,15 @@ export default function CpuPage() {
     }
   }, [category, setCategoryFilter, setSubcategoryFilter])
 
-  const cpuScripts = useMemo(
-    () => filteredScripts.filter(s => s.category === category),
-    [filteredScripts, category]
-  )
+  const cpuScripts = useMemo(() => {
+    const all = filteredScripts.filter(s => s.category === category)
+    return all.filter(s => {
+      if (s.subcategory === 'RAM') {
+        return s.id === recommendedRamScriptId
+      }
+      return true
+    })
+  }, [filteredScripts, category, recommendedRamScriptId])
 
   const handleExecute = useCallback(
     (id: string) => execute(id),
@@ -197,6 +224,12 @@ export default function CpuPage() {
               <p className="text-xs text-muted-foreground">Núcleos</p>
               <p className="text-sm font-medium">
                 {systemState.status === 'success' ? systemState.data.cpu.cores : '—'}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">RAM</p>
+              <p className="text-sm font-medium">
+                {ramAmount ? `${ramAmount} GB` : '—'}
               </p>
             </div>
             <div className="text-right">
