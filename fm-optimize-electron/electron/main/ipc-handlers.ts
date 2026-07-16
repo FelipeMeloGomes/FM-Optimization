@@ -206,14 +206,9 @@ export function registerIpcHandlers(): void {
         const { primary, secondary } = providerList[i];
         for (const addr of [primary, secondary]) {
           try {
-            const output = await execPowerShellSafe('Test-Connection', [
-              '-Count',
-              '2',
-              '-ComputerName',
-              addr,
-              '-ErrorAction',
-              'Stop',
-            ]);
+            // addr is validated as IPv4 by DnsAddressesSchema before reaching here
+            const script = `$r = Test-Connection -Count 2 -ComputerName "${addr}" -ErrorAction Stop; Write-Output (($r | Measure-Object -Property ResponseTime -Average).Average)`;
+            const output = await execPowerShell(script);
             const ms = parseFloat(output.trim().split('\n').pop() || '');
             results.push({ address: addr, latencyMs: Number.isNaN(ms) ? null : Math.round(ms) });
           } catch {
