@@ -18,7 +18,14 @@ import {
 } from './services/restore-points';
 import { cancelExecution, executeScript } from './services/script-executor';
 import { extractScriptToTemp, getScriptContent, loadScripts } from './services/script-registry';
-import { getSystemInfo } from './services/system-info';
+import {
+  getCpuInfo,
+  getGpuInfo,
+  getMemoryInfo,
+  getOsInfo,
+  getStorageDrives,
+  getSystemInfo,
+} from './services/system-info';
 import { auditIpcValidation, validateIpcInput } from './validation';
 
 function handleIpc<T, V>(
@@ -72,6 +79,13 @@ export function registerIpcHandlers(): void {
       return { success: false as const, error: e instanceof Error ? e.message : String(e) };
     }
   });
+
+  // Sub-handlers modulares (carregamento sob demanda por página)
+  ipcMain.handle('get-cpu-info', () => handleIpcNoInput(() => getCpuInfo()));
+  ipcMain.handle('get-gpu-info', () => handleIpcNoInput(() => getGpuInfo()));
+  ipcMain.handle('get-memory-info', () => handleIpcNoInput(() => getMemoryInfo()));
+  ipcMain.handle('get-os-info', () => handleIpcNoInput(() => getOsInfo()));
+  ipcMain.handle('get-storage-drives', () => handleIpcNoInput(() => getStorageDrives()));
 
   ipcMain.handle('get-scripts', () => handleIpcNoInput(() => loadScripts()));
 

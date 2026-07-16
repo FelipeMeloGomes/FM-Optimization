@@ -14,7 +14,7 @@ function formatBytes(bytes: number): string {
   return `${gb.toFixed(1)} GB`;
 }
 
-async function getCpuInfo(): Promise<CpuInfo> {
+export async function getCpuInfo(): Promise<CpuInfo> {
   const cpu = cpus()[0];
   const model = cpu?.model || 'Unknown';
   const fallbackCores = cpus().length;
@@ -46,7 +46,7 @@ async function getCpuInfo(): Promise<CpuInfo> {
   return { model, cores, logicalProcessors, architecture: arch(), usage };
 }
 
-async function getGpuInfo(): Promise<GpuInfo> {
+export async function getGpuInfo(): Promise<GpuInfo> {
   const [output, nvidiaVram, nvidiaSmi] = await Promise.all([
     execPowerShell(
       'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,DriverVersion | ConvertTo-Json -Depth 3'
@@ -112,7 +112,7 @@ async function getGpuInfo(): Promise<GpuInfo> {
   return { name, vram, driverVersion, usage };
 }
 
-async function getMemoryInfo(): Promise<MemoryInfo> {
+export async function getMemoryInfo(): Promise<MemoryInfo> {
   const total = totalmem();
   const free = freemem();
   const used = total - free;
@@ -148,7 +148,7 @@ async function getMemoryInfo(): Promise<MemoryInfo> {
   };
 }
 
-async function getOsInfo(): Promise<OsInfo> {
+export async function getOsInfo(): Promise<OsInfo> {
   const output = await execPowerShell(
     'Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber,InstallDate | ConvertTo-Json -Depth 3'
   ).catch(() => '');
@@ -181,7 +181,7 @@ interface RawDriveInfo {
   FileSystem?: string;
 }
 
-async function getStorageDrives(): Promise<StorageDrive[]> {
+export async function getStorageDrives(): Promise<StorageDrive[]> {
   const output = await execPowerShell(
     'Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object DeviceID,VolumeName,@{N="Size";E={$_.Size/1GB}},@{N="Free";E={$_.FreeSpace/1GB}},FileSystem | ConvertTo-Json -Depth 3'
   ).catch(() => '');
