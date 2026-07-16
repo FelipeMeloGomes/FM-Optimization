@@ -1,30 +1,14 @@
 import { z } from 'zod';
+import {
+  InterfaceIndexSchema,
+  RestorePointNameSchema,
+  RestorePointSeqSchema,
+  ScriptIdSchema,
+} from './branded-types';
 
 const ipv4Regex =
   /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const ipv4Schema = z.string().regex(ipv4Regex, 'Invalid IPv4 address');
-
-export const StringIdSchema = z
-  .string()
-  .min(1)
-  .max(100)
-  .regex(/^[a-zA-Z0-9_-]+$/);
-
-export const ScriptIdSchema = z
-  .string()
-  .min(1)
-  .max(100)
-  .regex(/^[a-zA-Z0-9_-]+$/);
-
-export const RestorePointNameSchema = z
-  .string()
-  .min(1)
-  .max(200)
-  .regex(/^[^<>|*?"]*$/);
-
-export const RestorePointSeqSchema = z.number().int().positive();
-
-export const InterfaceIndexSchema = z.number().int().positive();
 
 export const DnsAddressesSchema = z.array(ipv4Schema).max(4);
 
@@ -50,9 +34,9 @@ export const SettingsSchema = z.object({
 });
 
 export const elevateAppSchema = z.object({
-  scriptId: z.string().optional(),
-  dnsInterfaceIndex: z.number().int().positive().optional(),
-  dnsAddresses: z.array(ipv4Schema).max(4).optional(),
+  scriptId: ScriptIdSchema.optional(),
+  dnsInterfaceIndex: InterfaceIndexSchema.optional(),
+  dnsAddresses: DnsAddressesSchema.optional(),
 });
 
 export type ElevateAppInput = z.infer<typeof elevateAppSchema>;
@@ -100,11 +84,6 @@ export const benchmarkDnsSchema = z.object({
   providers: BenchmarkProvidersSchema,
 });
 
-export type StringId = z.infer<typeof StringIdSchema>;
-export type ScriptId = z.infer<typeof ScriptIdSchema>;
-export type RestorePointName = z.infer<typeof RestorePointNameSchema>;
-export type RestorePointSeq = z.infer<typeof RestorePointSeqSchema>;
-export type InterfaceIndex = z.infer<typeof InterfaceIndexSchema>;
 export type DnsAddresses = z.infer<typeof DnsAddressesSchema>;
 export type DnsProvider = z.infer<typeof DnsProviderSchema>;
 export type BenchmarkProviders = z.infer<typeof BenchmarkProvidersSchema>;
@@ -122,6 +101,11 @@ export type BenchmarkDnsInput = z.infer<typeof benchmarkDnsSchema>;
 
 export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-system-info': z.undefined(),
+  'get-cpu-info': z.undefined(),
+  'get-gpu-info': z.undefined(),
+  'get-memory-info': z.undefined(),
+  'get-os-info': z.undefined(),
+  'get-storage-drives': z.undefined(),
   'get-scripts': z.undefined(),
   'get-script-content': getScriptContentSchema,
   'extract-script': extractScriptSchema,
