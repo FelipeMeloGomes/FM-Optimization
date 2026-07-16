@@ -4,10 +4,18 @@ import { app, BrowserWindow, Menu, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { registerIpcHandlers } from './ipc-handlers';
 import { executeScript } from './services/script-executor';
+import { loadScripts } from './services/script-registry';
+import { DnsAddressesSchema } from './validation';
 
 let mainWindow: BrowserWindow | null = null;
 
 export { mainWindow };
+
+// Valida que o scriptId pertence à allowlist de scripts conhecidos.
+function isValidScriptId(scriptId: string): boolean {
+  const scripts = loadScripts();
+  return scripts.some((s) => s.id === scriptId);
+}
 
 // Handle elevated script execution argument
 function handleElevatedScript(): boolean {
@@ -15,6 +23,10 @@ function handleElevatedScript(): boolean {
   const elevateIndex = args.indexOf('--elevate-script');
   if (elevateIndex !== -1 && elevateIndex + 1 < args.length) {
     const scriptId = args[elevateIndex + 1];
+    if (!isValidScriptId(scriptId)) {
+      console.error('Blocked elevated script: invalid scriptId', scriptId);
+      return true;
+    }
     // Wait a bit for window to be ready, then execute
     setTimeout(() => {
       if (mainWindow) {
@@ -34,11 +46,22 @@ function handleElevatedScript(): boolean {
     const interfaceIndex = parseInt(args[elevateDnsIndex + 1], 10);
     const addressesJson = args[elevateDnsIndex + 2];
     if (!Number.isNaN(interfaceIndex) && addressesJson) {
+      let addresses: unknown;
+      try {
+        addresses = JSON.parse(addressesJson);
+      } catch {
+        console.error('Blocked elevated DNS: invalid addresses JSON');
+        return true;
+      }
+      const parsed = DnsAddressesSchema.safeParse(addresses);
+      if (!parsed.success) {
+        console.error('Blocked elevated DNS: addresses failed validation');
+        return true;
+      }
       setTimeout(() => {
         if (mainWindow) {
           try {
-            const addresses = JSON.parse(addressesJson);
-            applyDnsElevated(interfaceIndex, addresses);
+            applyDnsElevated(interfaceIndex, parsed.data);
           } catch (e) {
             console.error('Failed to apply elevated DNS:', e);
           }
@@ -52,17 +75,22 @@ function handleElevatedScript(): boolean {
 }
 
 async function applyDnsElevated(interfaceIndex: number, addresses: string[]): Promise<void> {
-  const { execPowerShell } = await import('./services/powershell');
+  const { execPowerShellSafe } = await import('./services/powershell');
 
   if (addresses.length === 0) {
-    await execPowerShell(
-      `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ResetServerAddresses`
-    );
+    await execPowerShellSafe('Set-DnsClientServerAddress', [
+      '-InterfaceIndex',
+      interfaceIndex.toString(),
+      '-ResetServerAddresses',
+    ]);
   } else {
-    const addrList = addresses.map((a) => `"${a}"`).join(',');
-    await execPowerShell(
-      `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses (${addrList})\nipconfig /flushdns | Out-Null`
-    );
+    await execPowerShellSafe('Set-DnsClientServerAddress', [
+      '-InterfaceIndex',
+      interfaceIndex.toString(),
+      '-ServerAddresses',
+      addresses.join(','),
+    ]);
+    await execPowerShellSafe('ipconfig', ['/flushdns']);
   }
 
   // Notify renderer of success

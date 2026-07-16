@@ -8,7 +8,8 @@ import {
   loadUserData,
   saveSettings,
 } from './services/data-service';
-import { execPowerShell } from './services/powershell';
+import { execPowerShell, execPowerShellSafe } from './services/powershell';
+import { checkRateLimit } from './services/rate-limit';
 import {
   createRestorePoint,
   deleteRestorePoint,
@@ -25,6 +26,14 @@ function handleIpc<T, V>(
   input: unknown,
   fn: (validated: V) => T | Promise<T>
 ): Promise<IpcResult<T>> {
+  const limit = checkRateLimit(channel);
+  if (!limit.allowed) {
+    return Promise.resolve({
+      success: false as const,
+      error: `Rate limit excedido. Tente novamente em ${Math.ceil(limit.retryAfterMs / 1000)}s.`,
+    });
+  }
+
   const validation = validateIpcInput<V>(channel, input);
   auditIpcValidation(
     channel,
@@ -183,11 +192,14 @@ export function registerIpcHandlers(): void {
         const { primary, secondary } = providerList[i];
         for (const addr of [primary, secondary]) {
           try {
-            const ps = `
-              $r = Test-Connection -Count 2 -ComputerName "${addr}" -ErrorAction Stop
-              Write-Output (($r | Measure-Object -Property ResponseTime -Average).Average)
-            `;
-            const output = await execPowerShell(ps);
+            const output = await execPowerShellSafe('Test-Connection', [
+              '-Count',
+              '2',
+              '-ComputerName',
+              addr,
+              '-ErrorAction',
+              'Stop',
+            ]);
             const ms = parseFloat(output.trim().split('\n').pop() || '');
             results.push({ address: addr, latencyMs: Number.isNaN(ms) ? null : Math.round(ms) });
           } catch {
@@ -214,14 +226,19 @@ export function registerIpcHandlers(): void {
         throw new Error('Execute o aplicativo como administrador para alterar o DNS.');
       }
       if (addrs.length === 0) {
-        await execPowerShell(
-          `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${idx} -ResetServerAddresses`
-        );
+        await execPowerShellSafe('Set-DnsClientServerAddress', [
+          '-InterfaceIndex',
+          idx.toString(),
+          '-ResetServerAddresses',
+        ]);
       } else {
-        const addrList = addrs.map((a) => `"${a}"`).join(',');
-        await execPowerShell(
-          `$ErrorActionPreference = 'Stop'\nSet-DnsClientServerAddress -InterfaceIndex ${idx} -ServerAddresses (${addrList})\nipconfig /flushdns | Out-Null`
-        );
+        await execPowerShellSafe('Set-DnsClientServerAddress', [
+          '-InterfaceIndex',
+          idx.toString(),
+          '-ServerAddresses',
+          addrs.join(','),
+        ]);
+        await execPowerShellSafe('ipconfig', ['/flushdns']);
       }
     });
   });
@@ -257,6 +274,15 @@ export function registerIpcHandlers(): void {
         'elevate-app',
         { scriptId, interfaceIndex, addresses },
         async (validated: { scriptId?: string; interfaceIndex?: number; addresses?: string[] }) => {
+          // Validate scriptId against allowlist
+          if (validated.scriptId) {
+            const scripts = loadScripts();
+            const validIds = new Set(scripts.map((s) => s.id));
+            if (!validIds.has(validated.scriptId)) {
+              throw new Error(`Invalid scriptId: ${validated.scriptId}`);
+            }
+          }
+
           const { spawn } = require('node:child_process');
 
           const exePath = process.execPath;

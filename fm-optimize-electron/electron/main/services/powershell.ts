@@ -63,6 +63,14 @@ function sanitizeScript(script: string): { clean: string; violations: string[] }
   return { clean: script, violations };
 }
 
+export function psEscape(arg: string): string {
+  return arg.replace(/['"`$]/g, (m) => `\`${m}`);
+}
+
+export function buildPsCommand(command: string, ...args: string[]): string[] {
+  return [command, ...args.map(psEscape)];
+}
+
 export async function execPowerShell(script: string): Promise<string> {
   const { violations } = sanitizeScript(script);
 
@@ -79,6 +87,52 @@ export async function execPowerShell(script: string): Promise<string> {
       {
         timeout: 30000,
       }
+    );
+
+    let stdout = '';
+    let stderr = '';
+
+    proc.stdout?.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    proc.stderr?.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    proc.on('error', (err) => {
+      reject(new Error(`Failed to spawn PowerShell: ${err.message}`));
+    });
+
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`PowerShell exited with code ${code}: ${stderr}`));
+      } else {
+        resolve(cleanPsOutput(stdout));
+      }
+    });
+  });
+}
+
+export async function execPowerShellSafe(
+  command: string,
+  args: string[],
+  options?: { timeout?: number }
+): Promise<string> {
+  const fullCommand = [command, ...args].join(' ');
+  const { violations } = sanitizeScript(fullCommand);
+
+  if (violations.length > 0) {
+    throw new Error(`Command rejected by security policy: ${violations.join(', ')}`);
+  }
+
+  const timeout = options?.timeout ?? 30000;
+
+  return new Promise<string>((resolve, reject) => {
+    const proc = spawn(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', fullCommand],
+      { timeout }
     );
 
     let stdout = '';
