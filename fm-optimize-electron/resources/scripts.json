@@ -310,6 +310,20 @@
     "riskLevel": "safe"
   },
   {
+    "id": "util-6",
+    "tags": [],
+    "category": "Utilities",
+    "description": "Libera espaco em disco removendo arquivos desnecessarios.",
+    "subcategory": "",
+    "name": "Limpeza de Disco",
+    "extension": "bat",
+    "requiresAdmin": true,
+    "isBuiltIn": true,
+    "content": "QGVjaG8gb2ZmCnRpdGxlIEZNIE9wdGltaXplIC0gTGltcGV6YSBkZSBEaXNjbwpjb2xvciAwQgpjbHMKZWNobyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KZWNobyAgICAgICAgICBMSU1QRVpBIERFIERJU0NPCmVjaG8gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CmVjaG8uCmVjaG8gQWJyaW5kbyBhIExpbXBlemEgZGUgRGlzY28gZG8gV2luZG93cy4uLgplY2hvIFNlbGVjaW9uZSBhIHVuaWRhZGUgZSBvcyBpdGVucyBhIGxpbXBhci4KZWNoby4Kc3RhcnQgIiIgY2xlYW5tZ3I=",
+    "guide": "Abre a ferramenta de Limpeza de Disco do Windows para liberar espaco removendo arquivos desnecessarios.",
+    "riskLevel": "safe"
+  },
+  {
     "id": "builtin-4",
     "name": "AMD - 1 Frame Pre-Renderizado",
     "description": "Reduz o input lag em jogos configurando a GPU AMD para 1 frame pre-renderizado apenas. Menos latencia entre o clique e a acao na tela. Recomendado para jogos competitivos.",

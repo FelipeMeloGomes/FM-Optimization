@@ -158,6 +158,7 @@ export interface ElectronAPI {
   getMemoryInfo(): Promise<MemoryInfo>;
   getOsInfo(): Promise<OsInfo>;
   getStorageDrives(): Promise<StorageDrive[]>;
+  hasSSD(): Promise<boolean>;
   getScripts(): Promise<ScriptEntry[]>;
   getScriptContent(id: string): Promise<string>;
   extractScript(id: string): Promise<string>;

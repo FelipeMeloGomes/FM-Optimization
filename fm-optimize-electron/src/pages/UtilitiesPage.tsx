@@ -51,7 +51,7 @@ const UTIL_SECTIONS: UtilSection[] = [
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/20',
-    scriptIds: ['util-2', 'util-4', 'util-5', 'builtin-88'],
+    scriptIds: ['util-2', 'util-4', 'util-5', 'builtin-88', 'util-6'],
   },
   {
     id: 'repair',
@@ -85,9 +85,12 @@ const UTIL_SECTIONS: UtilSection[] = [
   },
 ];
 
+const SSD_ONLY_IDS = ['util-4', 'builtin-88'];
+
 function UtilSectionCard({
   section,
   scripts,
+  hasSSD,
   activeExecution,
   _onExecute,
   onCancel,
@@ -95,6 +98,7 @@ function UtilSectionCard({
 }: {
   section: UtilSection;
   scripts: ScriptEntry[];
+  hasSSD: boolean | null;
   activeExecution: string | null;
   _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
@@ -103,8 +107,12 @@ function UtilSectionCard({
   const Icon = section.icon;
 
   const sectionScripts = useMemo(
-    () => scripts.filter((s) => section.scriptIds.includes(s.id)),
-    [scripts, section.scriptIds]
+    () =>
+      scripts.filter(
+        (s) =>
+          section.scriptIds.includes(s.id) && (hasSSD === true || !SSD_ONLY_IDS.includes(s.id))
+      ),
+    [scripts, section.scriptIds, hasSSD]
   );
 
   const isAnyExecuting = section.scriptIds.some((id) => activeExecution === id);
@@ -234,11 +242,19 @@ export default function UtilitiesPage() {
   const { activeExecution, execute, cancel } = useScriptExecutionContext();
   const { settings } = useSettingsContext();
   const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
+  const [hasSSD, setHasSSD] = useState<boolean | null>(null);
 
   useEffect(() => {
     setCategoryFilter('Utilities');
     setSubcategoryFilter('');
   }, [setCategoryFilter, setSubcategoryFilter]);
+
+  useEffect(() => {
+    window.electronAPI
+      .hasSSD()
+      .then(setHasSSD)
+      .catch(() => setHasSSD(false));
+  }, []);
 
   const utilScripts = useMemo(
     () => filteredScripts.filter((s) => s.category === 'Utilities'),
@@ -316,6 +332,7 @@ export default function UtilitiesPage() {
           key={section.id}
           section={section}
           scripts={utilScripts}
+          hasSSD={hasSSD}
           activeExecution={activeExecution}
           _onExecute={handleExecute}
           onCancel={handleCancel}

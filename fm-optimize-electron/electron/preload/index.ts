@@ -122,6 +122,7 @@ const electronAPI: ElectronAPI = {
   getMemoryInfo: () => ipc<MemoryInfo>('get-memory-info'),
   getOsInfo: () => ipc<OsInfo>('get-os-info'),
   getStorageDrives: () => ipc<StorageDrive[]>('get-storage-drives'),
+  hasSSD: () => ipc<boolean>('has-ssd'),
   getScripts: () => ipc<ScriptEntry[]>('get-scripts'),
   getScriptContent: (id) => ipc<string>('get-script-content', id),
   extractScript: (id) => ipc<string>('extract-script', id),

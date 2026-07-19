@@ -208,6 +208,14 @@ export async function getStorageDrives(): Promise<StorageDrive[]> {
   }
 }
 
+export async function hasSolidStateDrive(): Promise<boolean> {
+  const output = await execPowerShell(
+    '(Get-PhysicalDisk | Where-Object MediaType -eq "SSD" | Measure-Object).Count'
+  ).catch(() => '');
+  const count = Number.parseInt(output.trim(), 10);
+  return Number.isFinite(count) && count > 0;
+}
+
 export async function getSystemInfo(): Promise<DashboardData> {
   const [cpu, gpu, memory, os, drives] = await Promise.all([
     getCpuInfo(),

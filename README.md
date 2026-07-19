@@ -31,6 +31,7 @@
 
 - **Dashboard** — CPU, GPU, memória, armazenamento com barra de uso e tempo de atividade
 - **Scripts de otimização** — Tweaks, Utilitários, Limpeza, Rede, Apps, Input Lag, Processador (Intel/AMD)
+- **Armazenamento** — Limpeza de Disco do Windows e otimizações de SSD que só aparecem quando há um SSD detectado no sistema
 - **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + scripts de otimização de internet
 - **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows
 - **Processador** — detecção automática de fabricante (Intel/AMD) com scripts específicos

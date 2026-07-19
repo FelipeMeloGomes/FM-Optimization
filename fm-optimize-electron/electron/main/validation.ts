@@ -98,6 +98,7 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-memory-info': z.undefined(),
   'get-os-info': z.undefined(),
   'get-storage-drives': z.undefined(),
+  'has-ssd': z.undefined(),
   'get-scripts': z.undefined(),
   'get-script-content': getScriptContentSchema,
   'extract-script': extractScriptSchema,

@@ -25,6 +25,7 @@ import {
   getOsInfo,
   getStorageDrives,
   getSystemInfo,
+  hasSolidStateDrive,
 } from './services/system-info';
 import { auditIpcValidation, validateIpcInput } from './validation';
 
@@ -86,6 +87,7 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('get-memory-info', () => handleIpcNoInput(() => getMemoryInfo()));
   ipcMain.handle('get-os-info', () => handleIpcNoInput(() => getOsInfo()));
   ipcMain.handle('get-storage-drives', () => handleIpcNoInput(() => getStorageDrives()));
+  ipcMain.handle('has-ssd', () => handleIpcNoInput(() => hasSolidStateDrive()));
 
   ipcMain.handle('get-scripts', () => handleIpcNoInput(() => loadScripts()));
 
