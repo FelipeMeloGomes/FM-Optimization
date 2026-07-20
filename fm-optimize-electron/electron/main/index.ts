@@ -151,6 +151,10 @@ function setupAutoUpdater(): void {
     owner: 'FelipeMeloGomes',
     repo: 'FM-Optimization',
   });
+
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates();
+  }
 }
 
 function createWindow(): void {
