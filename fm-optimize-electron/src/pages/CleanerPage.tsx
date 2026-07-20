@@ -9,14 +9,12 @@ import {
   Trash2,
   Zap,
 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { RISK_STYLES } from '../components/ScriptCard';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button } from '../components/ui';
-import { useScriptContext } from '../contexts/ScriptContext';
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
-import { useSettingsContext } from '../contexts/SettingsContext';
+import { useScriptPage } from '../hooks/use-script-page';
 import { cn } from '../lib/utils';
 
 interface CleanerCard {
@@ -109,40 +107,30 @@ const CLEANER_CARDS: CleanerCard[] = [
 ];
 
 export default function CleanerPage() {
-  const { state, filteredScripts } = useScriptContext();
-  const { activeExecution, execute, cancel } = useScriptExecutionContext();
-  const { settings } = useSettingsContext();
-  const [confirmScript, setConfirmScript] = useState<CleanerCard | null>(null);
-
-  const cleanerScripts = useMemo(
-    () => filteredScripts.filter((s) => s.category === 'Cleaner'),
-    [filteredScripts]
-  );
+  const {
+    state,
+    categoryScripts: cleanerScripts,
+    activeExecution,
+    handleExecute,
+    handleCancel,
+    handleConfirmExecute,
+    confirmScript,
+    setConfirmScript,
+    handleConfirm,
+  } = useScriptPage('Cleaner');
 
   const getScriptData = useCallback(
     (scriptId: string) => cleanerScripts.find((s) => s.id === scriptId),
     [cleanerScripts]
   );
 
-  const handleExecute = useCallback((id: string) => execute(id), [execute]);
-  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
-
   const handleButtonClick = useCallback(
     (card: CleanerCard) => {
-      if (settings.confirmOnExecute) {
-        setConfirmScript(card);
-      } else {
-        handleExecute(card.id);
-      }
+      const script = cleanerScripts.find((s) => s.id === card.id);
+      if (script) handleConfirmExecute(script);
     },
-    [settings.confirmOnExecute, handleExecute]
+    [cleanerScripts, handleConfirmExecute]
   );
-
-  const handleConfirm = useCallback(() => {
-    if (confirmScript) {
-      handleExecute(confirmScript.id);
-    }
-  }, [confirmScript, handleExecute]);
 
   if (state.status === 'loading') {
     return (

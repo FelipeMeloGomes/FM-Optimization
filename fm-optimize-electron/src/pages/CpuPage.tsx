@@ -1,13 +1,10 @@
 import { AlertTriangle, Cpu, Play, RotateCcw, Shield, Square, Terminal } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ScriptEntry } from '../../electron/shared/ipc-types';
+import { useCallback, useMemo } from 'react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { RISK_STYLES } from '../components/ScriptCard';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button, Card, CardContent } from '../components/ui';
-import { useScriptContext } from '../contexts/ScriptContext';
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
-import { useSettingsContext } from '../contexts/SettingsContext';
+import { useScriptPage } from '../hooks/use-script-page';
 import { useCpuContext, useMemoryContext } from '../contexts/SystemContext';
 import { type CpuVendor, detectCpuVendor, getCpuCategory } from '../lib/cpu-vendor';
 import { cn } from '../lib/utils';
@@ -15,10 +12,6 @@ import { cn } from '../lib/utils';
 export default function CpuPage() {
   const { state: cpuState } = useCpuContext();
   const { state: memoryState } = useMemoryContext();
-  const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
-  const { activeExecution, execute, cancel } = useScriptExecutionContext();
-  const { settings } = useSettingsContext();
-  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
 
   const cpuVendor: CpuVendor = useMemo(() => {
     if (cpuState.status !== 'success') return 'unknown';
@@ -49,42 +42,26 @@ export default function CpuPage() {
     return getRamScriptId(cpuVendor, ramAmount);
   }, [ramAmount, cpuVendor, getRamScriptId]);
 
-  useEffect(() => {
-    if (category) {
-      setCategoryFilter(category);
-      setSubcategoryFilter('');
-    }
-  }, [category, setCategoryFilter, setSubcategoryFilter]);
+  const {
+    state,
+    categoryScripts,
+    activeExecution,
+    handleExecute,
+    handleCancel,
+    handleConfirmExecute,
+    confirmScript,
+    setConfirmScript,
+    handleConfirm,
+  } = useScriptPage(category);
 
   const cpuScripts = useMemo(() => {
-    const all = filteredScripts.filter((s) => s.category === category);
-    return all.filter((s) => {
+    return categoryScripts.filter((s) => {
       if (s.subcategory === 'RAM') {
         return s.id === recommendedRamScriptId;
       }
       return true;
     });
-  }, [filteredScripts, category, recommendedRamScriptId]);
-
-  const handleExecute = useCallback((id: string) => execute(id), [execute]);
-  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
-
-  const handleConfirmExecute = useCallback(
-    (script: ScriptEntry) => {
-      if (settings.confirmOnExecute) {
-        setConfirmScript(script);
-      } else {
-        handleExecute(script.id);
-      }
-    },
-    [settings.confirmOnExecute, handleExecute]
-  );
-
-  const handleConfirm = useCallback(() => {
-    if (confirmScript) {
-      handleExecute(confirmScript.id);
-    }
-  }, [confirmScript, handleExecute]);
+  }, [categoryScripts, recommendedRamScriptId]);
 
   if (cpuState.status === 'loading') {
     return (

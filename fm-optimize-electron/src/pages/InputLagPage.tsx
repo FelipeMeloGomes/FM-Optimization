@@ -10,15 +10,13 @@ import {
   Terminal,
   Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ScriptEntry } from '../../electron/shared/ipc-types';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { RISK_STYLES } from '../components/ScriptCard';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button } from '../components/ui';
-import { useScriptContext } from '../contexts/ScriptContext';
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
-import { useSettingsContext } from '../contexts/SettingsContext';
+import { useScriptPage } from '../hooks/use-script-page';
 import { cn } from '../lib/utils';
 
 interface DeviceCard {
@@ -319,45 +317,22 @@ function DeviceSection({
 }
 
 export default function InputLagPage() {
-  const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
-  const { activeExecution, execute, cancel } = useScriptExecutionContext();
-  const { settings } = useSettingsContext();
-  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
-
-  useEffect(() => {
-    setCategoryFilter('Input Lag');
-    setSubcategoryFilter('');
-  }, [setCategoryFilter, setSubcategoryFilter]);
-
-  const inputLagScripts = useMemo(
-    () => filteredScripts.filter((s) => s.category === 'Input Lag'),
-    [filteredScripts]
-  );
+  const {
+    state,
+    categoryScripts: inputLagScripts,
+    activeExecution,
+    handleExecute,
+    handleCancel,
+    handleConfirmExecute,
+    confirmScript,
+    setConfirmScript,
+    handleConfirm,
+  } = useScriptPage('Input Lag');
 
   const registryScripts = useMemo(
     () => inputLagScripts.filter((s) => s.subcategory === 'Regedit'),
     [inputLagScripts]
   );
-
-  const handleExecute = useCallback((id: string) => execute(id), [execute]);
-  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
-
-  const handleConfirmExecute = useCallback(
-    (script: ScriptEntry) => {
-      if (settings.confirmOnExecute) {
-        setConfirmScript(script);
-      } else {
-        handleExecute(script.id);
-      }
-    },
-    [settings.confirmOnExecute, handleExecute]
-  );
-
-  const handleConfirm = useCallback(() => {
-    if (confirmScript) {
-      handleExecute(confirmScript.id);
-    }
-  }, [confirmScript, handleExecute]);
 
   if (state.status === 'loading') {
     return (

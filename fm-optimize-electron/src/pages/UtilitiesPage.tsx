@@ -10,15 +10,13 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ScriptEntry } from '../../electron/shared/ipc-types';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { RISK_STYLES } from '../components/ScriptCard';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button } from '../components/ui';
-import { useScriptContext } from '../contexts/ScriptContext';
-import { useScriptExecutionContext } from '../contexts/ScriptExecutionContext';
-import { useSettingsContext } from '../contexts/SettingsContext';
+import { useScriptPage } from '../hooks/use-script-page';
 import { cn } from '../lib/utils';
 
 interface UtilSection {
@@ -238,16 +236,18 @@ function UtilSectionCard({
 }
 
 export default function UtilitiesPage() {
-  const { state, filteredScripts, setCategoryFilter, setSubcategoryFilter } = useScriptContext();
-  const { activeExecution, execute, cancel } = useScriptExecutionContext();
-  const { settings } = useSettingsContext();
-  const [confirmScript, setConfirmScript] = useState<ScriptEntry | null>(null);
+  const {
+    state,
+    categoryScripts: utilScripts,
+    activeExecution,
+    handleExecute,
+    handleCancel,
+    handleConfirmExecute,
+    confirmScript,
+    setConfirmScript,
+    handleConfirm,
+  } = useScriptPage('Utilities');
   const [hasSSD, setHasSSD] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setCategoryFilter('Utilities');
-    setSubcategoryFilter('');
-  }, [setCategoryFilter, setSubcategoryFilter]);
 
   useEffect(() => {
     window.electronAPI
@@ -255,31 +255,6 @@ export default function UtilitiesPage() {
       .then(setHasSSD)
       .catch(() => setHasSSD(false));
   }, []);
-
-  const utilScripts = useMemo(
-    () => filteredScripts.filter((s) => s.category === 'Utilities'),
-    [filteredScripts]
-  );
-
-  const handleExecute = useCallback((id: string) => execute(id), [execute]);
-  const handleCancel = useCallback((id: string) => cancel(id), [cancel]);
-
-  const handleConfirmExecute = useCallback(
-    (script: ScriptEntry) => {
-      if (settings.confirmOnExecute) {
-        setConfirmScript(script);
-      } else {
-        handleExecute(script.id);
-      }
-    },
-    [settings.confirmOnExecute, handleExecute]
-  );
-
-  const handleConfirm = useCallback(() => {
-    if (confirmScript) {
-      handleExecute(confirmScript.id);
-    }
-  }, [confirmScript, handleExecute]);
 
   if (state.status === 'loading') {
     return (
