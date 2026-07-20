@@ -37,12 +37,9 @@ export default defineConfig({
             radix: [
               '@radix-ui/react-slot',
               '@radix-ui/react-dialog',
-              '@radix-ui/react-collapsible',
               '@radix-ui/react-label',
               '@radix-ui/react-progress',
-              '@radix-ui/react-separator',
               '@radix-ui/react-switch',
-              '@radix-ui/react-tooltip',
             ],
             lucide: ['lucide-react'],
           },
