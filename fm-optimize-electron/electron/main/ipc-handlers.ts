@@ -64,8 +64,8 @@ function handleIpc<T, V>(
   }
 }
 
-function handleIpcNoInput<T>(fn: () => T): Promise<IpcResult<T>> {
-  return handleIpc('', undefined, () => fn());
+function handleIpcNoInput<T>(channel: string, fn: () => T): Promise<IpcResult<T>> {
+  return handleIpc(channel, undefined, () => fn());
 }
 
 export function registerIpcHandlers(): void {
@@ -78,11 +78,11 @@ export function registerIpcHandlers(): void {
   });
 
   // Sub-handlers modulares (carregamento sob demanda por página)
-  ipcMain.handle('get-cpu-info', () => handleIpcNoInput(() => getCpuInfo()));
-  ipcMain.handle('get-memory-info', () => handleIpcNoInput(() => getMemoryInfo()));
-  ipcMain.handle('has-ssd', () => handleIpcNoInput(() => hasSolidStateDrive()));
+  ipcMain.handle('get-cpu-info', () => handleIpcNoInput('get-cpu-info', () => getCpuInfo()));
+  ipcMain.handle('get-memory-info', () => handleIpcNoInput('get-memory-info', () => getMemoryInfo()));
+  ipcMain.handle('has-ssd', () => handleIpcNoInput('has-ssd', () => hasSolidStateDrive()));
 
-  ipcMain.handle('get-scripts', () => handleIpcNoInput(() => loadScripts()));
+  ipcMain.handle('get-scripts', () => handleIpcNoInput('get-scripts', () => loadScripts()));
 
   ipcMain.handle('execute-script', (_e, id: string) => {
     return handleIpc('execute-script', id, (validated) => {
@@ -96,7 +96,7 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('get-restore-points', () => handleIpcNoInput(() => getRestorePoints()));
+  ipcMain.handle('get-restore-points', () => handleIpcNoInput('get-restore-points', () => getRestorePoints()));
 
   ipcMain.handle('create-restore-point', (_e, name: string) => {
     return handleIpc('create-restore-point', name, (validated) => {
@@ -110,9 +110,9 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('is-admin', () => handleIpcNoInput(() => isAdmin()));
+  ipcMain.handle('is-admin', () => handleIpcNoInput('is-admin', () => isAdmin()));
 
-  ipcMain.handle('get-settings', () => handleIpcNoInput(() => loadSettings()));
+  ipcMain.handle('get-settings', () => handleIpcNoInput('get-settings', () => loadSettings()));
 
   ipcMain.handle('save-settings', (_e, settings) => {
     return handleIpc('save-settings', settings, (validated) => {
@@ -120,12 +120,12 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('get-app-version', () => handleIpcNoInput(() => app.getVersion()));
+  ipcMain.handle('get-app-version', () => handleIpcNoInput('get-app-version', () => app.getVersion()));
 
-  ipcMain.handle('is-packaged', () => handleIpcNoInput(() => app.isPackaged));
+  ipcMain.handle('is-packaged', () => handleIpcNoInput('is-packaged', () => app.isPackaged));
 
   ipcMain.handle('get-execution-history', () =>
-    handleIpcNoInput(() => loadUserData().executionHistory || [])
+    handleIpcNoInput('get-execution-history', () => loadUserData().executionHistory || [])
   );
 
   ipcMain.handle('restore-system', (_e, seq: number) => {
@@ -138,19 +138,19 @@ export function registerIpcHandlers(): void {
     if (!app.isPackaged) {
       return { success: false as const, error: 'Updates only work in packaged app' };
     }
-    return handleIpcNoInput(() => {
+    return handleIpcNoInput('check-for-update', () => {
       autoUpdater.checkForUpdates();
     });
   });
 
   ipcMain.handle('download-update', () =>
-    handleIpcNoInput(() => {
+    handleIpcNoInput('download-update', () => {
       autoUpdater.downloadUpdate();
     })
   );
 
   ipcMain.handle('install-update', () =>
-    handleIpcNoInput(() => {
+    handleIpcNoInput('install-update', () => {
       autoUpdater.quitAndInstall();
     })
   );
@@ -236,14 +236,14 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle('window-minimize', () =>
-    handleIpcNoInput(() => {
+    handleIpcNoInput('window-minimize', () => {
       BrowserWindow.getFocusedWindow()?.minimize();
       return { success: true };
     })
   );
 
   ipcMain.handle('window-close', () =>
-    handleIpcNoInput(() => {
+    handleIpcNoInput('window-close', () => {
       BrowserWindow.getFocusedWindow()?.close();
       return { success: true };
     })
