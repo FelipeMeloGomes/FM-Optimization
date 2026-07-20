@@ -4,8 +4,6 @@ import {
   Mouse,
   MousePointerClick,
   Play,
-  RotateCcw,
-  Shield,
   Square,
   Terminal,
   Zap,
@@ -13,7 +11,7 @@ import {
 import { useMemo, useState } from 'react';
 import type { ScriptEntry } from '../../electron/shared/ipc-types';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { RISK_STYLES } from '../components/ScriptCard';
+import { ScriptBadge } from '../components/ScriptBadge';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button } from '../components/ui';
 import { useScriptPage } from '../hooks/use-script-page';
@@ -253,35 +251,7 @@ function DeviceSection({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium truncate">{script.name}</p>
-                    {script.requiresAdmin && (
-                      <Badge
-                        variant="destructive"
-                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
-                      >
-                        <Shield className="size-3" />
-                        Admin
-                      </Badge>
-                    )}
-                    {script.requiresRestart && (
-                      <Badge
-                        variant="outline"
-                        className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
-                      >
-                        <RotateCcw className="size-3" />
-                        Reiniciar
-                      </Badge>
-                    )}
-                    {script.riskLevel && (
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'gap-1 font-mono text-[10px] px-1.5 py-0',
-                          RISK_STYLES[script.riskLevel].className
-                        )}
-                      >
-                        {RISK_STYLES[script.riskLevel].label}
-                      </Badge>
-                    )}
+                    <ScriptBadge script={script} />
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                     {script.description}
@@ -458,35 +428,7 @@ export default function InputLagPage() {
                         <h4 className="text-sm font-semibold text-foreground truncate">
                           {item.name}
                         </h4>
-                        {script.requiresAdmin && (
-                          <Badge
-                            variant="destructive"
-                            className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
-                          >
-                            <Shield className="size-3" />
-                            Admin
-                          </Badge>
-                        )}
-                        {script.requiresRestart && (
-                          <Badge
-                            variant="outline"
-                            className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
-                          >
-                            <RotateCcw className="size-3" />
-                            Reiniciar
-                          </Badge>
-                        )}
-                        {script.riskLevel && (
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              'gap-1 font-mono text-[10px] px-1.5 py-0',
-                              RISK_STYLES[script.riskLevel].className
-                            )}
-                          >
-                            {RISK_STYLES[script.riskLevel].label}
-                          </Badge>
-                        )}
+                        <ScriptBadge script={script} />
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                         {item.description}

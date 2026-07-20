@@ -1,7 +1,7 @@
-import { AlertTriangle, Cpu, Play, RotateCcw, Shield, Square, Terminal } from 'lucide-react';
+import { AlertTriangle, Cpu, Play, Square, Terminal } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { RISK_STYLES } from '../components/ScriptCard';
+import { ScriptBadge } from '../components/ScriptBadge';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button, Card, CardContent } from '../components/ui';
 import { useScriptPage } from '../hooks/use-script-page';
@@ -279,35 +279,7 @@ export default function CpuPage() {
                           <h4 className="text-sm font-semibold text-foreground truncate">
                             {script.name}
                           </h4>
-                          {script.requiresAdmin && (
-                            <Badge
-                              variant="destructive"
-                              className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
-                            >
-                              <Shield className="size-3" />
-                              Admin
-                            </Badge>
-                          )}
-                          {script.requiresRestart && (
-                            <Badge
-                              variant="outline"
-                              className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0 border-amber-500/50 text-amber-400"
-                            >
-                              <RotateCcw className="size-3" />
-                              Reiniciar
-                            </Badge>
-                          )}
-                          {script.riskLevel && (
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                'gap-1 font-mono text-[10px] px-1.5 py-0',
-                                RISK_STYLES[script.riskLevel].className
-                              )}
-                            >
-                              {RISK_STYLES[script.riskLevel].label}
-                            </Badge>
-                          )}
+                          <ScriptBadge script={script} />
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                           {script.description}

@@ -1,19 +1,9 @@
-import {
-  AlertTriangle,
-  Clock,
-  Eraser,
-  Globe,
-  RefreshCw,
-  RotateCcw,
-  Shield,
-  Trash2,
-  Zap,
-} from 'lucide-react';
+import { AlertTriangle, Clock, Eraser, Globe, RefreshCw, Trash2, Zap } from 'lucide-react';
 import { useCallback } from 'react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { RISK_STYLES } from '../components/ScriptCard';
+import { ScriptBadge } from '../components/ScriptBadge';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
-import { Badge, Button } from '../components/ui';
+import { Button } from '../components/ui';
 import { useScriptPage } from '../hooks/use-script-page';
 import { cn } from '../lib/utils';
 
@@ -206,17 +196,7 @@ export default function CleanerPage() {
                   <div>
                     <h3 className="font-semibold text-foreground">{card.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      {script?.riskLevel && (
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            'text-[10px] px-1.5 py-0',
-                            script?.riskLevel && RISK_STYLES[script.riskLevel].className
-                          )}
-                        >
-                          {script?.riskLevel ? RISK_STYLES[script.riskLevel].label : ''}
-                        </Badge>
-                      )}
+                      {script && <ScriptBadge script={script} />}
                       <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                         <Clock className="size-3" />
                         {card.frequency}
@@ -245,20 +225,6 @@ export default function CleanerPage() {
                   ))}
                 </ul>
               </div>
-
-              {script?.requiresAdmin && (
-                <div className="mt-4 flex items-center gap-1.5 text-[10px] text-yellow-400/80">
-                  <Shield className="size-3" />
-                  <span>Requer administrador</span>
-                </div>
-              )}
-
-              {script?.requiresRestart && (
-                <div className="mt-3 flex items-center gap-1.5 text-[10px] text-amber-400/80">
-                  <RotateCcw className="size-3" />
-                  <span>Requer reinício do PC após execução</span>
-                </div>
-              )}
 
               <div className="mt-4 flex gap-2">
                 <Button
