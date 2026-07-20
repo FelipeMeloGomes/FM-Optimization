@@ -23,7 +23,8 @@ import {
   getSystemInfo,
   hasSolidStateDrive,
 } from './services/system-info';
-import { auditIpcValidation, validateIpcInput } from './validation';
+import { validateIpcInput } from './validation';
+import { auditIpcValidation } from './audit-logger';
 
 function handleIpc<T, V>(
   channel: string,

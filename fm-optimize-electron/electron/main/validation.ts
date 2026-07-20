@@ -108,11 +108,3 @@ export function validateIpcInput<T>(
   }
   return { success: true, data: result.data as T };
 }
-
-export function auditIpcValidation(channel: string, success: boolean, error?: string): void {
-  // Audit logging will be added when audit-logger is imported
-  // This is a placeholder for the audit integration
-  if (!success) {
-    console.warn(`[IPC Validation Failed] ${channel}: ${error}`);
-  }
-}
