@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { app } from 'electron';
+import { ALLOWED_EXTENSIONS } from './deny-list';
 
-const ALLOWED_EXTENSIONS = ['.bat', '.cmd', '.ps1', '.reg', '.exe', '.txt'] as const;
 const ALLOWED_TEMP_DIR = resolve(app.getPath('userData'), 'scripts');
 
 export interface PathValidationResult {
