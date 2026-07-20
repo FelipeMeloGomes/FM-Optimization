@@ -3,7 +3,6 @@ import { autoUpdater } from 'electron-updater';
 import type { AppSettings, BenchmarkResult, IpcResult } from '../shared/ipc-types';
 import { isAdmin } from './services/admin-check';
 import {
-  getDataFilePathForRenderer,
   loadSettings,
   loadUserData,
   saveSettings,
@@ -17,13 +16,10 @@ import {
   restoreSystem,
 } from './services/restore-points';
 import { cancelExecution, executeScript } from './services/script-executor';
-import { extractScriptToTemp, getScriptContent, loadScripts } from './services/script-registry';
+import { loadScripts } from './services/script-registry';
 import {
   getCpuInfo,
-  getGpuInfo,
   getMemoryInfo,
-  getOsInfo,
-  getStorageDrives,
   getSystemInfo,
   hasSolidStateDrive,
 } from './services/system-info';
@@ -83,19 +79,10 @@ export function registerIpcHandlers(): void {
 
   // Sub-handlers modulares (carregamento sob demanda por página)
   ipcMain.handle('get-cpu-info', () => handleIpcNoInput(() => getCpuInfo()));
-  ipcMain.handle('get-gpu-info', () => handleIpcNoInput(() => getGpuInfo()));
   ipcMain.handle('get-memory-info', () => handleIpcNoInput(() => getMemoryInfo()));
-  ipcMain.handle('get-os-info', () => handleIpcNoInput(() => getOsInfo()));
-  ipcMain.handle('get-storage-drives', () => handleIpcNoInput(() => getStorageDrives()));
   ipcMain.handle('has-ssd', () => handleIpcNoInput(() => hasSolidStateDrive()));
 
   ipcMain.handle('get-scripts', () => handleIpcNoInput(() => loadScripts()));
-
-  ipcMain.handle('get-script-content', (_e, id: string) => {
-    return handleIpc('get-script-content', id, (validated) =>
-      getScriptContent(validated as string)
-    );
-  });
 
   ipcMain.handle('execute-script', (_e, id: string) => {
     return handleIpc('execute-script', id, (validated) => {
@@ -133,15 +120,9 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('get-data-file-path', () => handleIpcNoInput(() => getDataFilePathForRenderer()));
-
   ipcMain.handle('get-app-version', () => handleIpcNoInput(() => app.getVersion()));
 
   ipcMain.handle('is-packaged', () => handleIpcNoInput(() => app.isPackaged));
-
-  ipcMain.handle('extract-script', (_e, id: string) => {
-    return handleIpc('extract-script', id, (validated) => extractScriptToTemp(validated as string));
-  });
 
   ipcMain.handle('get-execution-history', () =>
     handleIpcNoInput(() => loadUserData().executionHistory || [])
@@ -257,16 +238,6 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('window-minimize', () =>
     handleIpcNoInput(() => {
       BrowserWindow.getFocusedWindow()?.minimize();
-      return { success: true };
-    })
-  );
-
-  ipcMain.handle('window-maximize', () =>
-    handleIpcNoInput(() => {
-      const win = BrowserWindow.getFocusedWindow();
-      if (win) {
-        win.isMaximized() ? win.unmaximize() : win.maximize();
-      }
       return { success: true };
     })
   );
