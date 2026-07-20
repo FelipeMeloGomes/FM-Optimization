@@ -86,12 +86,6 @@ export interface SecuritySettings {
   enablePsSanitize: boolean;
 }
 
-export interface ScriptOutput {
-  scriptId: string;
-  type: 'stdout' | 'stderr';
-  text: string;
-}
-
 export interface ScriptEnded {
   id: string;
   code: number | null;

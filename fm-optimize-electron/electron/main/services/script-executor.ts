@@ -4,7 +4,6 @@ import type {
   ExecutionHistoryEntry,
   ScriptEnded,
   ScriptEntry,
-  ScriptOutput,
 } from '../../shared/ipc-types';
 import { auditAdminCheck, auditScriptExecution } from '../audit-logger';
 import { validateScriptPath } from '../path-validation';
@@ -14,21 +13,9 @@ import { extractScriptToTemp, getScriptById } from './script-registry';
 
 const activeProcesses = new Map<string, ChildProcess>();
 
-function sendOutput(win: BrowserWindow, data: ScriptOutput): void {
-  if (!win.isDestroyed()) {
-    win.webContents.send('script-output', JSON.stringify(data));
-  }
-}
-
 function sendEnded(win: BrowserWindow, data: ScriptEnded): void {
   if (!win.isDestroyed()) {
     win.webContents.send('script-ended', JSON.stringify(data));
-  }
-}
-
-function sendError(win: BrowserWindow, scriptId: string, text: string): void {
-  if (!win.isDestroyed()) {
-    win.webContents.send('script-error', JSON.stringify({ scriptId, type: 'stderr', text }));
   }
 }
 
@@ -131,14 +118,12 @@ export function executeScript(id: string): string {
 
   activeProcesses.set(id, proc);
 
-  proc.stdout?.on('data', (data: Buffer) => {
-    sendOutput(win, { scriptId: id, type: 'stdout', text: data.toString() });
+  proc.stdout?.on('data', (_data: Buffer) => {
+    // Output streaming removed — no preload listener for script-output
   });
 
-  proc.stderr?.on('data', (data: Buffer) => {
-    const text = data.toString();
-    sendOutput(win, { scriptId: id, type: 'stderr', text });
-    sendError(win, id, text);
+  proc.stderr?.on('data', (_data: Buffer) => {
+    // Error streaming removed — no preload listener for script-error
   });
 
   const startTime = Date.now();
@@ -160,8 +145,6 @@ export function executeScript(id: string): string {
 
   proc.on('error', (err) => {
     activeProcesses.delete(id);
-    sendOutput(win, { scriptId: id, type: 'stderr', text: `Error: ${err.message}\n` });
-    sendError(win, id, `Error: ${err.message}\n`);
     sendEnded(win, { id, code: -1 });
     const endTime = Date.now();
     addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, -1, false));
