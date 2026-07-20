@@ -34,10 +34,6 @@ export function getScriptById(id: string): ScriptEntry | undefined {
   return scripts.find((s) => s.id === id);
 }
 
-export function getScriptsByCategory(category: string): ScriptEntry[] {
-  return loadScripts().filter((s) => s.category === category);
-}
-
 export function getScriptContent(id: string): string {
   const script = getScriptById(id);
   if (!script) throw new Error(`Script not found: ${id}`);

@@ -159,8 +159,3 @@ export async function execPowerShellSafe(
     });
   });
 }
-
-export function validatePowerShellScript(script: string): { valid: boolean; violations: string[] } {
-  const { violations } = sanitizeScript(script);
-  return { valid: violations.length === 0, violations };
-}
