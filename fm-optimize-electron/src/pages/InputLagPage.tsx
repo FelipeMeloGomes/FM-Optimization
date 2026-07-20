@@ -140,14 +140,12 @@ function DeviceSection({
   card,
   scripts,
   activeExecution,
-  _onExecute,
   onCancel,
   onConfirmExecute,
 }: {
   card: DeviceCard;
   scripts: ScriptEntry[];
   activeExecution: string | null;
-  _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
   onConfirmExecute: (script: ScriptEntry) => void;
 }) {
@@ -373,7 +371,6 @@ export default function InputLagPage() {
               card={card}
               scripts={inputLagScripts}
               activeExecution={activeExecution}
-              _onExecute={handleExecute}
               onCancel={handleCancel}
               onConfirmExecute={handleConfirmExecute}
             />

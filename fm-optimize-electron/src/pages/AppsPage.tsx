@@ -58,14 +58,12 @@ function AppSectionCard({
   section,
   scripts,
   activeExecution,
-  _onExecute,
   onCancel,
   onConfirmExecute,
 }: {
   section: AppSection;
   scripts: ScriptEntry[];
   activeExecution: string | null;
-  _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
   onConfirmExecute: (script: ScriptEntry) => void;
 }) {
@@ -77,7 +75,6 @@ function AppSectionCard({
   );
 
   const isAnyExecuting = section.scriptIds.some((id) => activeExecution === id);
-  const _executingScript = sectionScripts.find((s) => activeExecution === s.id);
 
   return (
     <div
@@ -229,7 +226,6 @@ export default function AppsPage() {
           section={section}
           scripts={appsScripts}
           activeExecution={activeExecution}
-          _onExecute={handleExecute}
           onCancel={handleCancel}
           onConfirmExecute={handleConfirmExecute}
         />

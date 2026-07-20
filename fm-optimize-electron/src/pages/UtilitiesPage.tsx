@@ -79,7 +79,6 @@ function UtilSectionCard({
   scripts,
   hasSSD,
   activeExecution,
-  _onExecute,
   onCancel,
   onConfirmExecute,
 }: {
@@ -87,7 +86,6 @@ function UtilSectionCard({
   scripts: ScriptEntry[];
   hasSSD: boolean | null;
   activeExecution: string | null;
-  _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
   onConfirmExecute: (script: ScriptEntry) => void;
 }) {
@@ -103,7 +101,6 @@ function UtilSectionCard({
   );
 
   const isAnyExecuting = section.scriptIds.some((id) => activeExecution === id);
-  const _executingScript = sectionScripts.find((s) => activeExecution === s.id);
 
   return (
     <div
@@ -264,16 +261,15 @@ export default function UtilitiesPage() {
 
       {/* Util Sections */}
       {UTIL_SECTIONS.map((section) => (
-        <UtilSectionCard
-          key={section.id}
-          section={section}
-          scripts={utilScripts}
-          hasSSD={hasSSD}
-          activeExecution={activeExecution}
-          _onExecute={handleExecute}
-          onCancel={handleCancel}
-          onConfirmExecute={handleConfirmExecute}
-        />
+          <UtilSectionCard
+            key={section.id}
+            section={section}
+            scripts={utilScripts}
+            hasSSD={hasSSD}
+            activeExecution={activeExecution}
+            onCancel={handleCancel}
+            onConfirmExecute={handleConfirmExecute}
+          />
       ))}
 
       {/* Confirm Dialog */}

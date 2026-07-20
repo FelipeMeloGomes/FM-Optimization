@@ -80,14 +80,12 @@ function TweakSectionCard({
   section,
   scripts,
   activeExecution,
-  _onExecute,
   onCancel,
   onConfirmExecute,
 }: {
   section: TweakSection;
   scripts: ScriptEntry[];
   activeExecution: string | null;
-  _onExecute: (id: string) => void;
   onCancel: (id: string) => void;
   onConfirmExecute: (script: ScriptEntry) => void;
 }) {
@@ -99,7 +97,6 @@ function TweakSectionCard({
   );
 
   const isAnyExecuting = section.scriptIds.some((id) => activeExecution === id);
-  const _executingScript = sectionScripts.find((s) => activeExecution === s.id);
 
   return (
     <div
@@ -244,7 +241,6 @@ export default function TweaksPage() {
           section={section}
           scripts={tweaksScripts}
           activeExecution={activeExecution}
-          _onExecute={handleExecute}
           onCancel={handleCancel}
           onConfirmExecute={handleConfirmExecute}
         />
