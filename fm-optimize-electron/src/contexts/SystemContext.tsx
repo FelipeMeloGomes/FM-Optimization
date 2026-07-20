@@ -3,10 +3,7 @@ import type {
   AsyncState,
   CpuInfo,
   DashboardData,
-  GpuInfo,
   MemoryInfo,
-  OsInfo,
-  StorageDrive,
 } from '../../electron/shared/ipc-types';
 
 interface SectionContextValue<T> {
@@ -59,14 +56,6 @@ const CpuSection = createSectionProvider<CpuInfo>(
 export const CpuProvider = CpuSection.Provider;
 export const useCpuContext = CpuSection.useSectionContext;
 
-// GPU
-const GpuSection = createSectionProvider<GpuInfo>(
-  () => window.electronAPI.getGpuInfo(),
-  'useGpuContext'
-);
-export const GpuProvider = GpuSection.Provider;
-export const useGpuContext = GpuSection.useSectionContext;
-
 // Memory
 const MemorySection = createSectionProvider<MemoryInfo>(
   () => window.electronAPI.getMemoryInfo(),
@@ -74,22 +63,6 @@ const MemorySection = createSectionProvider<MemoryInfo>(
 );
 export const MemoryProvider = MemorySection.Provider;
 export const useMemoryContext = MemorySection.useSectionContext;
-
-// OS
-const OsSection = createSectionProvider<OsInfo>(
-  () => window.electronAPI.getOsInfo(),
-  'useOsContext'
-);
-export const OsProvider = OsSection.Provider;
-export const useOsContext = OsSection.useSectionContext;
-
-// Storage
-const StorageSection = createSectionProvider<StorageDrive[]>(
-  () => window.electronAPI.getStorageDrives(),
-  'useStorageContext'
-);
-export const StorageProvider = StorageSection.Provider;
-export const useStorageContext = StorageSection.useSectionContext;
 
 // Legacy aggregate (usado pelo Dashboard) — mantém compatibilidade
 interface SystemContextValue {
