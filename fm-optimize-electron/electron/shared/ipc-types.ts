@@ -155,10 +155,7 @@ export type AsyncState<T> =
 export interface ElectronAPI {
   getSystemInfo(): Promise<DashboardData>;
   getCpuInfo(): Promise<CpuInfo>;
-  getGpuInfo(): Promise<GpuInfo>;
   getMemoryInfo(): Promise<MemoryInfo>;
-  getOsInfo(): Promise<OsInfo>;
-  getStorageDrives(): Promise<StorageDrive[]>;
   hasSSD(): Promise<boolean>;
   getScripts(): Promise<ScriptEntry[]>;
   executeScript(id: string): Promise<void>;

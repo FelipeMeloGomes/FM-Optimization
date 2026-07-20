@@ -88,10 +88,7 @@ export type BenchmarkDnsInput = z.infer<typeof benchmarkDnsSchema>;
 export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-system-info': z.undefined(),
   'get-cpu-info': z.undefined(),
-  'get-gpu-info': z.undefined(),
   'get-memory-info': z.undefined(),
-  'get-os-info': z.undefined(),
-  'get-storage-drives': z.undefined(),
   'has-ssd': z.undefined(),
   'get-scripts': z.undefined(),
   'execute-script': executeScriptSchema,
