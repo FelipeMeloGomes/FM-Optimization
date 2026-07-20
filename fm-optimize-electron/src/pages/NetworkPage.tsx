@@ -433,8 +433,6 @@ function NetworkPageContent() {
                 isExecuting={activeExecution === script.id}
                 onExecute={() => handleExecute(script.id)}
                 onCancel={() => handleCancel(script.id)}
-                hideExpand
-                hideGuide
               />
             ))}
           </div>

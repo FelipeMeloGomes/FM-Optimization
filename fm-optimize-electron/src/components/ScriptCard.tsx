@@ -1,10 +1,8 @@
 import {
-  ChevronDown,
   Cpu,
   Eraser,
   FileText,
   Gauge,
-  Info,
   MousePointerClick,
   Play,
   RotateCcw,
@@ -37,8 +35,6 @@ interface ScriptCardProps {
   isExecuting: boolean;
   onExecute: () => void;
   onCancel: () => void;
-  hideExpand?: boolean;
-  hideGuide?: boolean;
 }
 
 const CATEGORY_CONFIG: Record<
@@ -107,11 +103,7 @@ export const ScriptCard = memo(function ScriptCard({
   isExecuting,
   onExecute,
   onCancel,
-  hideExpand = false,
-  hideGuide = false,
 }: ScriptCardProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showRestartPrompt, setShowRestartPrompt] = useState(false);
   const wasExecuting = useRef(false);
@@ -154,20 +146,9 @@ export const ScriptCard = memo(function ScriptCard({
             <Icon className={cn('size-5', config.color)} />
           </div>
           <div className="flex-1 min-w-0">
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setExpanded((v) => !v);
-                }
-              }}
-              className="cursor-pointer font-semibold text-foreground hover:text-primary transition-colors truncate"
-              aria-expanded={expanded}
-            >
+            <span className="font-semibold text-foreground truncate block">
               {script.name}
-            </button>
+            </span>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="secondary" className="gap-1 font-mono text-[10px] px-1.5 py-0">
                 <Terminal className="size-3" aria-hidden="true" />.{script.extension}
@@ -212,74 +193,10 @@ export const ScriptCard = memo(function ScriptCard({
         </div>
       </div>
 
-      <div className="mt-3">
-        {hideExpand ? (
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
-            {script.description}
-          </p>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setExpanded((v) => !v);
-                }
-              }}
-              className="cursor-pointer"
-              aria-expanded={expanded}
-              aria-controls="script-desc"
-            >
-              <p
-                id="script-desc"
-                className={cn(
-                  'text-[13px] leading-relaxed text-muted-foreground hover:text-foreground transition-colors',
-                  !expanded && 'line-clamp-2'
-                )}
-              >
-                {script.description}
-              </p>
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpanded((v) => !v);
-              }}
-              className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
-              aria-expanded={expanded}
-              aria-controls="script-desc"
-            >
-              <ChevronDown
-                className={cn(
-                  'size-3 transition-transform duration-300',
-                  expanded ? 'rotate-180' : 'rotate-0'
-                )}
-                aria-hidden="true"
-              />
-              {expanded ? 'Menos' : 'Mais'}
-            </button>
-          </>
-        )}
-      </div>
+      <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
+        {script.description}
+      </p>
 
-      {!hideGuide && script.guide && (
-        <div className="mt-3">
-          <button
-            type="button"
-            onClick={() => setShowGuide((v) => !v)}
-            className="flex items-center gap-1.5 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
-          >
-            <Info className="size-3.5" aria-hidden="true" />
-            {showGuide ? 'Ocultar explicação' : 'Como funciona?'}
-          </button>
-          {showGuide && (
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{script.guide}</p>
-          )}
-        </div>
-      )}
 
       {script.requiresAdmin && (
         <div className="mt-3 flex items-center gap-1.5 text-[10px] text-yellow-400/80">
