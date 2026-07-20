@@ -45,10 +45,6 @@ function getSettingsFilePath(): string {
   return resolve(dir, 'settings.json');
 }
 
-export function getDataFilePathForRenderer(): string {
-  return getDataFilePath();
-}
-
 export function loadUserData(): UserData {
   const filePath = getDataFilePath();
   if (!existsSync(filePath)) return { customScripts: [], executionHistory: [] };
