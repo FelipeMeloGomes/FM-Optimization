@@ -6,7 +6,7 @@ import {
   InterfaceIndexSchema,
   RestorePointSeqSchema,
   ScriptIdSchema,
-} from './branded-types';
+} from '../branded-types';
 
 describe('ScriptIdSchema', () => {
   it('accepts valid script id', () => {

@@ -183,6 +183,15 @@ export const ScriptCard = memo(function ScriptCard({
                   Reiniciar
                 </Badge>
               )}
+              {script.interactive && (
+                <Badge
+                  variant="outline"
+                  className="gap-1 font-mono text-[10px] px-1.5 py-0 border-blue-500/50 text-blue-400"
+                >
+                  <Terminal className="size-3" aria-hidden="true" />
+                  Interativo
+                </Badge>
+              )}
               {script.riskLevel && (
                 <Badge
                   variant="outline"
@@ -277,6 +286,13 @@ export const ScriptCard = memo(function ScriptCard({
         </div>
       )}
 
+      {script.interactive && (
+        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-blue-400/80">
+          <Terminal className="size-3" />
+          <span>Script interativo — abrirá uma janela do CMD para inputs</span>
+        </div>
+      )}
+
       <div className="mt-4 flex gap-2">
         {isExecuting ? (
           <Button
@@ -354,6 +370,15 @@ export const ScriptCard = memo(function ScriptCard({
                   >
                     <RotateCcw className="size-3" aria-hidden="true" />
                     Reiniciar
+                  </Badge>
+                )}
+                {script.interactive && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 font-mono text-xs border-blue-500/50 text-blue-400"
+                  >
+                    <Terminal className="size-3" aria-hidden="true" />
+                    Interativo
                   </Badge>
                 )}
                 {script.riskLevel && (

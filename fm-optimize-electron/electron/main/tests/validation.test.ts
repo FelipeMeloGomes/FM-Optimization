@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { IpcSchemas, validateIpcInput } from './validation';
+import { IpcSchemas, validateIpcInput } from '../validation';
 
 describe('IpcSchemas', () => {
   it('validates execute-script with valid id', () => {

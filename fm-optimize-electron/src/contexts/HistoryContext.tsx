@@ -25,6 +25,12 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    return window.electronAPI.onScriptEnded(() => {
+      refresh();
+    });
+  }, [refresh]);
+
   return <HistoryContext.Provider value={{ state, refresh }}>{children}</HistoryContext.Provider>;
 }
 

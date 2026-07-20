@@ -58,6 +58,7 @@ export interface ScriptEntry {
   extension: 'bat' | 'ps1' | 'reg' | 'exe' | 'cmd' | 'txt';
   requiresAdmin: boolean;
   requiresRestart?: boolean;
+  interactive?: boolean;
   isBuiltIn: boolean;
   tags: string[];
   guide?: string;

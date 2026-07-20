@@ -19,6 +19,7 @@ interface ConfirmDialogItem {
   extension?: string;
   requiresAdmin?: boolean;
   requiresRestart?: boolean;
+  interactive?: boolean;
   riskLevel?: 'safe' | 'moderate' | 'deep';
 }
 
@@ -165,6 +166,15 @@ export function ConfirmDialog({
                   Reiniciar
                 </Badge>
               )}
+              {script.interactive && (
+                <Badge
+                  variant="outline"
+                  className="gap-1 font-mono text-[10px] px-1.5 py-0 border-blue-500/50 text-blue-400"
+                >
+                  <Terminal className="size-3" />
+                  Interativo
+                </Badge>
+              )}
               {script.riskLevel && (
                 <Badge
                   variant="outline"
@@ -195,6 +205,15 @@ export function ConfirmDialog({
             <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 p-2.5 mb-3">
               <RotateCcw className="size-3.5 text-amber-400 shrink-0" />
               <p className="text-[11px] text-amber-400/80">Requer reinício do PC após execução.</p>
+            </div>
+          )}
+
+          {phase === 'confirm' && script.interactive && (
+            <div className="flex items-center gap-2 rounded-lg bg-blue-500/10 border border-blue-500/20 p-2.5 mb-3">
+              <Terminal className="size-3.5 text-blue-400 shrink-0" />
+              <p className="text-[11px] text-blue-400/80">
+                Script interativo — uma janela do CMD será aberta para inputs.
+              </p>
             </div>
           )}
 

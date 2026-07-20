@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPsCommand, psEscape } from './powershell';
+import { buildPsCommand, psEscape } from '../services/powershell';
 
 describe('psEscape', () => {
   it('escapes double quotes', () => {

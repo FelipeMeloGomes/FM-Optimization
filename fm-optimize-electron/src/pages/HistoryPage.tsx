@@ -194,6 +194,11 @@ export default function HistoryPage() {
                           <AlertTriangle className="size-3" /> Erro ({entry.exitCode})
                         </Badge>
                       )}
+                      {entry.exitCode != null && entry.exitCode < 0 && (
+                        <Badge variant="destructive" className="gap-1">
+                          <AlertOctagon className="size-3" /> Erro (spawn)
+                        </Badge>
+                      )}
                       {entry.exitCode === null && !entry.wasCancelled && '—'}
                     </TableCell>
                   </TableRow>
