@@ -68,10 +68,6 @@ export const executeScriptSchema = ScriptIdSchema;
 
 export const cancelExecutionSchema = ScriptIdSchema;
 
-export const getScriptContentSchema = ScriptIdSchema;
-
-export const extractScriptSchema = ScriptIdSchema;
-
 export const benchmarkDnsSchema = z.object({
   providers: BenchmarkProvidersSchema,
 });
@@ -87,8 +83,6 @@ export type DeleteRestorePointInput = z.infer<typeof deleteRestorePointSchema>;
 export type RestoreSystemInput = z.infer<typeof restoreSystemSchema>;
 export type ExecuteScriptInput = z.infer<typeof executeScriptSchema>;
 export type CancelExecutionInput = z.infer<typeof cancelExecutionSchema>;
-export type GetScriptContentInput = z.infer<typeof getScriptContentSchema>;
-export type ExtractScriptInput = z.infer<typeof extractScriptSchema>;
 export type BenchmarkDnsInput = z.infer<typeof benchmarkDnsSchema>;
 
 export const IpcSchemas: Record<string, z.ZodSchema> = {
@@ -100,8 +94,6 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-storage-drives': z.undefined(),
   'has-ssd': z.undefined(),
   'get-scripts': z.undefined(),
-  'get-script-content': getScriptContentSchema,
-  'extract-script': extractScriptSchema,
   'execute-script': executeScriptSchema,
   'cancel-execution': cancelExecutionSchema,
   'get-restore-points': z.undefined(),
@@ -110,7 +102,6 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'is-admin': z.undefined(),
   'get-settings': z.undefined(),
   'save-settings': SettingsSchema,
-  'get-data-file-path': z.undefined(),
   'get-app-version': z.undefined(),
   'is-packaged': z.undefined(),
   'get-execution-history': z.undefined(),
@@ -123,7 +114,6 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'apply-dns': applyDnsSchema,
   'elevate-app': elevateAppSchema,
   'window-minimize': z.undefined(),
-  'window-maximize': z.undefined(),
   'window-close': z.undefined(),
 };
 
