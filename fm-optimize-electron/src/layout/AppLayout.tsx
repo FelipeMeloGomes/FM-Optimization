@@ -1,9 +1,14 @@
+import { useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import { CircuitBackground } from '../components/CircuitBackground';
+import { useSmoothScroll } from '../hooks/use-smooth-scroll';
 import { Sidebar } from './Sidebar';
 import { TitleBar } from './TitleBar';
 
 export function AppLayout() {
+  const mainRef = useRef<HTMLDivElement>(null);
+  useSmoothScroll(mainRef);
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
       <a
@@ -19,7 +24,7 @@ export function AppLayout() {
         <CircuitBackground />
         <Sidebar />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <main id="main-content" className="flex-1 overflow-y-auto p-6">
+          <main ref={mainRef} id="main-content" className="flex-1 overflow-y-auto p-6">
             <Outlet />
           </main>
         </div>
