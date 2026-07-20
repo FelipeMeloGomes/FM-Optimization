@@ -9,17 +9,13 @@ import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import {
   CpuProvider,
-  GpuProvider,
   MemoryProvider,
-  OsProvider,
-  StorageProvider,
   SystemProvider,
 } from './contexts/SystemContext';
 import { AppLayout } from './layout/AppLayout';
 import { composeProviders } from './lib/compose-providers';
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const _ScriptsPage = lazy(() => import('./pages/ScriptsPage'));
 const RestorePointsPage = lazy(() => import('./pages/RestorePointsPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
@@ -43,10 +39,7 @@ const AllProviders = composeProviders(
   SettingsProvider,
   SystemProvider,
   CpuProvider,
-  GpuProvider,
   MemoryProvider,
-  OsProvider,
-  StorageProvider,
   ScriptExecutionProvider,
   ScriptProvider,
   RestorePointProvider,

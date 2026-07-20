@@ -161,8 +161,6 @@ export interface ElectronAPI {
   getStorageDrives(): Promise<StorageDrive[]>;
   hasSSD(): Promise<boolean>;
   getScripts(): Promise<ScriptEntry[]>;
-  getScriptContent(id: string): Promise<string>;
-  extractScript(id: string): Promise<string>;
   executeScript(id: string): Promise<void>;
   cancelExecution(id: string): Promise<void>;
   getRestorePoints(): Promise<RestorePointEntry[]>;
@@ -171,9 +169,6 @@ export interface ElectronAPI {
   isAdmin(): Promise<boolean>;
   getSettings(): Promise<AppSettings>;
   saveSettings(settings: AppSettings): Promise<void>;
-  getDataFilePath(): Promise<string>;
-  onScriptOutput(cb: (data: ScriptOutput) => void): () => void;
-  onScriptError(cb: (data: ScriptOutput) => void): () => void;
   onScriptEnded(cb: (data: ScriptEnded) => void): () => void;
   restoreSystem(seq: number): Promise<void>;
   getAppVersion(): Promise<string>;
@@ -191,7 +186,6 @@ export interface ElectronAPI {
   benchmarkDns(providers: { primary: string; secondary: string }[]): Promise<BenchmarkResult[]>;
   applyDns(interfaceIndex: number, addresses: string[]): Promise<void>;
   minimizeWindow(): Promise<void>;
-  maximizeWindow(): Promise<void>;
   closeWindow(): Promise<void>;
   elevateApp(scriptId?: string, dnsInterfaceIndex?: number, dnsAddresses?: string[]): Promise<void>;
 }

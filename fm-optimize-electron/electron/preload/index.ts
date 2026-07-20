@@ -15,7 +15,6 @@ import type {
   RestorePointEntry,
   ScriptEnded,
   ScriptEntry,
-  ScriptOutput,
   StorageDrive,
   UpdateInfo,
   UpdateStatus,
@@ -36,8 +35,6 @@ function ipcVoid(channel: string, ...args: unknown[]): Promise<void> {
   });
 }
 
-const scriptOutputCallbacks = new Set<(data: ScriptOutput) => void>();
-const scriptErrorCallbacks = new Set<(data: ScriptOutput) => void>();
 const scriptEndedCallbacks = new Set<(data: ScriptEnded) => void>();
 const updateStatusCallbacks = new Set<(data: UpdateStatus) => void>();
 const updateInfoCallbacks = new Set<(data: UpdateInfo) => void>();
@@ -46,28 +43,6 @@ const benchmarkProgressCallbacks = new Set<(data: { current: number; total: numb
 const benchmarkResultCallbacks = new Set<(data: BenchmarkResult) => void>();
 
 function setupListeners(): void {
-  ipcRenderer.on('script-output', (_e: IpcRendererEvent, raw: string) => {
-    try {
-      const data = JSON.parse(raw) as ScriptOutput;
-      scriptOutputCallbacks.forEach((cb) => {
-        cb(data);
-      });
-    } catch {
-      /* skip malformed output */
-    }
-  });
-
-  ipcRenderer.on('script-error', (_e: IpcRendererEvent, raw: string) => {
-    try {
-      const data = JSON.parse(raw) as ScriptOutput;
-      scriptErrorCallbacks.forEach((cb) => {
-        cb(data);
-      });
-    } catch {
-      /* skip malformed error */
-    }
-  });
-
   ipcRenderer.on('script-ended', (_e: IpcRendererEvent, raw: string) => {
     try {
       const data = JSON.parse(raw) as ScriptEnded;
@@ -124,8 +99,6 @@ const electronAPI: ElectronAPI = {
   getStorageDrives: () => ipc<StorageDrive[]>('get-storage-drives'),
   hasSSD: () => ipc<boolean>('has-ssd'),
   getScripts: () => ipc<ScriptEntry[]>('get-scripts'),
-  getScriptContent: (id) => ipc<string>('get-script-content', id),
-  extractScript: (id) => ipc<string>('extract-script', id),
   executeScript: (id) => ipcVoid('execute-script', id),
   cancelExecution: (id) => ipcVoid('cancel-execution', id),
   getRestorePoints: () => ipc<RestorePointEntry[]>('get-restore-points'),
@@ -134,15 +107,6 @@ const electronAPI: ElectronAPI = {
   isAdmin: () => ipc<boolean>('is-admin'),
   getSettings: () => ipc<AppSettings>('get-settings'),
   saveSettings: (settings) => ipcVoid('save-settings', settings),
-  getDataFilePath: () => ipc<string>('get-data-file-path'),
-  onScriptOutput: (cb: (data: ScriptOutput) => void) => {
-    scriptOutputCallbacks.add(cb);
-    return () => scriptOutputCallbacks.delete(cb);
-  },
-  onScriptError: (cb: (data: ScriptOutput) => void) => {
-    scriptErrorCallbacks.add(cb);
-    return () => scriptErrorCallbacks.delete(cb);
-  },
   onScriptEnded: (cb: (data: ScriptEnded) => void) => {
     scriptEndedCallbacks.add(cb);
     return () => scriptEndedCallbacks.delete(cb);
@@ -180,7 +144,6 @@ const electronAPI: ElectronAPI = {
   applyDns: (interfaceIndex: number, addresses: string[]) =>
     ipcVoid('apply-dns', { interfaceIndex, addresses }),
   minimizeWindow: () => ipcVoid('window-minimize'),
-  maximizeWindow: () => ipcVoid('window-maximize'),
   closeWindow: () => ipcVoid('window-close'),
   elevateApp: (scriptId?: string, dnsInterfaceIndex?: number, dnsAddresses?: string[]) =>
     ipcVoid('elevate-app', { scriptId, dnsInterfaceIndex, dnsAddresses }),
