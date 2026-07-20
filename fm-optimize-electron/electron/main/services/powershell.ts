@@ -83,7 +83,7 @@ export async function execPowerShell(script: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const proc = spawn(
       'powershell.exe',
-      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script],
+      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', wrapped],
       {
         timeout: 30000,
       }
