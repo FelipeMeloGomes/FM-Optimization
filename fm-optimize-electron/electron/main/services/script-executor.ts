@@ -92,20 +92,6 @@ export function executeScript(id: string): string {
     return 'opened';
   }
 
-  if (script?.interactive && (ext === 'bat' || ext === 'cmd')) {
-    const proc = spawn(`cmd /c start cmd /k "${filePath}"`, {
-      detached: true,
-      stdio: 'ignore',
-      shell: true,
-    });
-    proc.unref();
-    sendEnded(win, { id, code: 0 });
-    const now = Date.now();
-    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false));
-    auditScriptExecution(id, script?.name || id, false, true, 0, true);
-    return 'opened';
-  }
-
   if (loadSettings().autoRestorePoint && script) {
     const safeName = script.name
       .replace(/[^a-zA-Z0-9 áéíóúàèìòùâêîôûãõçÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇ\s.:_-]/g, '')
@@ -121,6 +107,20 @@ export function executeScript(id: string): string {
         { stdio: 'ignore', detached: true }
       ).unref();
     }
+  }
+
+  if (script?.interactive && (ext === 'bat' || ext === 'cmd')) {
+    const proc = spawn(`cmd /c start cmd /k "${filePath}"`, {
+      detached: true,
+      stdio: 'ignore',
+      shell: true,
+    });
+    proc.unref();
+    sendEnded(win, { id, code: 0 });
+    const now = Date.now();
+    addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false));
+    auditScriptExecution(id, script?.name || id, false, true, 0, true);
+    return 'opened';
   }
 
   const { command, args } = getCommand(ext, filePath);
