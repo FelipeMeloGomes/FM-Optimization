@@ -37,6 +37,8 @@ interface ScriptCardProps {
   isExecuting: boolean;
   onExecute: () => void;
   onCancel: () => void;
+  hideExpand?: boolean;
+  hideGuide?: boolean;
 }
 
 const CATEGORY_CONFIG: Record<
@@ -105,6 +107,8 @@ export const ScriptCard = memo(function ScriptCard({
   isExecuting,
   onExecute,
   onCancel,
+  hideExpand = false,
+  hideGuide = false,
 }: ScriptCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
@@ -208,52 +212,60 @@ export const ScriptCard = memo(function ScriptCard({
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setExpanded((v) => !v);
-            }
-          }}
-          className="cursor-pointer"
-          aria-expanded={expanded}
-          aria-controls="script-desc"
-        >
-          <p
-            id="script-desc"
-            className={cn(
-              'text-[13px] leading-relaxed text-muted-foreground hover:text-foreground transition-colors',
-              !expanded && 'line-clamp-2'
-            )}
-          >
+      <div className="mt-3">
+        {hideExpand ? (
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
             {script.description}
           </p>
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded((v) => !v);
-          }}
-          className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
-          aria-expanded={expanded}
-          aria-controls="script-desc"
-        >
-          <ChevronDown
-            className={cn(
-              'size-3 transition-transform duration-300',
-              expanded ? 'rotate-180' : 'rotate-0'
-            )}
-            aria-hidden="true"
-          />
-          {expanded ? 'Menos' : 'Mais'}
-        </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setExpanded((v) => !v);
+                }
+              }}
+              className="cursor-pointer"
+              aria-expanded={expanded}
+              aria-controls="script-desc"
+            >
+              <p
+                id="script-desc"
+                className={cn(
+                  'text-[13px] leading-relaxed text-muted-foreground hover:text-foreground transition-colors',
+                  !expanded && 'line-clamp-2'
+                )}
+              >
+                {script.description}
+              </p>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((v) => !v);
+              }}
+              className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
+              aria-expanded={expanded}
+              aria-controls="script-desc"
+            >
+              <ChevronDown
+                className={cn(
+                  'size-3 transition-transform duration-300',
+                  expanded ? 'rotate-180' : 'rotate-0'
+                )}
+                aria-hidden="true"
+              />
+              {expanded ? 'Menos' : 'Mais'}
+            </button>
+          </>
+        )}
       </div>
 
-      {script.guide && (
+      {!hideGuide && script.guide && (
         <div className="mt-3">
           <button
             type="button"
