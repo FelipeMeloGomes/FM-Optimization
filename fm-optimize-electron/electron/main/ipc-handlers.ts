@@ -251,11 +251,11 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(
     'elevate-app',
-    (_e, scriptId?: string, interfaceIndex?: number, addresses?: string[]) =>
+    (_e, payload: unknown) =>
       handleIpc(
         'elevate-app',
-        { scriptId, interfaceIndex, addresses },
-        async (validated: { scriptId?: string; interfaceIndex?: number; addresses?: string[] }) => {
+        payload,
+        async (validated: { scriptId?: string; dnsInterfaceIndex?: number; dnsAddresses?: string[] }) => {
           // Validate scriptId against allowlist
           if (validated.scriptId) {
             const scripts = loadScripts();
@@ -275,11 +275,11 @@ export function registerIpcHandlers(): void {
           }
 
           // Pass DNS parameters if provided
-          if (validated.interfaceIndex && validated.addresses) {
+          if (validated.dnsInterfaceIndex && validated.dnsAddresses) {
             args.push(
               '--elevate-dns',
-              validated.interfaceIndex.toString(),
-              JSON.stringify(validated.addresses)
+              validated.dnsInterfaceIndex.toString(),
+              JSON.stringify(validated.dnsAddresses)
             );
           }
 
