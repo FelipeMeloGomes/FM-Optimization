@@ -10,19 +10,13 @@ export function useSmoothScroll(containerRef: RefObject<HTMLElement | null>): vo
     const lenis = new Lenis({
       wrapper: el,
       content: el.firstElementChild ?? undefined,
-      lerp: 0.1,
+      lerp: 0.14,
       smoothWheel: true,
+      wheelMultiplier: 1,
+      autoRaf: true,
     });
 
-    let rafId = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
-
     return () => {
-      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, [containerRef]);
