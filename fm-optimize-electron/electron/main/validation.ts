@@ -39,14 +39,6 @@ export const elevateAppSchema = z.object({
   dnsAddresses: DnsAddressesSchema.optional(),
 });
 
-export type ElevateAppInput = z.infer<typeof elevateAppSchema>;
-
-export const NetworkInfoSchema = z.object({
-  interfaceName: z.string(),
-  interfaceIndex: z.number().int().positive(),
-  currentDns: z.array(ipv4Schema),
-});
-
 export const applyDnsSchema = z.object({
   interfaceIndex: InterfaceIndexSchema,
   addresses: DnsAddressesSchema,
@@ -71,19 +63,6 @@ export const cancelExecutionSchema = ScriptIdSchema;
 export const benchmarkDnsSchema = z.object({
   providers: BenchmarkProvidersSchema,
 });
-
-export type DnsAddresses = z.infer<typeof DnsAddressesSchema>;
-export type DnsProvider = z.infer<typeof DnsProviderSchema>;
-export type BenchmarkProviders = z.infer<typeof BenchmarkProvidersSchema>;
-export type Settings = z.infer<typeof SettingsSchema>;
-export type NetworkInfo = z.infer<typeof NetworkInfoSchema>;
-export type ApplyDnsInput = z.infer<typeof applyDnsSchema>;
-export type CreateRestorePointInput = z.infer<typeof createRestorePointSchema>;
-export type DeleteRestorePointInput = z.infer<typeof deleteRestorePointSchema>;
-export type RestoreSystemInput = z.infer<typeof restoreSystemSchema>;
-export type ExecuteScriptInput = z.infer<typeof executeScriptSchema>;
-export type CancelExecutionInput = z.infer<typeof cancelExecutionSchema>;
-export type BenchmarkDnsInput = z.infer<typeof benchmarkDnsSchema>;
 
 export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-system-info': z.undefined(),
