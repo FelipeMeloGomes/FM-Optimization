@@ -14,9 +14,14 @@ export function useSmoothScroll(containerRef: RefObject<HTMLElement | null>): vo
       smoothWheel: true,
       wheelMultiplier: 1,
       autoRaf: true,
+      anchors: true,
     });
 
+    const observer = new MutationObserver(() => lenis.resize());
+    observer.observe(el, { childList: true, subtree: true });
+
     return () => {
+      observer.disconnect();
       lenis.destroy();
     };
   }, [containerRef]);
