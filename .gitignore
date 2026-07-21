@@ -23,6 +23,3 @@ Thumbs.db
 # Environment
 .env
 .env.local
-
-# Superpowers skills
-docs/superpowers/
