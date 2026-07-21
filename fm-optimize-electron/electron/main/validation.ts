@@ -31,6 +31,8 @@ export const SettingsSchema = z.object({
   confirmOnExecute: z.boolean().default(true),
   autoRestorePoint: z.boolean().default(true),
   security: SecuritySettingsSchema,
+  soundEnabled: z.boolean().default(true),
+  toastDuration: z.enum(['short', 'medium', 'long']).default('medium'),
 });
 
 export const elevateAppSchema = z.object({
@@ -64,6 +66,22 @@ export const benchmarkDnsSchema = z.object({
   providers: BenchmarkProvidersSchema,
 });
 
+export const ExportDataSchema = z.object({
+  version: z.string(),
+  exportedAt: z.string(),
+  settings: SettingsSchema.partial().optional(),
+  history: z.array(z.object({
+    id: z.string(),
+    scriptId: z.string(),
+    scriptName: z.string(),
+    startTime: z.string(),
+    endTime: z.string(),
+    durationMs: z.number(),
+    exitCode: z.number().nullable(),
+    wasCancelled: z.boolean(),
+  })).optional(),
+});
+
 export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-system-info': z.undefined(),
   'get-cpu-info': z.undefined(),
@@ -91,6 +109,8 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'elevate-app': elevateAppSchema,
   'window-minimize': z.undefined(),
   'window-close': z.undefined(),
+  'export-data': z.undefined(),
+  'import-data': z.string(),
 };
 
 export function validateIpcInput<T>(

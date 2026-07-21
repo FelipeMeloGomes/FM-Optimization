@@ -6,6 +6,7 @@ import {
   loadSettings,
   loadUserData,
   saveSettings,
+  saveUserData,
 } from './services/data-service';
 import { execPowerShell, execPowerShellSafe } from './services/powershell';
 import { checkRateLimit } from './services/rate-limit';
@@ -249,6 +250,39 @@ export function registerIpcHandlers(): void {
       return { success: true };
     })
   );
+
+  ipcMain.handle('export-data', () =>
+    handleIpcNoInput('export-data', () => {
+      const settings = loadSettings();
+      const userData = loadUserData();
+      return {
+        version: app.getVersion(),
+        exportedAt: new Date().toISOString(),
+        settings,
+        history: userData.executionHistory || [],
+      };
+    })
+  );
+
+  ipcMain.handle('import-data', (_e, jsonData: string) => {
+    return handleIpc('import-data', jsonData, (validated) => {
+      const data = JSON.parse(validated as string);
+      if (data.settings) {
+        const current = loadSettings();
+        saveSettings({ ...current, ...data.settings });
+      }
+      if (data.history && Array.isArray(data.history)) {
+        const current = loadUserData();
+        const existingIds = new Set(current.executionHistory.map(h => h.id));
+        const newEntries = data.history.filter((h: { id: string }) => !existingIds.has(h.id));
+        saveUserData({
+          ...current,
+          executionHistory: [...newEntries, ...current.executionHistory],
+        });
+      }
+      return { success: true };
+    });
+  });
 
   ipcMain.handle(
     'elevate-app',

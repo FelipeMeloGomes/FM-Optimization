@@ -3,6 +3,8 @@ import {
   Check,
   Download,
   ExternalLink,
+  FileDown,
+  FileUp,
   RefreshCw,
   RotateCcw,
   Settings,
@@ -16,7 +18,7 @@ import { useSettingsContext } from '../contexts/SettingsContext';
 const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest';
 
 export default function SettingsPage() {
-  const { settings, update, loading } = useSettingsContext();
+  const { settings, update, loading, exportData, importData } = useSettingsContext();
   const [appVersion, setAppVersion] = useState('');
   const [packaged, setPackaged] = useState(false);
   const [status, setStatus] = useState<UpdateStatus | null>(null);
@@ -145,6 +147,77 @@ export default function SettingsPage() {
               checked={settings.autoRestorePoint}
               onChange={(e) => update({ autoRestorePoint: e.target.checked })}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Data Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="size-1.5 rounded-full bg-blue-400" />
+          <h3 className="text-sm font-semibold text-foreground">Dados</h3>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-sm text-muted-foreground mb-4">
+            Exporte ou importe suas configuracoes e historico.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={exportData}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <FileDown className="size-4" />
+              Exportar Dados
+            </button>
+            <label className="flex items-center gap-2 cursor-pointer rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">
+              <FileUp className="size-4" />
+              Importar Dados
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) importData(file);
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Notification Settings */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="size-1.5 rounded-full bg-amber-400" />
+          <h3 className="text-sm font-semibold text-foreground">Notificacoes</h3>
+        </div>
+        <div className="rounded-xl border border-border bg-card divide-y divide-border">
+          <div className="p-4 transition-all duration-200 hover:bg-muted/30">
+            <Toggle
+              id="sound-enabled"
+              label="Som nas notificacoes"
+              description="Reproduzir som ao receber notificacoes"
+              checked={settings.soundEnabled}
+              onChange={(e) => update({ soundEnabled: e.target.checked })}
+            />
+          </div>
+          <div className="p-4 transition-all duration-200 hover:bg-muted/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-sm font-medium text-foreground">Duracao dos toasts</label>
+                <p className="text-xs text-muted-foreground">Tempo que as notificacoes ficam visiveis</p>
+              </div>
+              <select
+                value={settings.toastDuration}
+                onChange={e => update({ toastDuration: e.target.value as 'short' | 'medium' | 'long' })}
+                className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground"
+              >
+                <option value="short">Curta (2s)</option>
+                <option value="medium">Media (4s)</option>
+                <option value="long">Longa (8s)</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

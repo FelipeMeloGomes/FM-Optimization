@@ -25,6 +25,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     enablePathValidation: true,
     enablePsSanitize: true,
   },
+  soundEnabled: true,
+  toastDuration: 'medium',
 };
 
 function getDataDir(): string {
@@ -113,6 +115,13 @@ export function loadSettings(): AppSettings {
                   : DEFAULT_SETTINGS.security.enablePsSanitize,
             }
           : DEFAULT_SETTINGS.security,
+      soundEnabled:
+        typeof parsed.soundEnabled === 'boolean'
+          ? parsed.soundEnabled
+          : DEFAULT_SETTINGS.soundEnabled,
+      toastDuration: ['short', 'medium', 'long'].includes(parsed.toastDuration)
+        ? parsed.toastDuration
+        : DEFAULT_SETTINGS.toastDuration,
     };
   } catch {
     return DEFAULT_SETTINGS;

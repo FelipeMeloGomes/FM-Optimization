@@ -1,34 +1,41 @@
 import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { showEnhancedToast } from '../components/EnhancedToast';
 
 export function useUpdateToast(): void {
   useEffect(() => {
     const unsubStatus = window.electronAPI.onUpdateStatus((status) => {
       if (status === 'ready') {
-        toast.success('Atualização baixada!', {
-          description: 'Reinicie para instalar a nova versão.',
+        showEnhancedToast({
+          type: 'success',
+          title: 'Atualizacao baixada!',
+          description: 'Reinicie para instalar a nova versao.',
           action: {
             label: 'Instalar',
             onClick: () => window.electronAPI.installUpdate(),
           },
-          duration: Infinity,
+          duration: 'long',
         });
       }
 
       if (status === 'error') {
-        toast.error('Erro ao verificar atualizações');
+        showEnhancedToast({
+          type: 'error',
+          title: 'Erro ao verificar atualizacoes',
+        });
       }
     });
 
     const unsubInfo = window.electronAPI.onUpdateInfo((info) => {
       if (info.version) {
-        toast.info(`Versão ${info.version} disponível`, {
-          description: 'Uma nova versão foi encontrada.',
+        showEnhancedToast({
+          type: 'info',
+          title: `Versao ${info.version} disponivel`,
+          description: 'Uma nova versao foi encontrada.',
           action: {
             label: 'Baixar',
             onClick: () => window.electronAPI.downloadUpdate(),
           },
-          duration: Infinity,
+          duration: 'long',
         });
       }
     });

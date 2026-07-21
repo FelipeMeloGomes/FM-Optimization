@@ -2,6 +2,9 @@ import { useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { CircuitBackground } from '../components/CircuitBackground';
+import { CommandPalette } from '../components/CommandPalette';
+import { useCommandPalette } from '../hooks/use-command-palette';
+import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
 import { useSmoothScroll } from '../hooks/use-smooth-scroll';
 import { useUpdateToast } from '../hooks/use-update-toast';
 import { Sidebar } from './Sidebar';
@@ -9,8 +12,10 @@ import { TitleBar } from './TitleBar';
 
 export function AppLayout() {
   const mainRef = useRef<HTMLDivElement>(null);
+  const { isOpen, open, close } = useCommandPalette();
   useSmoothScroll(mainRef);
   useUpdateToast();
+  useKeyboardShortcuts();
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
@@ -38,13 +43,14 @@ export function AppLayout() {
       </header>
       <div className="flex flex-1 overflow-hidden">
         <CircuitBackground />
-        <Sidebar />
+        <Sidebar openCommandPalette={open} />
         <div className="flex flex-1 flex-col overflow-hidden">
           <main ref={mainRef} id="main-content" className="flex-1 overflow-y-auto p-6">
             <Outlet />
           </main>
         </div>
       </div>
+      <CommandPalette isOpen={isOpen} onClose={close} />
     </div>
   );
 }
