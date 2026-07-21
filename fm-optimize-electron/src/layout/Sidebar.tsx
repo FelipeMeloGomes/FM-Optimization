@@ -7,6 +7,7 @@ import {
   MousePointerClick,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
   Settings,
   Shield,
   Smartphone,
@@ -18,25 +19,29 @@ import { NavLink } from 'react-router-dom';
 import logoUrl from '../assets/logo.svg';
 import { cn } from '../lib/utils';
 
+interface SidebarProps {
+  openCommandPalette: () => void;
+}
+
 const navItems = [
-  { to: '/', icon: Home, label: 'Início' },
-  { to: '/tweaks', icon: Gauge, label: 'Ajustes' },
-  { to: '/utilities', icon: Wrench, label: 'Utilitários' },
-  { to: '/cleaner', icon: Eraser, label: 'Limpeza' },
-  { to: '/rede', icon: Wifi, label: 'Rede' },
-  { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag' },
-  { to: '/cpu', icon: Cpu, label: 'Processador' },
-  { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
+  { to: '/', icon: Home, label: 'Início', shortcut: '1' },
+  { to: '/tweaks', icon: Gauge, label: 'Ajustes', shortcut: '2' },
+  { to: '/utilities', icon: Wrench, label: 'Utilitários', shortcut: '3' },
+  { to: '/cleaner', icon: Eraser, label: 'Limpeza', shortcut: '4' },
+  { to: '/rede', icon: Wifi, label: 'Rede', shortcut: '5' },
+  { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag', shortcut: '6' },
+  { to: '/cpu', icon: Cpu, label: 'Processador', shortcut: '7' },
+  { to: '/apps', icon: Smartphone, label: 'Aplicativos', shortcut: '8' },
 ] as const;
 
 const systemItems = [
-  { to: '/restore-points', icon: Shield, label: 'Restauração' },
+  { to: '/restore-points', icon: Shield, label: 'Restauração', shortcut: '9' },
   { to: '/history', icon: Clock, label: 'Histórico' },
 ] as const;
 
-const bottomItems = [{ to: '/settings', icon: Settings, label: 'Configurações' }] as const;
+const bottomItems = [{ to: '/settings', icon: Settings, label: 'Configurações', shortcut: ',' }] as const;
 
-export function Sidebar() {
+export function Sidebar({ openCommandPalette }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -56,6 +61,29 @@ export function Sidebar() {
           )}
         />
       </div>
+      <button
+        type="button"
+        onClick={openCommandPalette}
+        className={cn(
+          'flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground',
+          collapsed && 'size-9 justify-center px-0 gap-0'
+        )}
+      >
+        <Search className="size-4 shrink-0" />
+        <span
+          className={cn(
+            'overflow-hidden whitespace-nowrap transition-all duration-300',
+            collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+          )}
+        >
+          Buscar
+        </span>
+        {!collapsed && (
+          <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+            Ctrl+K
+          </kbd>
+        )}
+      </button>
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => (
           <NavLink
@@ -89,6 +117,11 @@ export function Sidebar() {
                 >
                   {item.label}
                 </span>
+                {!collapsed && 'shortcut' in item && item.shortcut && (
+                  <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    Ctrl+{item.shortcut}
+                  </kbd>
+                )}
                 {collapsed && (
                   <span className="pointer-events-none absolute left-full ml-2 rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 z-50">
                     {item.label}
@@ -130,6 +163,11 @@ export function Sidebar() {
                 >
                   {item.label}
                 </span>
+                {!collapsed && 'shortcut' in item && item.shortcut && (
+                  <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    Ctrl+{item.shortcut}
+                  </kbd>
+                )}
                 {collapsed && (
                   <span className="pointer-events-none absolute left-full ml-2 rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 z-50">
                     {item.label}
@@ -174,6 +212,11 @@ export function Sidebar() {
                 >
                   {item.label}
                 </span>
+                {!collapsed && 'shortcut' in item && item.shortcut && (
+                  <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    Ctrl+{item.shortcut}
+                  </kbd>
+                )}
                 {collapsed && (
                   <span className="pointer-events-none absolute left-full ml-2 rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 z-50">
                     {item.label}

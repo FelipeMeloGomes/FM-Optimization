@@ -14,6 +14,8 @@ interface SettingsContextValue {
   settings: AppSettings;
   update: (partial: Partial<AppSettings>) => void;
   loading: boolean;
+  exportData: () => Promise<void>;
+  importData: (file: File) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -28,6 +30,8 @@ const DEFAULT: AppSettings = {
     enablePathValidation: true,
     enablePsSanitize: true,
   },
+  soundEnabled: true,
+  toastDuration: 'medium',
 };
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
@@ -56,7 +60,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       .catch((e) => console.error('Failed to save settings:', e));
   }, []);
 
-  const contextValue = useMemo(() => ({ settings, update, loading }), [settings, update, loading]);
+  const exportData = useCallback(async () => {
+    const data = await window.electronAPI.exportData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'fm-optimize-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const importData = useCallback(async (file: File) => {
+    const text = await file.text();
+    await window.electronAPI.importData(text);
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({ settings, update, loading, exportData, importData }),
+    [settings, update, loading, exportData, importData]
+  );
 
   return <SettingsContext.Provider value={contextValue}>{children}</SettingsContext.Provider>;
 }

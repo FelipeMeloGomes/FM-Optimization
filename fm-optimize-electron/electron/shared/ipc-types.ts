@@ -77,6 +77,8 @@ export interface AppSettings {
   confirmOnExecute: boolean;
   autoRestorePoint: boolean;
   security: SecuritySettings;
+  soundEnabled: boolean;
+  toastDuration: 'short' | 'medium' | 'long';
 }
 
 export interface SecuritySettings {
@@ -141,6 +143,13 @@ export interface IpcResult<T = void> {
   error?: string;
 }
 
+export interface ExportData {
+  version: string;
+  exportedAt: string;
+  settings?: Partial<AppSettings>;
+  history?: ExecutionHistoryEntry[];
+}
+
 export type AsyncState<T> =
   | { status: 'loading' }
   | { status: 'error'; error: string }
@@ -179,4 +188,6 @@ export interface ElectronAPI {
   minimizeWindow(): Promise<void>;
   closeWindow(): Promise<void>;
   elevateApp(scriptId?: string, dnsInterfaceIndex?: number, dnsAddresses?: string[]): Promise<void>;
+  exportData(): Promise<ExportData>;
+  importData(jsonData: string): Promise<{ success: boolean }>;
 }

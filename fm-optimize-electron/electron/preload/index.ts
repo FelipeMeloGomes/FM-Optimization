@@ -6,6 +6,7 @@ import type {
   DashboardData,
   DownloadProgress,
   ElectronAPI,
+  ExportData,
   ExecutionHistoryEntry,
   IpcResult,
   MemoryInfo,
@@ -141,6 +142,8 @@ const electronAPI: ElectronAPI = {
   closeWindow: () => ipcVoid('window-close'),
   elevateApp: (scriptId?: string, dnsInterfaceIndex?: number, dnsAddresses?: string[]) =>
     ipcVoid('elevate-app', { scriptId, dnsInterfaceIndex, dnsAddresses }),
+  exportData: () => ipc<ExportData>('export-data'),
+  importData: (jsonData: string) => ipc<{ success: boolean }>('import-data', jsonData),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
