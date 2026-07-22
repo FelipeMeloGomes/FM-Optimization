@@ -6,27 +6,6 @@
 
 ---
 
-<div align="center">
-  <img src="assets/screenshots/dashboard_painel.webp" alt="Dashboard — visão geral do sistema" width="750">
-</div>
-
-<br>
-
-<div align="center">
-  <table>
-    <tr>
-      <td width="50%"><img src="assets/screenshots/scripts_list.webp" alt="Lista de scripts" width="100%"></td>
-      <td width="50%"><img src="assets/screenshots/terminal_log.webp" alt="Log em tempo real" width="100%"></td>
-    </tr>
-    <tr>
-      <td width="50%"><img src="assets/screenshots/confirm_script.webp" alt="Confirmação de execução" width="100%"></td>
-      <td width="50%"><img src="assets/screenshots/backup_windows.webp" alt="Pontos de restauração" width="100%"></td>
-    </tr>
-  </table>
-</div>
-
----
-
 ## Funcionalidades
 
 - **Dashboard** — CPU, GPU, memória, armazenamento com barra de uso e tempo de atividade
@@ -52,14 +31,13 @@ Electron 35 · React 19 · TypeScript · Vite · Tailwind CSS 4 · Framer Motion
 
 ## Segurança
 
-O app executa comandos PowerShell no sistema. Todo dado que entra via IPC é validado (Zod) e passa por rate-limit antes de tocar o sistema. Comandos usam argumentos parametrizados e escapados (`psEscape`) para bloquear injeção. A elevação de privilégios usa allowlist de scripts e revalidação de argumentos. Veja `fm-optimize-electron/docs/SECURITY.md`.
+O app executa comandos PowerShell no sistema. Todo dado que entra via IPC é validado (Zod) e passa por rate-limit antes de tocar o sistema. Comandos usam argumentos parametrizados e escapados (`psEscape`) para bloquear injeção. A elevação de privilégios usa allowlist de scripts e revalidação de argumentos. Veja `docs/SECURITY.md`.
 
 ---
 
 ## Início rápido
 
 ```bash
-cd fm-optimize-electron
 npm install
 npm run dev     # desenvolvimento
 npm run build   # produção (gera em out/)
@@ -75,14 +53,13 @@ npm run build   # produção (gera em out/)
 
 ## Para desenvolvedores
 
-Documentação técnica em `fm-optimize-electron/docs/`:
+Documentação técnica em `docs/`:
 
-- [ARCHITECTURE.md](fm-optimize-electron/docs/ARCHITECTURE.md) — camadas, fluxo IPC, providers modulares
-- [SECURITY.md](fm-optimize-electron/docs/SECURITY.md) — controles de segurança e modelo de ameaça
-- [DEVELOPMENT.md](fm-optimize-electron/docs/DEVELOPMENT.md) — setup, scripts, convenções, como adicionar handlers IPC
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — camadas, fluxo IPC, providers modulares
+- [SECURITY.md](docs/SECURITY.md) — controles de segurança e modelo de ameaça
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md) — setup, scripts, convenções, como adicionar handlers IPC
 
 ```bash
-cd fm-optimize-electron
 npm install
 npm run dev      # desenvolvimento
 npm run build    # produção (out/)
