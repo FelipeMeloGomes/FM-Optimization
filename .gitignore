@@ -1,26 +1,8 @@
-# .NET
-bin/
-obj/
-*.user
-*.suo
-*.cache
-*.log
-
-# Build
-build/
-dist/
+node_modules/
 out/
-
-# IDE
-.vscode/
-.idea/
-*.DotSettings
-
-# OS
-Thumbs.db
+dist/
 .DS_Store
-
-# Environment
+*.log
 .env
 .env.local
 

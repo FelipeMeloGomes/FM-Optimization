@@ -12,7 +12,7 @@ npm run dev
 npm run build
 ```
 
-Gera em `fm-optimize-electron/out/`.
+Gera em `out/`.
 
 ## Typecheck
 
@@ -52,7 +52,7 @@ Dados salvos em `%APPDATA%\fm-optimize\`.
 
 Antes de commitar, verificar se o README.md foi atualizado com as últimas mudanças para manter sincronizado.
 
-Trabalhar sempre dentro de `fm-optimize-electron/`.
+Trabalhar sempre a partir da raiz do repositório.
 
 # Release (GitHub)
 
@@ -68,7 +68,7 @@ Commits técnicos (chore, bump, docs, refactor) ficam em uma seção "Técnico" 
 
 - [ ] `.env.local` na raiz com `GITHUB_TOKEN=ghp_...`
 - [ ] `README.md` revisado e atualizado (se houver mudanças visuais/funcionais)
-- [ ] Working directory é `fm-optimize-electron/`
+- [ ] Working directory é a raiz do repositório
 - [ ] Working tree limpo (sem arquivos não commitados)
 
 ### O que o script faz
@@ -128,7 +128,7 @@ Ordem obrigatória:
 
 ### Script
 
-Copie e cole no terminal PowerShell a partir de `fm-optimize-electron/`:
+Copie e cole no terminal PowerShell a partir da raiz do repositório:
 
 ```powershell
 $ErrorActionPreference = "Stop"
