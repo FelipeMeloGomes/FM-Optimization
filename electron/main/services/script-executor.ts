@@ -68,7 +68,7 @@ export function executeScript(id: string): string {
       stdio: 'ignore',
     });
     proc.unref();
-    sendEnded(win, { id, code: 0 });
+    sendEnded(win, { id, code: 0, scriptName: script?.name });
     const now = Date.now();
     addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false));
     auditScriptExecution(id, script?.name || id, false, true, 0, true);
@@ -99,7 +99,7 @@ export function executeScript(id: string): string {
       shell: true,
     });
     proc.unref();
-    sendEnded(win, { id, code: 0 });
+    sendEnded(win, { id, code: 0, scriptName: script?.name });
     const now = Date.now();
     addHistoryEntry(createHistoryEntry(id, script?.name || id, now, now, 0, false));
     auditScriptExecution(id, script?.name || id, false, true, 0, true);
@@ -126,7 +126,7 @@ export function executeScript(id: string): string {
 
   proc.on('close', (code) => {
     activeProcesses.delete(id);
-    sendEnded(win, { id, code });
+    sendEnded(win, { id, code, scriptName: script?.name });
     const endTime = Date.now();
     addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, code, false));
     auditScriptExecution(
@@ -141,7 +141,7 @@ export function executeScript(id: string): string {
 
   proc.on('error', (_err) => {
     activeProcesses.delete(id);
-    sendEnded(win, { id, code: -1 });
+    sendEnded(win, { id, code: -1, scriptName: script?.name });
     const endTime = Date.now();
     addHistoryEntry(createHistoryEntry(id, script?.name || id, startTime, endTime, -1, false));
     auditScriptExecution(

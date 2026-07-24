@@ -5,6 +5,7 @@ import { CircuitBackground } from '../components/CircuitBackground';
 import { CommandPalette } from '../components/CommandPalette';
 import { useCommandPalette } from '../hooks/use-command-palette';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
+import { useScriptExecutionToast } from '../hooks/use-script-execution-toast';
 import { useSmoothScroll } from '../hooks/use-smooth-scroll';
 import { useUpdateToast } from '../hooks/use-update-toast';
 import { Sidebar } from './Sidebar';
@@ -15,6 +16,7 @@ export function AppLayout() {
   const { isOpen, open, close } = useCommandPalette();
   useSmoothScroll(mainRef);
   useUpdateToast();
+  useScriptExecutionToast();
   useKeyboardShortcuts();
 
   return (

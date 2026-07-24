@@ -91,6 +91,7 @@ export interface SecuritySettings {
 export interface ScriptEnded {
   id: string;
   code: number | null;
+  scriptName?: string;
 }
 
 export interface ExecutionHistoryEntry {
