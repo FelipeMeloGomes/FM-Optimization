@@ -2,21 +2,22 @@
 
 [![site](https://img.shields.io/badge/site-fmoptimize-0044ff?style=for-the-badge)](https://fmoptimize.vercel.app)
 
-41 scripts de otimização do Windows em um único app desktop. Tudo embutido em um executável.
+41 tweaks de otimização do Windows em um único app desktop. Tudo embutido em um executável.
 
 ---
 
 ## Funcionalidades
 
 - **Dashboard** — CPU, GPU, memória, armazenamento com barra de uso e tempo de atividade
-- **Scripts de otimização** — Tweaks, Utilitários, Limpeza, Rede, Apps, Input Lag, Processador (Intel/AMD)
+- **Tweaks de otimização** — Utilitários, Limpeza, Rede, Apps, Input Lag, Processador (Intel/AMD)
 - **Armazenamento** — Limpeza de Disco do Windows e otimizações de SSD que só aparecem quando há um SSD detectado no sistema
-- **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + scripts de otimização de internet
+- **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + tweaks de otimização de internet
 - **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows
-- **Processador** — detecção automática de fabricante (Intel/AMD) com scripts específicos
-- **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar scripts)
-- **Histórico de Execução** — registro de todos os scripts executados com duração e status
-- **Mini-guia** — explicação simples do que cada script faz e quando usar
+- **Processador** — detecção automática de fabricante (Intel/AMD) com tweaks específicos
+- **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar tweaks)
+- **Histórico de Execução** — registro de todos os tweaks executados com duração e status
+- **Notificações** — toast de confirmação ao finalizar a execução de um tweak
+- **Mini-guia** — explicação simples do que cada tweak faz e quando usar
 - **Atualização integrada** — botão nas Configurações que baixa e instala novas versões do GitHub
 - **Janela customizada** — controles de minimizar/fechar customizados, sem barra de título nativa do Windows
 - **Tema** — dark azul neon com fundo de circuito animado
@@ -31,7 +32,7 @@ Electron 35 · React 19 · TypeScript · Vite · Tailwind CSS 4 · Framer Motion
 
 ## Segurança
 
-O app executa comandos PowerShell no sistema. Todo dado que entra via IPC é validado (Zod) e passa por rate-limit antes de tocar o sistema. Comandos usam argumentos parametrizados e escapados (`psEscape`) para bloquear injeção. A elevação de privilégios usa allowlist de scripts e revalidação de argumentos. Veja `docs/SECURITY.md`.
+O app executa comandos PowerShell no sistema. Todo dado que entra via IPC é validado (Zod) e passa por rate-limit antes de tocar o sistema. Comandos usam argumentos parametrizados e escapados (`psEscape`) para bloquear injeção. A elevação de privilégios usa allowlist de tweaks e revalidação de argumentos. Veja `docs/SECURITY.md`.
 
 ---
 
