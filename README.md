@@ -16,7 +16,7 @@
 - **Processador** — detecção automática de fabricante (Intel/AMD) com tweaks específicos
 - **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar tweaks)
 - **Histórico de Execução** — registro de todos os tweaks executados com duração e status
-- **Notificações** — toast de confirmação ao finalizar a execução de um tweak
+- **Notificações** — toast de confirmação ao finalizar a execução de um tweak (com som opcional)
 - **Mini-guia** — explicação simples do que cada tweak faz e quando usar
 - **Atualização integrada** — botão nas Configurações que baixa e instala novas versões do GitHub
 - **Janela customizada** — controles de minimizar/fechar customizados, sem barra de título nativa do Windows
