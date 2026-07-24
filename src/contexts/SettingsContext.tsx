@@ -66,7 +66,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'fm-optimize-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.download = `fm-optimize-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }, []);

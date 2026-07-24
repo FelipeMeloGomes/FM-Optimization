@@ -403,7 +403,7 @@ function NetworkPageContent() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{internetScripts.length} scripts</Badge>
+            <Badge variant="secondary">{internetScripts.length} tweaks</Badge>
           </div>
         </div>
 
@@ -416,7 +416,7 @@ function NetworkPageContent() {
           </div>
         ) : scriptState.status === 'error' ? (
           <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
-            <p className="text-sm">Erro ao carregar scripts</p>
+            <p className="text-sm">Erro ao carregar tweaks</p>
             <p className="text-xs text-destructive">{scriptState.error}</p>
           </div>
         ) : internetScripts.length === 0 ? (

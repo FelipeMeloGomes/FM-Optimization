@@ -7,11 +7,7 @@ import { RestorePointProvider } from './contexts/RestorePointContext';
 import { ScriptProvider } from './contexts/ScriptContext';
 import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext';
 import { SettingsProvider } from './contexts/SettingsContext';
-import {
-  CpuProvider,
-  MemoryProvider,
-  SystemProvider,
-} from './contexts/SystemContext';
+import { CpuProvider, MemoryProvider, SystemProvider } from './contexts/SystemContext';
 import { AppLayout } from './layout/AppLayout';
 import { composeProviders } from './lib/compose-providers';
 

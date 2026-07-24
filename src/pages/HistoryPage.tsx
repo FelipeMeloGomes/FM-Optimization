@@ -82,7 +82,7 @@ export default function HistoryPage() {
               </div>
               <h2 className="text-lg font-bold text-foreground">Histórico de Execuções</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Acompanhe todas as execuções de scripts realizadas no sistema.
+                Acompanhe todas as execuções de tweaks realizadas no sistema.
               </p>
             </div>
             <Badge variant="secondary" className="text-xs px-3 py-1">

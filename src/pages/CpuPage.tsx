@@ -4,8 +4,8 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ScriptBadge } from '../components/ScriptBadge';
 import { ScriptCardSkeleton } from '../components/ScriptCardSkeleton';
 import { Badge, Button, Card, CardContent } from '../components/ui';
-import { useScriptPage } from '../hooks/use-script-page';
 import { useCpuContext, useMemoryContext } from '../contexts/SystemContext';
+import { useScriptPage } from '../hooks/use-script-page';
 import { type CpuVendor, detectCpuVendor, getCpuCategory } from '../lib/cpu-vendor';
 import { cn } from '../lib/utils';
 
@@ -46,7 +46,6 @@ export default function CpuPage() {
     state,
     categoryScripts,
     activeExecution,
-    handleExecute,
     handleCancel,
     handleConfirmExecute,
     confirmScript,
@@ -119,7 +118,7 @@ export default function CpuPage() {
   if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
-        <p className="text-sm">Erro ao carregar scripts</p>
+        <p className="text-sm">Erro ao carregar tweaks</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
     );
@@ -167,7 +166,7 @@ export default function CpuPage() {
                 isAmd ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'
               )}
             >
-              {cpuScripts.length} scripts
+              {cpuScripts.length} tweaks
             </Badge>
           </div>
         </div>

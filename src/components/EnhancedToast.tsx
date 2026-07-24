@@ -1,10 +1,16 @@
+import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react';
 
 const ICONS = { success: CheckCircle, error: XCircle, info: Info, warning: AlertTriangle };
 const DURATIONS = { short: 2000, medium: 4000, long: 8000 };
 
-export function showEnhancedToast({ type, title, description, action, duration = 'medium' }: {
+export function showEnhancedToast({
+  type,
+  title,
+  description,
+  action,
+  duration = 'medium',
+}: {
   type: 'success' | 'error' | 'info' | 'warning';
   title: string;
   description?: string;

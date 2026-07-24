@@ -70,16 +70,20 @@ export const ExportDataSchema = z.object({
   version: z.string(),
   exportedAt: z.string(),
   settings: SettingsSchema.partial().optional(),
-  history: z.array(z.object({
-    id: z.string(),
-    scriptId: z.string(),
-    scriptName: z.string(),
-    startTime: z.string(),
-    endTime: z.string(),
-    durationMs: z.number(),
-    exitCode: z.number().nullable(),
-    wasCancelled: z.boolean(),
-  })).optional(),
+  history: z
+    .array(
+      z.object({
+        id: z.string(),
+        scriptId: z.string(),
+        scriptName: z.string(),
+        startTime: z.string(),
+        endTime: z.string(),
+        durationMs: z.number(),
+        exitCode: z.number().nullable(),
+        wasCancelled: z.boolean(),
+      })
+    )
+    .optional(),
 });
 
 export const IpcSchemas: Record<string, z.ZodSchema> = {

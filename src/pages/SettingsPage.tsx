@@ -134,7 +134,7 @@ export default function SettingsPage() {
             <Toggle
               id="confirm-execution"
               label="Confirmar Execução"
-              description="Confirmar antes de executar scripts"
+              description="Confirmar antes de executar tweaks"
               checked={settings.confirmOnExecute}
               onChange={(e) => update({ confirmOnExecute: e.target.checked })}
             />
@@ -143,7 +143,7 @@ export default function SettingsPage() {
             <Toggle
               id="auto-restore-point"
               label="Restore Point Automático"
-              description="Criar ponto de restauração antes de executar scripts"
+              description="Criar ponto de restauração antes de executar tweaks"
               checked={settings.autoRestorePoint}
               onChange={(e) => update({ autoRestorePoint: e.target.checked })}
             />
@@ -163,6 +163,7 @@ export default function SettingsPage() {
           </p>
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={exportData}
               className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
@@ -176,7 +177,7 @@ export default function SettingsPage() {
                 type="file"
                 accept=".json"
                 className="hidden"
-                onChange={e => {
+                onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) importData(file);
                 }}
@@ -205,12 +206,19 @@ export default function SettingsPage() {
           <div className="p-4 transition-all duration-200 hover:bg-muted/30">
             <div className="flex items-center justify-between">
               <div>
-                <label className="text-sm font-medium text-foreground">Duracao dos toasts</label>
-                <p className="text-xs text-muted-foreground">Tempo que as notificacoes ficam visiveis</p>
+                <label htmlFor="toast-duration" className="text-sm font-medium text-foreground">
+                  Duracao dos toasts
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  Tempo que as notificacoes ficam visiveis
+                </p>
               </div>
               <select
+                id="toast-duration"
                 value={settings.toastDuration}
-                onChange={e => update({ toastDuration: e.target.value as 'short' | 'medium' | 'long' })}
+                onChange={(e) =>
+                  update({ toastDuration: e.target.value as 'short' | 'medium' | 'long' })
+                }
                 className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground"
               >
                 <option value="short">Curta (2s)</option>

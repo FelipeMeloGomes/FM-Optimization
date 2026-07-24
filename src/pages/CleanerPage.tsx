@@ -101,7 +101,6 @@ export default function CleanerPage() {
     state,
     categoryScripts: cleanerScripts,
     activeExecution,
-    handleExecute,
     handleCancel,
     handleConfirmExecute,
     confirmScript,
@@ -140,7 +139,7 @@ export default function CleanerPage() {
   if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
-        <p className="text-sm">Erro ao carregar scripts</p>
+        <p className="text-sm">Erro ao carregar tweaks</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
     );

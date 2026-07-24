@@ -1,13 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import type { AppSettings, BenchmarkResult, IpcResult } from '../shared/ipc-types';
+import { auditIpcValidation } from './audit-logger';
 import { isAdmin } from './services/admin-check';
-import {
-  loadSettings,
-  loadUserData,
-  saveSettings,
-  saveUserData,
-} from './services/data-service';
+import { loadSettings, loadUserData, saveSettings, saveUserData } from './services/data-service';
 import { execPowerShell, execPowerShellSafe } from './services/powershell';
 import { checkRateLimit } from './services/rate-limit';
 import {
@@ -25,7 +21,6 @@ import {
   hasSolidStateDrive,
 } from './services/system-info';
 import { validateIpcInput } from './validation';
-import { auditIpcValidation } from './audit-logger';
 
 function handleIpc<T, V>(
   channel: string,
@@ -81,7 +76,9 @@ export function registerIpcHandlers(): void {
 
   // Sub-handlers modulares (carregamento sob demanda por página)
   ipcMain.handle('get-cpu-info', () => handleIpcNoInput('get-cpu-info', () => getCpuInfo()));
-  ipcMain.handle('get-memory-info', () => handleIpcNoInput('get-memory-info', () => getMemoryInfo()));
+  ipcMain.handle('get-memory-info', () =>
+    handleIpcNoInput('get-memory-info', () => getMemoryInfo())
+  );
   ipcMain.handle('has-ssd', () => handleIpcNoInput('has-ssd', () => hasSolidStateDrive()));
 
   ipcMain.handle('get-scripts', () => handleIpcNoInput('get-scripts', () => loadScripts()));
@@ -98,7 +95,9 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('get-restore-points', () => handleIpcNoInput('get-restore-points', () => getRestorePoints()));
+  ipcMain.handle('get-restore-points', () =>
+    handleIpcNoInput('get-restore-points', () => getRestorePoints())
+  );
 
   ipcMain.handle('create-restore-point', (_e, name: string) => {
     return handleIpc('create-restore-point', name, (validated) => {
@@ -122,7 +121,9 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('get-app-version', () => handleIpcNoInput('get-app-version', () => app.getVersion()));
+  ipcMain.handle('get-app-version', () =>
+    handleIpcNoInput('get-app-version', () => app.getVersion())
+  );
 
   ipcMain.handle('is-packaged', () => handleIpcNoInput('is-packaged', () => app.isPackaged));
 
@@ -273,7 +274,7 @@ export function registerIpcHandlers(): void {
       }
       if (data.history && Array.isArray(data.history)) {
         const current = loadUserData();
-        const existingIds = new Set(current.executionHistory.map(h => h.id));
+        const existingIds = new Set(current.executionHistory.map((h) => h.id));
         const newEntries = data.history.filter((h: { id: string }) => !existingIds.has(h.id));
         saveUserData({
           ...current,
@@ -284,63 +285,65 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle(
-    'elevate-app',
-    (_e, payload: unknown) =>
-      handleIpc(
-        'elevate-app',
-        payload,
-        async (validated: { scriptId?: string; dnsInterfaceIndex?: number; dnsAddresses?: string[] }) => {
-          // Validate scriptId against allowlist
-          if (validated.scriptId) {
-            const scripts = loadScripts();
-            const validIds = new Set(scripts.map((s) => s.id));
-            if (!validIds.has(validated.scriptId)) {
-              throw new Error(`Invalid scriptId: ${validated.scriptId}`);
-            }
+  ipcMain.handle('elevate-app', (_e, payload: unknown) =>
+    handleIpc(
+      'elevate-app',
+      payload,
+      async (validated: {
+        scriptId?: string;
+        dnsInterfaceIndex?: number;
+        dnsAddresses?: string[];
+      }) => {
+        // Validate scriptId against allowlist
+        if (validated.scriptId) {
+          const scripts = loadScripts();
+          const validIds = new Set(scripts.map((s) => s.id));
+          if (!validIds.has(validated.scriptId)) {
+            throw new Error(`Invalid scriptId: ${validated.scriptId}`);
           }
-
-          const { spawn } = require('node:child_process');
-
-          const exePath = process.execPath;
-          const args = process.argv.slice(1).filter((arg) => !arg.startsWith('--elevate-script'));
-
-          if (validated.scriptId) {
-            args.push('--elevate-script', validated.scriptId);
-          }
-
-          // Pass DNS parameters if provided
-          if (validated.dnsInterfaceIndex && validated.dnsAddresses) {
-            args.push(
-              '--elevate-dns',
-              validated.dnsInterfaceIndex.toString(),
-              JSON.stringify(validated.dnsAddresses)
-            );
-          }
-
-          // Use spawn with detached to properly elevate
-          return new Promise((resolve, _reject) => {
-            const elevated = spawn(
-              'powershell.exe',
-              [
-                '-Command',
-                `Start-Process -FilePath "${exePath}" -ArgumentList "${args.map((a) => `"${a.replace(/"/g, '\\"')}"`).join(' ')}" -Verb RunAs -Wait`,
-              ],
-              {
-                detached: true,
-                stdio: 'ignore',
-              }
-            );
-
-            elevated.unref();
-
-            // Exit current non-elevated process after spawning elevated one
-            setTimeout(() => {
-              app.quit();
-              resolve({ success: true });
-            }, 500);
-          });
         }
-      )
+
+        const { spawn } = require('node:child_process');
+
+        const exePath = process.execPath;
+        const args = process.argv.slice(1).filter((arg) => !arg.startsWith('--elevate-script'));
+
+        if (validated.scriptId) {
+          args.push('--elevate-script', validated.scriptId);
+        }
+
+        // Pass DNS parameters if provided
+        if (validated.dnsInterfaceIndex && validated.dnsAddresses) {
+          args.push(
+            '--elevate-dns',
+            validated.dnsInterfaceIndex.toString(),
+            JSON.stringify(validated.dnsAddresses)
+          );
+        }
+
+        // Use spawn with detached to properly elevate
+        return new Promise((resolve, _reject) => {
+          const elevated = spawn(
+            'powershell.exe',
+            [
+              '-Command',
+              `Start-Process -FilePath "${exePath}" -ArgumentList "${args.map((a) => `"${a.replace(/"/g, '\\"')}"`).join(' ')}" -Verb RunAs -Wait`,
+            ],
+            {
+              detached: true,
+              stdio: 'ignore',
+            }
+          );
+
+          elevated.unref();
+
+          // Exit current non-elevated process after spawning elevated one
+          setTimeout(() => {
+            app.quit();
+            resolve({ success: true });
+          }, 500);
+        });
+      }
+    )
   );
 }

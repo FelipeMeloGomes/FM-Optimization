@@ -182,7 +182,7 @@ function DeviceSection({
             </div>
           </div>
           <Badge variant="secondary" className="text-[10px] shrink-0">
-            {cardScripts.length} scripts
+            {cardScripts.length} tweaks
           </Badge>
         </div>
 
@@ -289,7 +289,6 @@ export default function InputLagPage() {
     state,
     categoryScripts: inputLagScripts,
     activeExecution,
-    handleExecute,
     handleCancel,
     handleConfirmExecute,
     confirmScript,
@@ -325,7 +324,7 @@ export default function InputLagPage() {
   if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
-        <p className="text-sm">Erro ao carregar scripts</p>
+        <p className="text-sm">Erro ao carregar tweaks</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
     );
@@ -361,7 +360,7 @@ export default function InputLagPage() {
             <h3 className="text-sm font-semibold text-foreground">Dispositivos</h3>
           </div>
           <Badge variant="secondary" className="text-[10px]">
-            {inputLagScripts.filter((s) => s.subcategory !== 'Regedit').length} scripts
+            {inputLagScripts.filter((s) => s.subcategory !== 'Regedit').length} tweaks
           </Badge>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -386,7 +385,7 @@ export default function InputLagPage() {
             <h3 className="text-sm font-semibold text-foreground">Otimizações do Registro</h3>
           </div>
           <Badge variant="secondary" className="text-[10px]">
-            {registryScripts.length} scripts
+            {registryScripts.length} tweaks
           </Badge>
         </div>
 

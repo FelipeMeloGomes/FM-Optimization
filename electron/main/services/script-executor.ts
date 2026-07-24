@@ -1,10 +1,6 @@
 import { type ChildProcess, execSync, spawn } from 'node:child_process';
 import { BrowserWindow } from 'electron';
-import type {
-  ExecutionHistoryEntry,
-  ScriptEnded,
-  ScriptEntry,
-} from '../../shared/ipc-types';
+import type { ExecutionHistoryEntry, ScriptEnded, ScriptEntry } from '../../shared/ipc-types';
 import { auditAdminCheck, auditScriptExecution } from '../audit-logger';
 import { validateScriptPath } from '../path-validation';
 import { isAdmin } from './admin-check';
@@ -143,7 +139,7 @@ export function executeScript(id: string): string {
     );
   });
 
-  proc.on('error', (err) => {
+  proc.on('error', (_err) => {
     activeProcesses.delete(id);
     sendEnded(win, { id, code: -1 });
     const endTime = Date.now();

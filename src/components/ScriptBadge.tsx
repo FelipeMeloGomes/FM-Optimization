@@ -1,8 +1,8 @@
 import { RotateCcw, Shield } from 'lucide-react';
 import type { ScriptEntry } from '../../electron/shared/ipc-types';
+import { cn } from '../lib/utils';
 import { RISK_STYLES } from './ScriptCard';
 import { Badge } from './ui';
-import { cn } from '../lib/utils';
 
 interface ScriptBadgeProps {
   script: ScriptEntry;
@@ -12,10 +12,7 @@ export function ScriptBadge({ script }: ScriptBadgeProps) {
   return (
     <>
       {script.requiresAdmin && (
-        <Badge
-          variant="destructive"
-          className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0"
-        >
+        <Badge variant="destructive" className="gap-1 font-mono text-[10px] px-1.5 py-0 shrink-0">
           <Shield className="size-3" />
           Admin
         </Badge>

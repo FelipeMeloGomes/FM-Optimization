@@ -1,6 +1,6 @@
+import Lenis from 'lenis';
 import type { RefObject } from 'react';
 import { useEffect } from 'react';
-import Lenis from 'lenis';
 
 export function useSmoothScroll(containerRef: RefObject<HTMLElement | null>): void {
   useEffect(() => {

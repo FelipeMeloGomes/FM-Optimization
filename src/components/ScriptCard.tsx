@@ -146,9 +146,7 @@ export const ScriptCard = memo(function ScriptCard({
             <Icon className={cn('size-5', config.color)} />
           </div>
           <div className="flex-1 min-w-0">
-            <span className="font-semibold text-foreground truncate block">
-              {script.name}
-            </span>
+            <span className="font-semibold text-foreground truncate block">{script.name}</span>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="secondary" className="gap-1 font-mono text-[10px] px-1.5 py-0">
                 <Terminal className="size-3" aria-hidden="true" />.{script.extension}
@@ -193,10 +191,7 @@ export const ScriptCard = memo(function ScriptCard({
         </div>
       </div>
 
-      <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
-        {script.description}
-      </p>
-
+      <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">{script.description}</p>
 
       {script.requiresAdmin && (
         <div className="mt-3 flex items-center gap-1.5 text-[10px] text-yellow-400/80">

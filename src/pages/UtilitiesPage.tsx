@@ -94,8 +94,7 @@ function UtilSectionCard({
   const sectionScripts = useMemo(
     () =>
       scripts.filter(
-        (s) =>
-          section.scriptIds.includes(s.id) && (hasSSD === true || !SSD_ONLY_IDS.includes(s.id))
+        (s) => section.scriptIds.includes(s.id) && (hasSSD === true || !SSD_ONLY_IDS.includes(s.id))
       ),
     [scripts, section.scriptIds, hasSSD]
   );
@@ -124,7 +123,7 @@ function UtilSectionCard({
             </div>
           </div>
           <Badge variant="secondary" className="text-[10px] shrink-0">
-            {sectionScripts.length} scripts
+            {sectionScripts.length} tweaks
           </Badge>
         </div>
 
@@ -198,7 +197,6 @@ export default function UtilitiesPage() {
     state,
     categoryScripts: utilScripts,
     activeExecution,
-    handleExecute,
     handleCancel,
     handleConfirmExecute,
     confirmScript,
@@ -231,7 +229,7 @@ export default function UtilitiesPage() {
   if (state.status === 'error') {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20 text-muted-foreground">
-        <p className="text-sm">Erro ao carregar scripts</p>
+        <p className="text-sm">Erro ao carregar tweaks</p>
         <p className="text-xs text-destructive">{state.error}</p>
       </div>
     );
@@ -261,15 +259,15 @@ export default function UtilitiesPage() {
 
       {/* Util Sections */}
       {UTIL_SECTIONS.map((section) => (
-          <UtilSectionCard
-            key={section.id}
-            section={section}
-            scripts={utilScripts}
-            hasSSD={hasSSD}
-            activeExecution={activeExecution}
-            onCancel={handleCancel}
-            onConfirmExecute={handleConfirmExecute}
-          />
+        <UtilSectionCard
+          key={section.id}
+          section={section}
+          scripts={utilScripts}
+          hasSSD={hasSSD}
+          activeExecution={activeExecution}
+          onCancel={handleCancel}
+          onConfirmExecute={handleConfirmExecute}
+        />
       ))}
 
       {/* Confirm Dialog */}
