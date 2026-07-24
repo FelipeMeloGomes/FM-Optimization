@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import { showEnhancedToast } from '../components/EnhancedToast';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 export function useUpdateToast(): void {
+  const { settings } = useSettingsContext();
+
   useEffect(() => {
     const unsubStatus = window.electronAPI.onUpdateStatus((status) => {
       if (status === 'ready') {
@@ -14,6 +17,7 @@ export function useUpdateToast(): void {
             onClick: () => window.electronAPI.installUpdate(),
           },
           duration: 'long',
+          sound: settings.soundEnabled,
         });
       }
 
@@ -21,6 +25,7 @@ export function useUpdateToast(): void {
         showEnhancedToast({
           type: 'error',
           title: 'Erro ao verificar atualizacoes',
+          sound: settings.soundEnabled,
         });
       }
     });
@@ -36,6 +41,7 @@ export function useUpdateToast(): void {
             onClick: () => window.electronAPI.downloadUpdate(),
           },
           duration: 'long',
+          sound: settings.soundEnabled,
         });
       }
     });
@@ -44,5 +50,5 @@ export function useUpdateToast(): void {
       unsubStatus();
       unsubInfo();
     };
-  }, []);
+  }, [settings.soundEnabled]);
 }
