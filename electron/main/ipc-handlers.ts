@@ -211,8 +211,8 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle('apply-dns', async (_e, interfaceIndex: unknown, addresses: unknown) => {
-    return handleIpc('apply-dns', { interfaceIndex, addresses }, async (validated) => {
+  ipcMain.handle('apply-dns', async (_e, payload: unknown) => {
+    return handleIpc('apply-dns', payload, async (validated) => {
       const { interfaceIndex: idx, addresses: addrs } = validated as {
         interfaceIndex: number;
         addresses: string[];
