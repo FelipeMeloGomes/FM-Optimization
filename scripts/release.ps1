@@ -97,7 +97,7 @@ $env:GITHUB_TOKEN = (Get-Content -Path ".env.local" | ForEach-Object {
   if ($_ -match '^GITHUB_TOKEN=(.*)') { $matches[1] }
 })
 
-$api = "https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/releases"
+$api = "https://api.github.com/repos/FelipeMeloGomes/FM_Optimization/releases"
 
 # Deleta release existente com a mesma tag (se houver)
 try {
@@ -109,7 +109,7 @@ try {
     Authorization = "Bearer $env:GITHUB_TOKEN"
   }
   # Deleta a tag remota também
-  $refApi = "https://api.github.com/repos/FelipeMeloGomes/FM-Optimization/git/refs/tags/$tag"
+  $refApi = "https://api.github.com/repos/FelipeMeloGomes/FM_Optimization/git/refs/tags/$tag"
   try {
     Invoke-RestMethod -Uri $refApi -Method Delete -Headers @{
       Authorization = "Bearer $env:GITHUB_TOKEN"

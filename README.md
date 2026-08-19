@@ -49,7 +49,7 @@ npm run build   # produção (gera em out/)
 
 ## Download
 
-[fmoptimize.vercel.app](https://fmoptimize.vercel.app) · [GitHub Releases](https://github.com/FelipeMeloGomes/FM-Optimization/releases)
+[fmoptimize.vercel.app](https://fmoptimize.vercel.app) · [GitHub Releases](https://github.com/FelipeMeloGomes/FM_Optimization/releases)
 
 ---
 

@@ -15,7 +15,7 @@ import type { DownloadProgress, UpdateInfo, UpdateStatus } from '../../electron/
 import { Badge, Button, Progress, Toggle } from '../components/ui';
 import { useSettingsContext } from '../contexts/SettingsContext';
 
-const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM-Optimization/releases/latest';
+const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM_Optimization/releases/latest';
 
 export default function SettingsPage() {
   const { settings, update, loading, exportData, importData } = useSettingsContext();

@@ -149,7 +149,7 @@ function setupAutoUpdater(): void {
   autoUpdater.setFeedURL({
     provider: 'github',
     owner: 'FelipeMeloGomes',
-    repo: 'FM-Optimization',
+    repo: 'FM_Optimization',
   });
 
   if (app.isPackaged) {
