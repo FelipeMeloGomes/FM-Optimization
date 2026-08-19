@@ -138,6 +138,38 @@ export interface BenchmarkResult {
   latencyMs: number | null;
 }
 
+export interface AdbDevice {
+  serial: string;
+  state: 'device' | 'offline' | 'unauthorized';
+  model?: string;
+  emulator?: string;
+}
+
+export interface AdbApp {
+  packageName: string;
+  label: string;
+  isSystem: boolean;
+  isDisabled: boolean;
+  isUpdated: boolean;
+  size: number;
+}
+
+export interface AdbConfig {
+  adbPath: string;
+}
+
+export interface AdbEmulatorResult {
+  installed: boolean;
+  adbPath: string;
+}
+
+export interface AdbInstance {
+  id: string;
+  name: string;
+  arch: string;
+  displayName?: string;
+}
+
 export interface IpcResult<T = void> {
   success: boolean;
   data?: T;
@@ -191,4 +223,14 @@ export interface ElectronAPI {
   elevateApp(scriptId?: string, dnsInterfaceIndex?: number, dnsAddresses?: string[]): Promise<void>;
   exportData(): Promise<ExportData>;
   importData(jsonData: string): Promise<{ success: boolean }>;
+  adbGetPath(): Promise<string>;
+  adbSetPath(path: string): Promise<void>;
+  adbListDevices(): Promise<AdbDevice[]>;
+  adbDetectEmulator(emulatorId: string): Promise<AdbEmulatorResult>;
+  adbListApps(serial: string): Promise<AdbApp[]>;
+  adbRemoveApp(serial: string, packageName: string): Promise<void>;
+  adbBackupApp(serial: string, packageName: string): Promise<string>;
+  adbRestoreApp(serial: string, apkPath: string): Promise<void>;
+  adbRestoreAppByName(serial: string, packageName: string): Promise<void>;
+  adbListInstances(emulatorId: string): Promise<AdbInstance[]>;
 }

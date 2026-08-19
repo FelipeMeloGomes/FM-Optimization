@@ -2,6 +2,7 @@ import {
   Clock,
   Cpu,
   Eraser,
+  Gamepad2,
   Gauge,
   Home,
   MousePointerClick,
@@ -32,6 +33,7 @@ const navItems = [
   { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag' },
   { to: '/cpu', icon: Cpu, label: 'Processador' },
   { to: '/apps', icon: Smartphone, label: 'Aplicativos' },
+  { to: '/emuladores', icon: Gamepad2, label: 'Emuladores' },
 ] as const;
 
 const systemItems = [

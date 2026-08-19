@@ -2,6 +2,18 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import type { AppSettings, BenchmarkResult, IpcResult } from '../shared/ipc-types';
 import { auditIpcValidation } from './audit-logger';
+import {
+  backupApp,
+  detectEmulatorAdbPath,
+  getAdbPath,
+  listApps,
+  listDevices,
+  listEmulatorInstances,
+  removeApp,
+  restoreApp,
+  restoreAppByName,
+  setAdbPath,
+} from './services/adb';
 import { isAdmin } from './services/admin-check';
 import { loadSettings, loadUserData, saveSettings, saveUserData } from './services/data-service';
 import { execPowerShell, execPowerShellSafe } from './services/powershell';
@@ -282,6 +294,64 @@ export function registerIpcHandlers(): void {
         });
       }
       return { success: true };
+    });
+  });
+
+  ipcMain.handle('adb:get-path', () => handleIpcNoInput('adb:get-path', () => getAdbPath()));
+
+  ipcMain.handle('adb:set-path', (_e, payload: unknown) => {
+    return handleIpc('adb:set-path', payload, (validated) => {
+      setAdbPath((validated as { path: string }).path);
+    });
+  });
+
+  ipcMain.handle('adb:list-devices', () =>
+    handleIpcNoInput('adb:list-devices', () => listDevices())
+  );
+
+  ipcMain.handle('adb:detect-emulator', (_e, payload: unknown) => {
+    return handleIpc('adb:detect-emulator', payload, (validated) => {
+      return detectEmulatorAdbPath((validated as { emulatorId: string }).emulatorId);
+    });
+  });
+
+  ipcMain.handle('adb:list-apps', (_e, payload: unknown) => {
+    return handleIpc('adb:list-apps', payload, (validated) => {
+      return listApps((validated as { serial: string }).serial);
+    });
+  });
+
+  ipcMain.handle('adb:remove-app', (_e, payload: unknown) => {
+    return handleIpc('adb:remove-app', payload, (validated) => {
+      const { serial, packageName } = validated as { serial: string; packageName: string };
+      return removeApp(serial, packageName);
+    });
+  });
+
+  ipcMain.handle('adb:backup-app', (_e, payload: unknown) => {
+    return handleIpc('adb:backup-app', payload, (validated) => {
+      const { serial, packageName } = validated as { serial: string; packageName: string };
+      return backupApp(serial, packageName);
+    });
+  });
+
+  ipcMain.handle('adb:restore-app', (_e, payload: unknown) => {
+    return handleIpc('adb:restore-app', payload, (validated) => {
+      const { serial, apkPath } = validated as { serial: string; apkPath: string };
+      return restoreApp(serial, apkPath);
+    });
+  });
+
+  ipcMain.handle('adb:restore-app-by-name', (_e, payload: unknown) => {
+    return handleIpc('adb:restore-app-by-name', payload, (validated) => {
+      const { serial, packageName } = validated as { serial: string; packageName: string };
+      return restoreAppByName(serial, packageName);
+    });
+  });
+
+  ipcMain.handle('adb:list-instances', (_e, payload: unknown) => {
+    return handleIpc('adb:list-instances', payload, (validated) => {
+      return listEmulatorInstances((validated as { emulatorId: string }).emulatorId);
     });
   });
 

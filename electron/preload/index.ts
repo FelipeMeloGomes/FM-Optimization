@@ -1,5 +1,7 @@
 import { contextBridge, type IpcRendererEvent, ipcRenderer } from 'electron';
 import type {
+  AdbApp,
+  AdbDevice,
   AppSettings,
   BenchmarkResult,
   CpuInfo,
@@ -144,6 +146,24 @@ const electronAPI: ElectronAPI = {
     ipcVoid('elevate-app', { scriptId, dnsInterfaceIndex, dnsAddresses }),
   exportData: () => ipc<ExportData>('export-data'),
   importData: (jsonData: string) => ipc<{ success: boolean }>('import-data', jsonData),
+  adbGetPath: () => ipc<string>('adb:get-path'),
+  adbSetPath: (path: string) => ipcVoid('adb:set-path', { path }),
+  adbListDevices: () => ipc<AdbDevice[]>('adb:list-devices'),
+  adbDetectEmulator: (emulatorId: string) =>
+    ipc<{ installed: boolean; adbPath: string }>('adb:detect-emulator', { emulatorId }),
+  adbListApps: (serial: string) => ipc<AdbApp[]>('adb:list-apps', { serial }),
+  adbRemoveApp: (serial: string, packageName: string) =>
+    ipcVoid('adb:remove-app', { serial, packageName }),
+  adbBackupApp: (serial: string, packageName: string) =>
+    ipc<string>('adb:backup-app', { serial, packageName }),
+  adbRestoreApp: (serial: string, apkPath: string) =>
+    ipcVoid('adb:restore-app', { serial, apkPath }),
+  adbRestoreAppByName: (serial: string, packageName: string) =>
+    ipcVoid('adb:restore-app-by-name', { serial, packageName }),
+  adbListInstances: (emulatorId: string) =>
+    ipc<{ id: string; name: string; arch: string; displayName?: string }[]>('adb:list-instances', {
+      emulatorId,
+    }),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

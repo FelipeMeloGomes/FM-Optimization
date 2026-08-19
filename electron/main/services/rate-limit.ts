@@ -22,6 +22,11 @@ const CHANNEL_CONFIG: Record<string, RateLimitConfig> = {
   'create-restore-point': { windowMs: 5000, maxRequests: 2 },
   'restore-system': { windowMs: 5000, maxRequests: 2 },
   'execute-script': { windowMs: 2000, maxRequests: 10 },
+  'adb:list-devices': { windowMs: 2000, maxRequests: 5 },
+  'adb:list-apps': { windowMs: 5000, maxRequests: 3 },
+  'adb:remove-app': { windowMs: 3000, maxRequests: 2 },
+  'adb:backup-app': { windowMs: 5000, maxRequests: 3 },
+  'adb:restore-app': { windowMs: 5000, maxRequests: 2 },
 };
 
 interface Bucket {

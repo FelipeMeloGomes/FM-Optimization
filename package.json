@@ -17,6 +17,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@icons-pack/react-simple-icons": "^13.15.1",
     "@radix-ui/react-dialog": "^1.1.19",
     "@radix-ui/react-label": "^2.1.11",
     "@radix-ui/react-progress": "^1.1.12",

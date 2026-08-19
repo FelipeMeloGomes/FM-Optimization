@@ -22,6 +22,7 @@ const InputLagPage = lazy(() => import('./pages/InputLagPage'));
 const TweaksPage = lazy(() => import('./pages/TweaksPage'));
 const UtilitiesPage = lazy(() => import('./pages/UtilitiesPage'));
 const AppsPage = lazy(() => import('./pages/AppsPage'));
+const EmuladoresPage = lazy(() => import('./pages/EmuladoresPage'));
 
 function PageLoader() {
   return (
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/rede" element={<NetworkPage />} />
               <Route path="/apps" element={<AppsPage />} />
+              <Route path="/emuladores" element={<EmuladoresPage />} />
               <Route path="/input-lag" element={<InputLagPage />} />
               <Route path="/cpu" element={<CpuPage />} />
               <Route path="/settings" element={<SettingsPage />} />

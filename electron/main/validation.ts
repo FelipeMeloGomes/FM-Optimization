@@ -86,6 +86,42 @@ export const ExportDataSchema = z.object({
     .optional(),
 });
 
+export const adbDetectEmulatorSchema = z.object({
+  emulatorId: z.string().min(1, 'Emulator ID is required'),
+});
+
+export const adbSetPathSchema = z.object({
+  path: z.string().min(1, 'ADB path cannot be empty'),
+});
+
+export const adbListAppsSchema = z.object({
+  serial: z.string().min(1, 'Device serial is required'),
+});
+
+export const adbRemoveAppSchema = z.object({
+  serial: z.string().min(1, 'Device serial is required'),
+  packageName: z.string().min(1, 'Package name is required'),
+});
+
+export const adbBackupAppSchema = z.object({
+  serial: z.string().min(1, 'Device serial is required'),
+  packageName: z.string().min(1, 'Package name is required'),
+});
+
+export const adbRestoreAppSchema = z.object({
+  serial: z.string().min(1, 'Device serial is required'),
+  apkPath: z.string().min(1, 'APK path is required'),
+});
+
+export const adbRestoreAppByNameSchema = z.object({
+  serial: z.string().min(1, 'Device serial is required'),
+  packageName: z.string().min(1, 'Package name is required'),
+});
+
+export const adbListInstancesSchema = z.object({
+  emulatorId: z.string().min(1, 'Emulator ID is required'),
+});
+
 export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-system-info': z.undefined(),
   'get-cpu-info': z.undefined(),
@@ -115,6 +151,16 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'window-close': z.undefined(),
   'export-data': z.undefined(),
   'import-data': z.string(),
+  'adb:get-path': z.undefined(),
+  'adb:set-path': adbSetPathSchema,
+  'adb:list-devices': z.undefined(),
+  'adb:detect-emulator': adbDetectEmulatorSchema,
+  'adb:list-apps': adbListAppsSchema,
+  'adb:remove-app': adbRemoveAppSchema,
+  'adb:backup-app': adbBackupAppSchema,
+  'adb:restore-app': adbRestoreAppSchema,
+  'adb:restore-app-by-name': adbRestoreAppByNameSchema,
+  'adb:list-instances': adbListInstancesSchema,
 };
 
 export function validateIpcInput<T>(
