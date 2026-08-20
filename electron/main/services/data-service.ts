@@ -85,7 +85,7 @@ export function loadSettings(): AppSettings {
     const parsed = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
     return {
-      theme: ['dark', 'light'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
+      theme: ['dark', 'light', 'batman'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
       confirmOnExecute:
         typeof parsed.confirmOnExecute === 'boolean'
           ? parsed.confirmOnExecute

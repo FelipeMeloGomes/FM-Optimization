@@ -27,7 +27,7 @@ export const SecuritySettingsSchema = z.object({
 });
 
 export const SettingsSchema = z.object({
-  theme: z.enum(['dark', 'light']).default('dark'),
+  theme: z.enum(['dark', 'light', 'batman']).default('dark'),
   confirmOnExecute: z.boolean().default(true),
   autoRestorePoint: z.boolean().default(true),
   security: SecuritySettingsSchema,
