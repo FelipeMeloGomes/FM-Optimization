@@ -15,6 +15,7 @@ import {
   setAdbPath,
 } from './services/adb';
 import { isAdmin } from './services/admin-check';
+import { getCleanerStats } from './services/cleaner-stats';
 import { loadSettings, loadUserData, saveSettings, saveUserData } from './services/data-service';
 import { execPowerShell, execPowerShellSafe } from './services/powershell';
 import { checkRateLimit } from './services/rate-limit';
@@ -352,6 +353,12 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('adb:list-instances', (_e, payload: unknown) => {
     return handleIpc('adb:list-instances', payload, (validated) => {
       return listEmulatorInstances((validated as { emulatorId: string }).emulatorId);
+    });
+  });
+
+  ipcMain.handle('get-cleaner-stats', (_e, cleanerId: string) => {
+    return handleIpc('get-cleaner-stats', cleanerId, (validated) => {
+      return getCleanerStats(validated as string);
     });
   });
 

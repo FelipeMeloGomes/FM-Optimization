@@ -4,6 +4,7 @@ import type {
   AdbDevice,
   AppSettings,
   BenchmarkResult,
+  CleanerStats,
   CpuInfo,
   DashboardData,
   DownloadProgress,
@@ -164,6 +165,7 @@ const electronAPI: ElectronAPI = {
     ipc<{ id: string; name: string; arch: string; displayName?: string }[]>('adb:list-instances', {
       emulatorId,
     }),
+  getCleanerStats: (cleanerId: string) => ipc<CleanerStats>('get-cleaner-stats', cleanerId),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

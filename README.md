@@ -12,7 +12,7 @@
 - **Tweaks de otimização** — Utilitários, Limpeza, Rede, Apps, Input Lag, Processador (Intel/AMD)
 - **Armazenamento** — Limpeza de Disco do Windows e otimizações de SSD que só aparecem quando há um SSD detectado no sistema
 - **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + tweaks de otimização de internet
-- **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows
+- **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows, com contagem de arquivos, tamanho por categoria e atualização em tempo real
 - **Processador** — detecção automática de fabricante (Intel/AMD) com tweaks específicos
 - **Emuladores** — debloat de emuladores Android (BlueStacks 4/5) com seleção de instância, lista de apps com ícones e nomes, presets de bloatware, backup, restauração e remoção via ADB
 - **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar tweaks)

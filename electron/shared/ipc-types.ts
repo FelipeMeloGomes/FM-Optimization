@@ -170,6 +170,20 @@ export interface AdbInstance {
   displayName?: string;
 }
 
+export interface CleanerCategoryStats {
+  label: string;
+  fileCount: number;
+  totalSizeBytes: number;
+}
+
+export interface CleanerStats {
+  fileCount: number;
+  totalSizeBytes: number;
+  estimatedSeconds: number;
+  categories: CleanerCategoryStats[];
+  error?: boolean;
+}
+
 export interface IpcResult<T = void> {
   success: boolean;
   data?: T;
@@ -233,4 +247,5 @@ export interface ElectronAPI {
   adbRestoreApp(serial: string, apkPath: string): Promise<void>;
   adbRestoreAppByName(serial: string, packageName: string): Promise<void>;
   adbListInstances(emulatorId: string): Promise<AdbInstance[]>;
+  getCleanerStats(cleanerId: string): Promise<CleanerStats>;
 }

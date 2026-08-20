@@ -122,6 +122,8 @@ export const adbListInstancesSchema = z.object({
   emulatorId: z.string().min(1, 'Emulator ID is required'),
 });
 
+export const getCleanerStatsSchema = z.string().min(1, 'Cleaner ID is required');
+
 export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-system-info': z.undefined(),
   'get-cpu-info': z.undefined(),
@@ -161,6 +163,7 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'adb:restore-app': adbRestoreAppSchema,
   'adb:restore-app-by-name': adbRestoreAppByNameSchema,
   'adb:list-instances': adbListInstancesSchema,
+  'get-cleaner-stats': getCleanerStatsSchema,
 };
 
 export function validateIpcInput<T>(
