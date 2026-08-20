@@ -1,7 +1,9 @@
 import { useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { BatmanBackground } from '../components/BatmanBackground';
 import { CircuitBackground } from '../components/CircuitBackground';
+import { useSettingsContext } from '../contexts/SettingsContext';
 import { CommandPalette } from '../components/CommandPalette';
 import { useCommandPalette } from '../hooks/use-command-palette';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
@@ -18,6 +20,8 @@ export function AppLayout() {
   useUpdateToast();
   useScriptExecutionToast();
   useKeyboardShortcuts();
+
+  const { settings } = useSettingsContext();
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
@@ -44,7 +48,7 @@ export function AppLayout() {
         <TitleBar />
       </header>
       <div className="flex flex-1 overflow-hidden">
-        <CircuitBackground />
+        {settings.theme === 'batman' ? <BatmanBackground /> : <CircuitBackground />}
         <Sidebar openCommandPalette={open} />
         <div className="flex flex-1 flex-col overflow-hidden">
           <main ref={mainRef} id="main-content" className="flex-1 overflow-y-auto p-6">
