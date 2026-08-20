@@ -337,7 +337,7 @@
     "extension": "reg",
     "requiresAdmin": true,
     "isBuiltIn": true,
-    "tags": [],
+    "tags": ["amd"],
     "guide": "Configura a placa de video AMD para processar apenas 1 quadro antes de mostrar na tela. Reduz o tempo entre seu clique e a acao no jogo. Bom para jogos competitivos.",
     "riskLevel": "safe"
   },
@@ -351,7 +351,7 @@
     "extension": "reg",
     "requiresAdmin": true,
     "isBuiltIn": true,
-    "tags": [],
+    "tags": ["amd"],
     "guide": "Aplica ajustes avancados na GPU AMD para reduzir a latencia em jogos. Desliga economias de energia que atrapalham o desempenho. Use junto com o AMD 1 Frame.",
     "riskLevel": "safe"
   },
@@ -365,7 +365,7 @@
     "extension": "reg",
     "requiresAdmin": true,
     "isBuiltIn": true,
-    "tags": [],
+    "tags": ["amd"],
     "guide": "Volta a configuracao de 1 frame para o padrao de 3 frames. Use se algum jogo ficar instavel depois de aplicar o script AMD 1 Frame.",
     "riskLevel": "safe"
   },
@@ -379,7 +379,7 @@
     "extension": "reg",
     "requiresAdmin": true,
     "isBuiltIn": true,
-    "tags": [],
+    "tags": ["amd"],
     "guide": "Desfaz todas as alteracoes do Tweak Melody. Use se perceber algum problema depois de aplicar a otimizacao de latencia da AMD.",
     "riskLevel": "safe"
   },
