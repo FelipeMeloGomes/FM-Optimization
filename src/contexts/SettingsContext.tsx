@@ -49,7 +49,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', settings.theme === 'dark');
+    const root = document.documentElement;
+    root.classList.remove('dark', 'batman');
+    if (settings.theme === 'dark') root.classList.add('dark');
+    else if (settings.theme === 'batman') root.classList.add('batman');
   }, [settings.theme]);
 
   const update = useCallback((partial: Partial<AppSettings>) => {
