@@ -94,6 +94,35 @@
   --color-sidebar-border: #1a1a2e;
 }
 
+:root.batman {
+  --color-background: #0a0a0a;
+  --color-foreground: #f0f0f5;
+  --color-card: #1a1a1a;
+  --color-card-foreground: #f0f0f5;
+  --color-popover: #1a1a1a;
+  --color-popover-foreground: #f0f0f5;
+  --color-primary: #c9a227;
+  --color-primary-foreground: #000000;
+  --color-secondary: #1a1a1a;
+  --color-secondary-foreground: #f0f0f5;
+  --color-muted: #222222;
+  --color-muted-foreground: #8888aa;
+  --color-accent: #b8941f;
+  --color-accent-foreground: #000000;
+  --color-destructive: #ff3355;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #333333;
+  --color-input: #333333;
+  --color-ring: #c9a227;
+  --color-sidebar-background: #0d0d0d;
+  --color-sidebar-foreground: #f0f0f5;
+  --color-sidebar-primary: #c9a227;
+  --color-sidebar-accent: #b8941f;
+  --color-sidebar-border: #333333;
+  --bat-glow: rgba(201, 162, 39, 0.3);
+  --bat-pulse-speed: 3s;
+}
+
 * {
   border-color: var(--color-border);
 }
