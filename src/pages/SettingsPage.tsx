@@ -15,6 +15,25 @@ import type { DownloadProgress, UpdateInfo, UpdateStatus } from '../../electron/
 import { Badge, Button, Progress, Toggle } from '../components/ui';
 import { useSettingsContext } from '../contexts/SettingsContext';
 
+// Custom bat SVG icon (lucide-react v0.400 does not export Bat)
+function BatIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 20c1.111-3.048 3-5 5-4 .74-2.286 2.778-3.762 5-3-.173-2.595.13-5.314-2-7.5-1.708 2.648-3.358 2.557-5 2.5-3-6 6-7-3-2-9-5 0-4-3 2-1.5 0-3.292.148-5-2.5-2.13 2.186-1.827 4.905-2 7.5 2.222-.762 4.26.714 5 3 2-1 3.889.952 5 4" />
+      <path d="M9 8a3 3 0 0 0 6 0" />
+    </svg>
+  );
+}
+
 const GITHUB_RELEASES = 'https://github.com/FelipeMeloGomes/FM_Optimization/releases/latest';
 
 export default function SettingsPage() {
@@ -122,13 +141,66 @@ export default function SettingsPage() {
         </div>
         <div className="rounded-xl border border-border bg-card divide-y divide-border">
           <div className="p-4 transition-all duration-200 hover:bg-muted/30">
-            <Toggle
-              id="dark-mode"
-              label="Modo escuro"
-              description="Alternar entre tema escuro e claro"
-              checked={settings.theme === 'dark'}
-              onChange={(e) => update({ theme: e.target.checked ? 'dark' : 'light' })}
-            />
+            <span className="text-sm font-medium text-foreground mb-3 block">
+              Tema da aplicação
+            </span>
+            <p className="text-xs text-muted-foreground mb-3">Escolha a aparência do FM Optimize</p>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => update({ theme: 'light' })}
+                className={`relative rounded-lg border-2 p-3 transition-all ${
+                  settings.theme === 'light'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground/50'
+                }`}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-4 h-4 rounded bg-[#f5f5fa] border border-[#d0d0da]" />
+                    <div className="w-4 h-4 rounded bg-[#ffffff] border border-[#d0d0da]" />
+                    <div className="w-4 h-4 rounded bg-[#0044ff]" />
+                  </div>
+                  <span className="text-xs font-medium text-foreground">Claro</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => update({ theme: 'dark' })}
+                className={`relative rounded-lg border-2 p-3 transition-all ${
+                  settings.theme === 'dark'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground/50'
+                }`}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-4 h-4 rounded bg-[#0a0a0f] border border-[#1a1a2e]" />
+                    <div className="w-4 h-4 rounded bg-[#12121a] border border-[#1a1a2e]" />
+                    <div className="w-4 h-4 rounded bg-[#0044ff]" />
+                  </div>
+                  <span className="text-xs font-medium text-foreground">Escuro</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => update({ theme: 'batman' })}
+                className={`relative rounded-lg border-2 p-3 transition-all ${
+                  settings.theme === 'batman'
+                    ? 'border-[#c9a227] bg-[#c9a227]/10'
+                    : 'border-border hover:border-muted-foreground/50'
+                }`}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex gap-1 items-center">
+                    <div className="w-4 h-4 rounded bg-[#0a0a0a] border border-[#333333]" />
+                    <div className="w-4 h-4 rounded bg-[#1a1a1a] border border-[#333333]" />
+                    <BatIcon className="w-4 h-4 text-[#c9a227]" />
+                  </div>
+                  <span className="text-xs font-medium text-foreground">Batman</span>
+                </div>
+              </button>
+            </div>
           </div>
           <div className="p-4 transition-all duration-200 hover:bg-muted/30">
             <Toggle
