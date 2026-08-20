@@ -73,7 +73,7 @@ export interface RestorePointEntry {
 }
 
 export interface AppSettings {
-  theme: 'dark' | 'light';
+  theme: 'dark' | 'light' | 'batman';
   confirmOnExecute: boolean;
   autoRestorePoint: boolean;
   security: SecuritySettings;
