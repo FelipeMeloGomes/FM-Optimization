@@ -1,8 +1,9 @@
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { app } from 'electron';
 import type { AdbApp, AdbDevice, AdbInstance } from '../../shared/ipc-types';
+import { formatError, logger } from '../utils/logger';
 
 let adbPath = '';
 
@@ -177,6 +178,8 @@ const EMULATOR_ADB_PATHS: Record<string, string[]> = {
   ],
 };
 
+const versionCache = new Map<string, string>();
+
 const EMULATOR_CONF_PATHS: Record<string, string[]> = {
   'bluestacks-4': [
     'C:\\ProgramData\\BlueStacks\\bluestacks.conf',
@@ -210,11 +213,115 @@ export function detectEmulatorAdbPath(emulatorId: string): { installed: boolean;
   return { installed: false, adbPath: '' };
 }
 
+export async function detectEmulatorVersion(emulatorId: string): Promise<string | null> {
+  // Verificar cache primeiro
+  const cached = versionCache.get(emulatorId);
+  if (cached) {
+    logger.debug('[detectEmulatorVersion] Cache hit', { emulatorId, version: cached });
+    return cached;
+  }
+
+  // Primeiro: tentar obter a versão do executável principal do emulador (HD-Player.exe)
+  const playerPaths: Record<string, string[]> = {
+    'bluestacks-4': [
+      'C:\\Program Files (x86)\\BlueStacks\\HD-Player.exe',
+      'C:\\Program Files\\BlueStacks\\HD-Player.exe',
+    ],
+    'bluestacks-5': [
+      'C:\\Program Files\\BlueStacks_msi5\\HD-Player.exe',
+      resolve(process.env.PROGRAMFILES || '', 'BlueStacks_nxt\\HD-Player.exe'),
+      'C:\\Program Files (x86)\\BlueStacks_msi5\\HD-Player.exe',
+    ],
+  };
+
+  const allowedPaths = playerPaths[emulatorId] || [];
+  if (allowedPaths.length > 0) {
+    for (const p of allowedPaths) {
+      logger.debug('[detectEmulatorVersion] Checking path', { path: p });
+      if (existsSync(p)) {
+        logger.debug('[detectEmulatorVersion] File exists', { path: p });
+        try {
+          const psCmd = `(Get-Item -LiteralPath '${p}').VersionInfo.ProductVersion`;
+          logger.debug('[detectEmulatorVersion] Running PS', { command: psCmd });
+
+          const output = await new Promise<string>((resolve, reject) => {
+            execFile(
+              'powershell',
+              ['-NoProfile', '-Command', psCmd],
+              {
+                encoding: 'utf-8',
+                timeout: 5000,
+              },
+              (err, stdout) => {
+                if (err) reject(err);
+                else resolve(stdout.trim());
+              }
+            );
+          });
+
+          const full = output.trim();
+          logger.debug('[detectEmulatorVersion] PS Output', { output: full });
+          if (full) {
+            const parts = full.split('.');
+            const result = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : full;
+            logger.info('[detectEmulatorVersion] Version detected', {
+              emulatorId,
+              version: result,
+            });
+            versionCache.set(emulatorId, result);
+            return result;
+          }
+        } catch (e: unknown) {
+          logger.error('[detectEmulatorVersion] Error', {
+            emulatorId,
+            path: p,
+            error: e instanceof Error ? e.message : String(e),
+          });
+        }
+      } else {
+        logger.debug('[detectEmulatorVersion] File NOT found', { path: p });
+      }
+    }
+  }
+
+  // Fallback: bluestacks.conf (launcher_version)
+  logger.debug('[detectEmulatorVersion] Falling back to conf', { emulatorId });
+  const confCandidates = EMULATOR_CONF_PATHS[emulatorId];
+  if (confCandidates) {
+    for (const p of confCandidates) {
+      if (existsSync(p)) {
+        try {
+          const content = readFileSync(p, 'utf-8');
+          let match = content.match(/^bst\.launcher_version\s*=\s*["']?([^"'\r\n]+)["']?/m);
+          if (!match) {
+            match = content.match(/^bst\.version\s*=\s*["']?([^"'\r\n]+)["']?/m);
+          }
+          if (match?.[1]) {
+            const full = match[1].trim();
+            const parts = full.split('.');
+            const result = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : full;
+            versionCache.set(emulatorId, result);
+            return result;
+          }
+        } catch (e: unknown) {
+          logger.warn('[detectEmulatorVersion] Conf parse error', {
+            emulatorId,
+            path: p,
+            error: formatError(e),
+          });
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 export function listEmulatorInstances(emulatorId: string): AdbInstance[] {
-  console.log(`[ADB] listEmulatorInstances called for: ${emulatorId}`);
+  logger.debug('[ADB] listEmulatorInstances called', { emulatorId });
   const confCandidates = EMULATOR_CONF_PATHS[emulatorId];
   if (!confCandidates) {
-    console.log(`[ADB] No conf paths for ${emulatorId}`);
+    logger.warn('[ADB] No conf paths for emulatorId', { emulatorId });
     return [];
   }
 
@@ -226,16 +333,16 @@ export function listEmulatorInstances(emulatorId: string): AdbInstance[] {
     }
   }
   if (!confPath) {
-    console.log(`[ADB] No conf file found in: ${confCandidates.join(', ')}`);
+    logger.warn('[ADB] No conf file found', { candidates: confCandidates.join(', ') });
     return [];
   }
-  console.log(`[ADB] Using conf: ${confPath}`);
+  logger.debug('[ADB] Using conf', { path: confPath });
 
   let content: string;
   try {
     content = readFileSync(confPath, 'utf-8');
-  } catch (e) {
-    console.log(`[ADB] Failed to read conf: ${e}`);
+  } catch (e: unknown) {
+    logger.error('[ADB] Failed to read conf', { error: formatError(e) });
     return [];
   }
 
@@ -247,7 +354,7 @@ export function listEmulatorInstances(emulatorId: string): AdbInstance[] {
     match = instanceRegex.exec(content);
   }
 
-  console.log(`[ADB] Found instances: ${[...instanceNames].join(', ')}`);
+  logger.debug('[ADB] Found instances', { instances: [...instanceNames].join(', ') });
 
   return Array.from(instanceNames).map((name) => {
     const is64 = name.toLowerCase().includes('64');

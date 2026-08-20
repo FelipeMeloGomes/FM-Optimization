@@ -90,8 +90,10 @@ export const ExportDataSchema = z.object({
     .optional(),
 });
 
+export const EmulatorIdSchema = z.enum(['bluestacks-4', 'bluestacks-5']);
+
 export const adbDetectEmulatorSchema = z.object({
-  emulatorId: z.string().min(1, 'Emulator ID is required'),
+  emulatorId: EmulatorIdSchema,
 });
 
 export const adbSetPathSchema = z.object({

@@ -162,6 +162,7 @@ export interface AdbConfig {
 export interface AdbEmulatorResult {
   installed: boolean;
   adbPath: string;
+  version?: string;
 }
 
 export interface AdbInstance {

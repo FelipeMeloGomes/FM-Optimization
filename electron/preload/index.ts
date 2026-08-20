@@ -151,7 +151,9 @@ const electronAPI: ElectronAPI = {
   adbSetPath: (path: string) => ipcVoid('adb:set-path', { path }),
   adbListDevices: () => ipc<AdbDevice[]>('adb:list-devices'),
   adbDetectEmulator: (emulatorId: string) =>
-    ipc<{ installed: boolean; adbPath: string }>('adb:detect-emulator', { emulatorId }),
+    ipc<{ installed: boolean; adbPath: string; version?: string }>('adb:detect-emulator', {
+      emulatorId,
+    }),
   adbListApps: (serial: string) => ipc<AdbApp[]>('adb:list-apps', { serial }),
   adbRemoveApp: (serial: string, packageName: string) =>
     ipcVoid('adb:remove-app', { serial, packageName }),

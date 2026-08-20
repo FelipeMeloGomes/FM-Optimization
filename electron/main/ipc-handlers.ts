@@ -5,6 +5,7 @@ import { auditIpcValidation } from './audit-logger';
 import {
   backupApp,
   detectEmulatorAdbPath,
+  detectEmulatorVersion,
   getAdbPath,
   listApps,
   listDevices,
@@ -312,7 +313,16 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('adb:detect-emulator', (_e, payload: unknown) => {
     return handleIpc('adb:detect-emulator', payload, (validated) => {
-      return detectEmulatorAdbPath((validated as { emulatorId: string }).emulatorId);
+      const { emulatorId } = validated as { emulatorId: string };
+      const pathResult = detectEmulatorAdbPath(emulatorId);
+      // Se não instalado, retorna versão null
+      if (!pathResult.installed) return { installed: false, adbPath: '' };
+      // Se instalado, detecta versão
+      return detectEmulatorVersion(emulatorId).then((version) => ({
+        installed: true,
+        adbPath: pathResult.adbPath,
+        version,
+      }));
     });
   });
 

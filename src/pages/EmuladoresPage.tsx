@@ -4,6 +4,7 @@ import bluestacksLogo from '../assets/bluestacks-logo.png';
 import { Badge, Button, Card, CardContent, Switch } from '../components/ui';
 import { EmulatorProvider, useEmulatorContext } from '../contexts/EmulatorContext';
 import { cn } from '../lib/utils';
+import type { EmulatorInstance } from '../types/emulator';
 import { AppListView } from './EmuladoresPage/AppListView';
 import { InstanceSelectionModal } from './EmuladoresPage/InstanceSelectionModal';
 
@@ -65,16 +66,39 @@ function EmuladoresPageContent() {
   const [connecting, setConnecting] = useState(false);
   const [adbPath, setAdbPath] = useState('');
   const [adbError, setAdbError] = useState<string | null>(null);
-  const [instances, setInstances] = useState<
-    { id: string; name: string; arch: string; displayName?: string }[]
-  >([]);
+  const [instances, setInstances] = useState<EmulatorInstance[]>([]);
   const [instancesLoading, setInstancesLoading] = useState(false);
+  const [detectedVersions, setDetectedVersions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     window.electronAPI
       .adbGetPath()
       .then(setAdbPath)
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    // Detectar versão dos emuladores na montagem (paralelo)
+    const detectAllVersions = async () => {
+      try {
+        const results = await Promise.all(
+          EMULATORS.map((emulator) => window.electronAPI.adbDetectEmulator(emulator.id))
+        );
+        const newVersions: Record<string, string> = {};
+        for (let i = 0; i < EMULATORS.length; i++) {
+          const result = results[i];
+          if (result.installed && result.version) {
+            newVersions[EMULATORS[i].id] = result.version;
+          }
+        }
+        setDetectedVersions(newVersions);
+      } catch (e: unknown) {
+        console.error('[EmuladoresPage] Error detecting versions', {
+          error: e instanceof Error ? e.message : String(e),
+        });
+      }
+    };
+    detectAllVersions();
   }, []);
 
   const handleToggle = useCallback(
@@ -264,7 +288,14 @@ function EmuladoresPageContent() {
                       </span>
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold">{emulator.name}</h3>
+                      <h3 className="text-sm font-bold">
+                        {emulator.name}
+                        {detectedVersions[emulator.id] && (
+                          <span className="ml-1.5 text-xs text-muted-foreground font-normal">
+                            v{detectedVersions[emulator.id]}
+                          </span>
+                        )}
+                      </h3>
                       <p className="text-xs text-muted-foreground mt-0.5">{emulator.description}</p>
                     </div>
                   </div>
