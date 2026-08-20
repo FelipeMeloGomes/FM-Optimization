@@ -32,6 +32,11 @@ export function CircuitBackground() {
     if (!canvas) return;
     if (!canvas.parentElement) return;
 
+    // Read accent hue from CSS variable for theme-aware coloring
+    const hue =
+      Number(getComputedStyle(document.documentElement).getPropertyValue('--accent-h').trim()) ||
+      210;
+
     const rect = canvas.parentElement.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
@@ -66,7 +71,7 @@ export function CircuitBackground() {
           end,
           progress: Math.random(),
           speed: 0.002 + Math.random() * 0.004,
-          hue: 210 + Math.random() * 30,
+          hue: hue + Math.random() * 30 - 15,
         });
       }
     }

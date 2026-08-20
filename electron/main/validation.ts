@@ -27,7 +27,11 @@ export const SecuritySettingsSchema = z.object({
 });
 
 export const SettingsSchema = z.object({
-  theme: z.enum(['dark', 'light', 'batman']).default('dark'),
+  theme: z.enum(['light', 'dark', 'midnight', 'amber', 'emerald', 'batman']).default('dark'),
+  accentColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default('#3b82f6'),
   confirmOnExecute: z.boolean().default(true),
   autoRestorePoint: z.boolean().default(true),
   security: SecuritySettingsSchema,

@@ -17,6 +17,7 @@ interface UserData {
 
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
+  accentColor: '#22d3ee',
   confirmOnExecute: true,
   autoRestorePoint: true,
   security: {
@@ -85,7 +86,13 @@ export function loadSettings(): AppSettings {
     const parsed = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
     return {
-      theme: ['dark', 'light', 'batman'].includes(parsed.theme) ? parsed.theme : DEFAULT_SETTINGS.theme,
+      theme: ['light', 'dark', 'midnight', 'amber', 'emerald', 'batman'].includes(parsed.theme)
+        ? parsed.theme
+        : DEFAULT_SETTINGS.theme,
+      accentColor:
+        typeof parsed.accentColor === 'string' && /^#[0-9a-fA-F]{6}$/.test(parsed.accentColor)
+          ? parsed.accentColor
+          : DEFAULT_SETTINGS.accentColor,
       confirmOnExecute:
         typeof parsed.confirmOnExecute === 'boolean'
           ? parsed.confirmOnExecute

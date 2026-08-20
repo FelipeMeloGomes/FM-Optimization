@@ -18,6 +18,8 @@ import {
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import logoUrl from '../assets/logo.svg';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { getThemeById } from '../lib/theme-config';
 import { cn } from '../lib/utils';
 
 interface SidebarProps {
@@ -25,9 +27,9 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { to: '/', icon: Home, label: 'Início' },
+  { to: '/', icon: Home, label: 'Inicio' },
   { to: '/tweaks', icon: Gauge, label: 'Ajustes' },
-  { to: '/utilities', icon: Wrench, label: 'Utilitários' },
+  { to: '/utilities', icon: Wrench, label: 'Utilitarios' },
   { to: '/cleaner', icon: Eraser, label: 'Limpeza' },
   { to: '/rede', icon: Wifi, label: 'Rede' },
   { to: '/input-lag', icon: MousePointerClick, label: 'Input Lag' },
@@ -37,14 +39,17 @@ const navItems = [
 ] as const;
 
 const systemItems = [
-  { to: '/restore-points', icon: Shield, label: 'Restauração' },
-  { to: '/history', icon: Clock, label: 'Histórico' },
+  { to: '/restore-points', icon: Shield, label: 'Restauracao' },
+  { to: '/history', icon: Clock, label: 'Historico' },
 ] as const;
 
-const bottomItems = [{ to: '/settings', icon: Settings, label: 'Configurações' }] as const;
+const bottomItems = [{ to: '/settings', icon: Settings, label: 'Configuracoes' }] as const;
 
 export function Sidebar({ openCommandPalette }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const { settings } = useSettingsContext();
+  const theme = getThemeById(settings.theme);
+  const glowColor = theme.signature?.glowColor;
 
   return (
     <aside
@@ -58,7 +63,10 @@ export function Sidebar({ openCommandPalette }: SidebarProps) {
           src={logoUrl}
           alt="FM Optimize"
           className={cn(
-            'object-contain drop-shadow-[0_0_6px_rgba(0,68,255,0.6)] transition-all duration-300',
+            'object-contain transition-all duration-300',
+            glowColor
+              ? `drop-shadow-[0_0_8px_${glowColor}]`
+              : 'drop-shadow-[0_0_6px_rgba(59,130,246,0.6)]',
             collapsed ? 'size-8' : 'size-10'
           )}
         />

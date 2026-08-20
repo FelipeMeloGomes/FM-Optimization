@@ -3,123 +3,279 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #0a0a0f;
-  --color-foreground: #f0f0f5;
-  --color-card: #12121a;
-  --color-card-foreground: #f0f0f5;
-  --color-popover: #12121a;
-  --color-popover-foreground: #f0f0f5;
-  --color-primary: #0044ff;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #1a1a2e;
-  --color-secondary-foreground: #f0f0f5;
-  --color-muted: #1f1f2e;
-  --color-muted-foreground: #8888aa;
-  --color-accent: #0033cc;
-  --color-accent-foreground: #ffffff;
-  --color-destructive: #ff3355;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #1a1a2e;
-  --color-input: #1a1a2e;
-  --color-ring: #0044ff;
-  --color-sidebar-background: #0d0d14;
-  --color-sidebar-foreground: #f0f0f5;
-  --color-sidebar-primary: #0044ff;
-  --color-sidebar-accent: #0033cc;
-  --color-sidebar-border: #1a1a2e;
+  --color-background: #0c1222;
+  --color-foreground: #d4dae5;
+  --color-card: #151d2e;
+  --color-card-foreground: #d4dae5;
+  --color-popover: #151d2e;
+  --color-popover-foreground: #d4dae5;
+  --color-primary: #22d3ee;
+  --color-primary-foreground: #0c1222;
+  --color-secondary: #1a2540;
+  --color-secondary-foreground: #d4dae5;
+  --color-muted: #1e2a42;
+  --color-muted-foreground: #5a6a85;
+  --color-accent: #06b6d4;
+  --color-accent-foreground: #0c1222;
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #1c1917;
+  --color-border: #1e2a42;
+  --color-input: #1a2540;
+  --color-ring: #22d3ee;
+  --color-sidebar-background: #0a0f1c;
+  --color-sidebar-foreground: #d4dae5;
+  --color-sidebar-primary: #22d3ee;
+  --color-sidebar-accent: #06b6d4;
+  --color-sidebar-border: #1e2a42;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --radius: 0.75rem;
 }
 
+/*
+ * FM Optimize Theme System
+ * ========================
+ * Each theme is grounded in a specific metaphor from the subject's world:
+ *
+ * - Light ("Paper"): Technical manuals, documentation - cool-toned, precise
+ * - Dark ("Terminal"): Developer terminals, system monitors - cyan cursor
+ * - Midnight ("Deep Space"): Night sky, exploration - lavender calm
+ * - Amber ("Forge"): Heated metal, workshops - warm monochrome
+ * - Emerald ("Matrix"): Digital rain, system health - green monochrome
+ * - Batman ("Gotham Noir"): Film noir, gothic architecture - gold on black
+ *
+ * Design principle: Each theme uses a MONOCHROMATIC base with ONE accent color.
+ * The entire palette is tinted toward the theme's character, not just the accent.
+ *
+ * CSS structure: Shared dark base → theme-specific overrides.
+ * Only values unique to each theme are defined per block.
+ */
+
+/* ─── Light Theme: "Paper" ─── */
+/* Technical documentation, clean precision. Cool blue-gray paper tone. */
 :root {
-  --color-background: #f5f5fa;
-  --color-foreground: #111118;
+  --color-background: #f0f2f7;
+  --color-foreground: #1a1d28;
   --color-card: #ffffff;
-  --color-card-foreground: #111118;
+  --color-card-foreground: #1a1d28;
   --color-popover: #ffffff;
-  --color-popover-foreground: #111118;
-  --color-primary: #0044ff;
+  --color-popover-foreground: #1a1d28;
+  --color-primary: #0d9488;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #e8e8f0;
-  --color-secondary-foreground: #111118;
-  --color-muted: #e0e0ea;
-  --color-muted-foreground: #666680;
-  --color-accent: #0033cc;
+  --color-secondary: #e8ecf2;
+  --color-secondary-foreground: #1a1d28;
+  --color-muted: #f5f7fa;
+  --color-muted-foreground: #5c6370;
+  --color-accent: #0f766e;
   --color-accent-foreground: #ffffff;
-  --color-destructive: #dc2644;
+  --color-destructive: #b91c1c;
   --color-destructive-foreground: #ffffff;
-  --color-border: #d0d0da;
-  --color-input: #d0d0da;
-  --color-ring: #0044ff;
-  --color-sidebar-background: #eaeaf2;
-  --color-sidebar-foreground: #111118;
-  --color-sidebar-primary: #0044ff;
-  --color-sidebar-accent: #0033cc;
-  --color-sidebar-border: #d0d0da;
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --color-border: #d5dbe5;
+  --color-input: #e2e6ee;
+  --color-ring: #0d9488;
+  --color-sidebar-background: #e8ecf2;
+  --color-sidebar-foreground: #1a1d28;
+  --color-sidebar-primary: #0d9488;
+  --color-sidebar-accent: #0f766e;
+  --color-sidebar-border: #d5dbe5;
+  --sidebar: #e8ecf2;
+  --sidebar-foreground: #1a1d28;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #d5dbe5;
+  --sidebar-accent-foreground: #1a1d28;
+  --sidebar-border: #d5dbe5;
+  --sidebar-ring: #0d9488;
 }
 
-:root.dark {
-  --color-background: #0a0a0f;
-  --color-foreground: #f0f0f5;
-  --color-card: #12121a;
-  --color-card-foreground: #f0f0f5;
-  --color-popover: #12121a;
-  --color-popover-foreground: #f0f0f5;
-  --color-primary: #0044ff;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #1a1a2e;
-  --color-secondary-foreground: #f0f0f5;
-  --color-muted: #1f1f2e;
-  --color-muted-foreground: #8888aa;
-  --color-accent: #0033cc;
-  --color-accent-foreground: #ffffff;
-  --color-destructive: #ff3355;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #1a1a2e;
-  --color-input: #1a1a2e;
-  --color-ring: #0044ff;
-  --color-sidebar-background: #0d0d14;
-  --color-sidebar-foreground: #f0f0f5;
-  --color-sidebar-primary: #0044ff;
-  --color-sidebar-accent: #0033cc;
-  --color-sidebar-border: #1a1a2e;
-}
-
+/* ─── Shared Dark Base ─── */
+/* Common values for all dark themes. Theme blocks only override what's unique. */
+:root.dark,
+:root.midnight,
+:root.amber,
+:root.emerald,
 :root.batman {
-  --color-background: #0a0a0a;
-  --color-foreground: #f0f0f5;
-  --color-card: #1a1a1a;
-  --color-card-foreground: #f0f0f5;
-  --color-popover: #1a1a1a;
-  --color-popover-foreground: #f0f0f5;
-  --color-primary: #c9a227;
-  --color-primary-foreground: #000000;
-  --color-secondary: #1a1a1a;
-  --color-secondary-foreground: #f0f0f5;
-  --color-muted: #222222;
-  --color-muted-foreground: #8888aa;
-  --color-accent: #b8941f;
-  --color-accent-foreground: #000000;
-  --color-destructive: #ff3355;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #333333;
-  --color-input: #333333;
-  --color-ring: #c9a227;
-  --color-sidebar-background: #0d0d0d;
-  --color-sidebar-foreground: #f0f0f5;
-  --color-sidebar-primary: #c9a227;
-  --color-sidebar-accent: #b8941f;
-  --color-sidebar-border: #333333;
-  --bat-glow: rgba(201, 162, 39, 0.3);
+  color-scheme: dark;
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #1c1917;
+}
+
+/* ─── Dark Theme: "Terminal" ─── */
+/* Developer terminals, system monitors. Deep blue-gray with cyan cursor. */
+:root.dark {
+  --color-background: #0c1222;
+  --color-foreground: #d4dae5;
+  --color-card: #151d2e;
+  --color-card-foreground: #d4dae5;
+  --color-popover: #151d2e;
+  --color-popover-foreground: #d4dae5;
+  --color-primary: #22d3ee;
+  --color-primary-foreground: #0c1222;
+  --color-secondary: #1a2540;
+  --color-secondary-foreground: #d4dae5;
+  --color-muted: #1e2a42;
+  --color-muted-foreground: #5a6a85;
+  --color-accent: #06b6d4;
+  --color-accent-foreground: #0c1222;
+  --color-border: #1e2a42;
+  --color-input: #1a2540;
+  --color-ring: #22d3ee;
+  --color-sidebar-background: #0a0f1c;
+  --color-sidebar-foreground: #d4dae5;
+  --color-sidebar-primary: #22d3ee;
+  --color-sidebar-accent: #06b6d4;
+  --color-sidebar-border: #1e2a42;
+  --sidebar: #0a0f1c;
+  --sidebar-foreground: #d4dae5;
+  --sidebar-primary: #22d3ee;
+  --sidebar-primary-foreground: #0c1222;
+  --sidebar-accent: #1a2540;
+  --sidebar-accent-foreground: #d4dae5;
+  --sidebar-border: #1e2a42;
+  --sidebar-ring: #22d3ee;
+}
+
+/* ─── Midnight Theme: "Deep Space" ─── */
+/* Night sky, contemplation. Deep indigo with soft lavender. */
+:root.midnight {
+  --color-background: #0a0a1a;
+  --color-foreground: #c8c8d8;
+  --color-card: #12122a;
+  --color-card-foreground: #c8c8d8;
+  --color-popover: #12122a;
+  --color-popover-foreground: #c8c8d8;
+  --color-primary: #a78bfa;
+  --color-primary-foreground: #0a0a1a;
+  --color-secondary: #16163a;
+  --color-secondary-foreground: #c8c8d8;
+  --color-muted: #1a1a3e;
+  --color-muted-foreground: #5a5a7a;
+  --color-accent: #8b5cf6;
+  --color-accent-foreground: #ffffff;
+  --color-border: #1e1e42;
+  --color-input: #16163a;
+  --color-ring: #a78bfa;
+  --color-sidebar-background: #08081a;
+  --color-sidebar-foreground: #c8c8d8;
+  --color-sidebar-primary: #a78bfa;
+  --color-sidebar-accent: #8b5cf6;
+  --color-sidebar-border: #1e1e42;
+  --sidebar: #08081a;
+  --sidebar-foreground: #c8c8d8;
+  --sidebar-primary: #a78bfa;
+  --sidebar-primary-foreground: #0a0a1a;
+  --sidebar-accent: #16163a;
+  --sidebar-accent-foreground: #c8c8d8;
+  --sidebar-border: #1e1e42;
+  --sidebar-ring: #a78bfa;
+}
+
+/* ─── Amber Theme: "Forge" ─── */
+/* Heated metal, blacksmith workshops. Warm monochrome. */
+:root.amber {
+  --color-background: #1a1410;
+  --color-foreground: #e8e0d4;
+  --color-card: #241e18;
+  --color-card-foreground: #e8e0d4;
+  --color-popover: #241e18;
+  --color-popover-foreground: #e8e0d4;
+  --color-primary: #fbbf24;
+  --color-primary-foreground: #1a1410;
+  --color-secondary: #2a221a;
+  --color-secondary-foreground: #e8e0d4;
+  --color-muted: #302820;
+  --color-muted-foreground: #8a7e6e;
+  --color-accent: #d97706;
+  --color-accent-foreground: #1a1410;
+  --color-border: #362e24;
+  --color-input: #2a221a;
+  --color-ring: #fbbf24;
+  --color-sidebar-background: #14100c;
+  --color-sidebar-foreground: #e8e0d4;
+  --color-sidebar-primary: #fbbf24;
+  --color-sidebar-accent: #d97706;
+  --color-sidebar-border: #362e24;
+  --sidebar: #14100c;
+  --sidebar-foreground: #e8e0d4;
+  --sidebar-primary: #fbbf24;
+  --sidebar-primary-foreground: #1a1410;
+  --sidebar-accent: #2a221a;
+  --sidebar-accent-foreground: #e8e0d4;
+  --sidebar-border: #362e24;
+  --sidebar-ring: #fbbf24;
+}
+
+/* ─── Emerald Theme: "Matrix" ─── */
+/* Digital rain, system health. Green monochrome. */
+:root.emerald {
+  --color-background: #0a1a14;
+  --color-foreground: #d0f0e0;
+  --color-card: #0f2820;
+  --color-card-foreground: #d0f0e0;
+  --color-popover: #0f2820;
+  --color-popover-foreground: #d0f0e0;
+  --color-primary: #34d399;
+  --color-primary-foreground: #0a1a14;
+  --color-secondary: #142e24;
+  --color-secondary-foreground: #d0f0e0;
+  --color-muted: #183828;
+  --color-muted-foreground: #5a8a70;
+  --color-accent: #10b981;
+  --color-accent-foreground: #0a1a14;
+  --color-border: #1c4030;
+  --color-input: #142e24;
+  --color-ring: #34d399;
+  --color-sidebar-background: #081610;
+  --color-sidebar-foreground: #d0f0e0;
+  --color-sidebar-primary: #34d399;
+  --color-sidebar-accent: #10b981;
+  --color-sidebar-border: #1c4030;
+  --sidebar: #081610;
+  --sidebar-foreground: #d0f0e0;
+  --sidebar-primary: #34d399;
+  --sidebar-primary-foreground: #0a1a14;
+  --sidebar-accent: #142e24;
+  --sidebar-accent-foreground: #d0f0e0;
+  --sidebar-border: #1c4030;
+  --sidebar-ring: #34d399;
+}
+
+/* ─── Batman Theme: "Gotham Noir" ─── */
+/* Film noir, gothic architecture. Antique gold on true black. */
+:root.batman {
+  --color-background: #08080e;
+  --color-foreground: #e0dcd4;
+  --color-card: #10101a;
+  --color-card-foreground: #e0dcd4;
+  --color-popover: #10101a;
+  --color-popover-foreground: #e0dcd4;
+  --color-primary: #d4a017;
+  --color-primary-foreground: #0a0a0c;
+  --color-secondary: #18182a;
+  --color-secondary-foreground: #e0dcd4;
+  --color-muted: #1e1e32;
+  --color-muted-foreground: #5a5868;
+  --color-accent: #b8860b;
+  --color-accent-foreground: #0a0a0c;
+  --color-destructive: #8b1a1a;
+  --color-destructive-foreground: #f5f5f5;
+  --color-border: #28283e;
+  --color-input: #18182a;
+  --color-ring: #d4a017;
+  --color-sidebar-background: #06060c;
+  --color-sidebar-foreground: #e0dcd4;
+  --color-sidebar-primary: #d4a017;
+  --color-sidebar-accent: #b8860b;
+  --color-sidebar-border: #28283e;
+  --sidebar: #06060c;
+  --sidebar-foreground: #e0dcd4;
+  --sidebar-primary: #d4a017;
+  --sidebar-primary-foreground: #0a0a0c;
+  --sidebar-accent: #18182a;
+  --sidebar-accent-foreground: #e0dcd4;
+  --sidebar-border: #28283e;
+  --sidebar-ring: #d4a017;
+  --bat-glow: rgba(212, 160, 23, 0.25);
   --bat-pulse-speed: 3s;
 }
 
@@ -131,7 +287,11 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   margin: 0;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -144,6 +304,7 @@ h4,
 h5,
 h6 {
   letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
 ::-webkit-scrollbar {
@@ -154,27 +315,16 @@ h6 {
   background: var(--color-background);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-muted);
+  background: color-mix(in srgb, var(--color-primary) 30%, transparent);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted-foreground);
+  background: color-mix(in srgb, var(--color-primary) 50%, transparent);
 }
 
 ::selection {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
-}
-
-.dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
 @theme inline {
