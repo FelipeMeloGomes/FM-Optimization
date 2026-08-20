@@ -15,14 +15,6 @@ export function BatmanBackground() {
   const timeRef = useRef(0);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      visibleRef.current = entry.isIntersecting;
-    });
-    if (canvasRef.current) observer.observe(canvasRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     if (!canvas.parentElement) return;
@@ -74,7 +66,6 @@ export function BatmanBackground() {
 
     const animate = () => {
       if (!visibleRef.current) {
-        animRef.current = requestAnimationFrame(animate);
         return;
       }
 
@@ -87,7 +78,7 @@ export function BatmanBackground() {
 
       const pulse = Math.sin(t / 1000 * Math.PI / 1.5) * 0.5 + 0.5;
       const mainScale = 1 + pulse * 0.05;
-      const glowOpacity = 0.15 + pulse * 0.2;
+      const glowOpacity = 0.15 + pulse * 0.15;
 
       ctx.save();
       ctx.translate(centerX, centerY);
@@ -102,16 +93,25 @@ export function BatmanBackground() {
         const x = centerX + Math.cos(bat.angle + bat.offsetAngle) * bat.radius;
         const y = centerY + Math.sin(bat.angle + bat.offsetAngle) * bat.radius * 0.6;
         const smallPulse = Math.sin(t / 800 + bat.offsetAngle) * 0.3 + 0.7;
-        drawBat(x, y, bat.size, 0.08 * smallPulse);
+        drawBat(x, y, bat.size, 0.15 + smallPulse * 0.15);
       }
 
       animRef.current = requestAnimationFrame(animate);
     };
 
+    const observer = new IntersectionObserver(([entry]) => {
+      visibleRef.current = entry.isIntersecting;
+      if (entry.isIntersecting) {
+        animate();
+      }
+    });
+    observer.observe(canvas);
+
     animate();
 
     return () => {
       cancelAnimationFrame(animRef.current);
+      observer.disconnect();
       window.removeEventListener('resize', resize);
     };
   }, []);
