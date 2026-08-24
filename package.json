@@ -1,6 +1,6 @@
 {
   "name": "fm-optimize",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "FM Optimize - Windows optimization toolkit",
   "main": "./out/main/index.js",
   "scripts": {
