@@ -5,6 +5,7 @@ import { auditAdminCheck, auditScriptExecution } from '../audit-logger';
 import { validateScriptPath } from '../path-validation';
 import { isAdmin } from './admin-check';
 import { addHistoryEntry, loadSettings } from './data-service';
+import { buildInteractiveWindowCommand } from './script-commands';
 import { extractScriptToTemp, getScriptById } from './script-registry';
 
 const activeProcesses = new Map<string, ChildProcess>();
@@ -92,8 +93,9 @@ export function executeScript(id: string): string {
     }
   }
 
-  if (script?.interactive && (ext === 'bat' || ext === 'cmd')) {
-    const proc = spawn(`cmd /c start cmd /k "${filePath}"`, {
+  if (script?.interactive && (ext === 'bat' || ext === 'cmd' || ext === 'ps1')) {
+    const command = buildInteractiveWindowCommand(ext, filePath);
+    const proc = spawn(command, {
       detached: true,
       stdio: 'ignore',
       shell: true,

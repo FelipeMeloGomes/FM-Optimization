@@ -1,4 +1,13 @@
-import { AlertTriangle, Play, Shield, Smartphone, Square, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  MessageCircle,
+  Music,
+  Play,
+  Shield,
+  Smartphone,
+  Square,
+  Trash2,
+} from 'lucide-react';
 import { useMemo } from 'react';
 import type { ScriptEntry } from '../../electron/shared/ipc-types';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -51,6 +60,29 @@ const APP_SECTIONS: AppSection[] = [
     borderColor: 'border-red-500/20',
     scriptIds: ['apps-3', 'builtin-14'],
     warning: 'Alguns apps do sistema podem ser removidos. Use com cautela.',
+  },
+  {
+    id: 'discord',
+    name: 'Discord',
+    description:
+      'Instale o Equicord com o plugin FakeNitro para desbloquear emotes, stickers e uploads maiores. Inclui opção de reverter.',
+    icon: MessageCircle,
+    color: 'text-violet-400',
+    bgColor: 'bg-violet-500/10',
+    borderColor: 'border-violet-500/20',
+    scriptIds: ['apps-4', 'apps-5'],
+  },
+  {
+    id: 'spotify',
+    name: 'Spotify',
+    description:
+      'Debloat do Spotify com Spicetify: bloqueador de anúncios, Marketplace de temas e customização completa. Inclui opção de reverter.',
+    icon: Music,
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/20',
+    scriptIds: ['apps-6', 'apps-7'],
+    warning: 'Não funciona com o Spotify da Microsoft Store. Instale a versão desktop.',
   },
 ];
 
@@ -176,7 +208,7 @@ export default function AppsPage() {
       <div className="space-y-4">
         <div className="h-24 rounded-xl bg-muted animate-pulse" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <ScriptCardSkeleton
               // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders, fixed count
               key={`skeleton-${i}`}
@@ -212,8 +244,8 @@ export default function AppsPage() {
           </div>
           <h2 className="text-lg font-bold text-foreground">Gerencie privacidade e bloatware</h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-            Controle sua privacidade, reforce a segurança e remova aplicativos desnecessários que
-            consumem recursos do sistema.
+            Controle sua privacidade, reforce a segurança, remova aplicativos desnecessários e dê um
+            debloat no Discord e no Spotify com um clique.
           </p>
         </div>
       </div>
