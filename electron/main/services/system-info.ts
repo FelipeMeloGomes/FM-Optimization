@@ -7,6 +7,12 @@ import type {
   OsInfo,
   StorageDrive,
 } from '../../shared/ipc-types';
+import {
+  formatVramGb,
+  matchRegistryVram,
+  parseVideoControllers,
+  pickDedicatedGpu,
+} from './gpu-info';
 import { execPowerShell } from './powershell';
 
 function formatBytes(bytes: number): string {
@@ -46,14 +52,18 @@ export async function getCpuInfo(): Promise<CpuInfo> {
   return { model, cores, logicalProcessors, architecture: arch(), usage };
 }
 
+const REGISTRY_VRAM_CMD =
+  "$base='HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}'; 0..9 | ForEach-Object { $p = Get-ItemProperty (Join-Path $base ('000' + $_)) -ErrorAction SilentlyContinue; if ($p.MatchingDeviceId -and $null -ne $p.'HardwareInformation.qwMemorySize') { ($p.MatchingDeviceId + '|' + $p.'HardwareInformation.qwMemorySize') } }";
+
 export async function getGpuInfo(): Promise<GpuInfo> {
-  const [output, nvidiaVram, nvidiaSmi] = await Promise.all([
+  const [output, nvidiaVram, registryVramRaw, nvidiaSmi] = await Promise.all([
     execPowerShell(
-      'Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,DriverVersion | ConvertTo-Json -Depth 3'
+      'Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion,PNPDeviceID | ConvertTo-Json -Depth 3'
     ).catch(() => ''),
     execPowerShell(
       'nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>$null'
     ).catch(() => ''),
+    execPowerShell(REGISTRY_VRAM_CMD).catch(() => ''),
     execPowerShell(
       'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>$null'
     ).catch(() => ''),
@@ -61,36 +71,26 @@ export async function getGpuInfo(): Promise<GpuInfo> {
 
   if (!output) return { name: 'N/A', vram: 'N/A', driverVersion: 'N/A', usage: 0 };
 
-  let name = 'N/A';
-  let driverVersion = 'N/A';
-
-  try {
-    const parsed = JSON.parse(output);
-    name = parsed.Name || 'N/A';
-    driverVersion = parsed.DriverVersion || 'N/A';
-  } catch {
-    /* use defaults */
-  }
+  const gpu = pickDedicatedGpu(parseVideoControllers(output));
+  const name = gpu?.name ?? 'N/A';
+  const driverVersion = gpu?.driverVersion || 'N/A';
 
   let vram = 'N/A';
   if (nvidiaVram) {
     const val = parseInt(nvidiaVram.trim(), 10);
-    if (!Number.isNaN(val)) vram = `${Math.round(val / 1024)} GB`;
-  } else {
-    const adapterRam = await execPowerShell(
-      '(Get-CimInstance Win32_VideoController | Select-Object -First 1).AdapterRAM'
-    ).catch(() => '');
-    if (adapterRam) {
-      const val = parseInt(adapterRam.trim(), 10);
-      if (!Number.isNaN(val) && val > 0) vram = `${Math.round(val / (1024 * 1024 * 1024))} GB`;
-    }
-    if (vram === 'N/A') {
-      const regVram = await execPowerShell(
-        "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\0000' -Name 'HardwareInformation.MemorySize' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'HardwareInformation.MemorySize'"
+    if (!Number.isNaN(val) && val > 0) vram = `${Math.round(val / 1024)} GB`;
+  } else if (gpu) {
+    const regBytes = matchRegistryVram(registryVramRaw.split(/\r?\n/), gpu.pnpDeviceId);
+    if (regBytes) {
+      vram = formatVramGb(regBytes);
+    } else {
+      const escapedId = gpu.pnpDeviceId.replace(/'/g, "''");
+      const adapterRam = await execPowerShell(
+        `(Get-CimInstance Win32_VideoController -Filter "PNPDeviceID='${escapedId}'").AdapterRAM`
       ).catch(() => '');
-      if (regVram) {
-        const val = parseInt(regVram.trim(), 10);
-        if (!Number.isNaN(val) && val > 0) vram = `${Math.round(val / (1024 * 1024 * 1024))} GB`;
+      if (adapterRam) {
+        const val = parseInt(adapterRam.trim(), 10);
+        if (!Number.isNaN(val) && val > 0) vram = formatVramGb(val);
       }
     }
   }
