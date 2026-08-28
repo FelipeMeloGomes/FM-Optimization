@@ -61,13 +61,48 @@ export default function App() {
           <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/tweaks" element={<TweaksPage />} />
-              <Route path="/utilities" element={<UtilitiesPage />} />
-              <Route path="/cleaner" element={<CleanerPage />} />
               <Route path="/restore-points" element={<RestorePointsPage />} />
               <Route path="/history" element={<HistoryPage />} />
-              <Route path="/rede" element={<NetworkPage />} />
-              <Route path="/apps" element={<AppsPage />} />
+              <Route
+                path="/tweaks"
+                element={
+                  <ProtectedRoute path="/tweaks">
+                    <TweaksPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/utilities"
+                element={
+                  <ProtectedRoute path="/utilities">
+                    <UtilitiesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cleaner"
+                element={
+                  <ProtectedRoute path="/cleaner">
+                    <CleanerPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/rede"
+                element={
+                  <ProtectedRoute path="/rede">
+                    <NetworkPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/apps"
+                element={
+                  <ProtectedRoute path="/apps">
+                    <AppsPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/emuladores"
                 element={
@@ -76,8 +111,22 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/input-lag" element={<InputLagPage />} />
-              <Route path="/cpu" element={<CpuPage />} />
+              <Route
+                path="/input-lag"
+                element={
+                  <ProtectedRoute path="/input-lag">
+                    <InputLagPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cpu"
+                element={
+                  <ProtectedRoute path="/cpu">
+                    <CpuPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
