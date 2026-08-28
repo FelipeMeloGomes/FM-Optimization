@@ -78,6 +78,7 @@ export interface AppSettings {
   confirmOnExecute: boolean;
   autoRestorePoint: boolean;
   security: SecuritySettings;
+  pageLock: PageLockSettings;
   soundEnabled: boolean;
   toastDuration: 'short' | 'medium' | 'long';
 }
@@ -87,6 +88,18 @@ export interface SecuritySettings {
   enableDenyListBlock: boolean;
   enablePathValidation: boolean;
   enablePsSanitize: boolean;
+}
+
+export interface PageLockSettings {
+  enabled: boolean;
+  salt: string;
+  passwordHashCipher: string;
+  lockedPages: string[];
+  unlocked: boolean;
+}
+
+export interface VerifyPageLockPasswordPayload {
+  password: string;
 }
 
 export interface ScriptEnded {
@@ -218,6 +231,7 @@ export interface ElectronAPI {
   isAdmin(): Promise<boolean>;
   getSettings(): Promise<AppSettings>;
   saveSettings(settings: AppSettings): Promise<void>;
+  verifyPageLockPassword(payload: VerifyPageLockPasswordPayload): Promise<boolean>;
   onScriptEnded(cb: (data: ScriptEnded) => void): () => void;
   restoreSystem(seq: number): Promise<void>;
   getAppVersion(): Promise<string>;
