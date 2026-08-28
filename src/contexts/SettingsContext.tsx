@@ -32,6 +32,13 @@ const DEFAULT: AppSettings = {
     enablePathValidation: true,
     enablePsSanitize: true,
   },
+  pageLock: {
+    enabled: true,
+    salt: '',
+    passwordHashCipher: '',
+    lockedPages: ['/emuladores'],
+    unlocked: false,
+  },
   soundEnabled: true,
   toastDuration: 'medium',
 };
