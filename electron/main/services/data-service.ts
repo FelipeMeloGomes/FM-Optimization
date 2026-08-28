@@ -7,13 +7,21 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { resolve } from 'node:path';
-import { app } from 'electron';
-import type { AppSettings, ExecutionHistoryEntry } from '../../shared/ipc-types';
+import { app, safeStorage } from 'electron';
+import type { AppSettings, ExecutionHistoryEntry, PageLockSettings } from '../../shared/ipc-types';
 
 interface UserData {
   customScripts: Array<{ name: string; content: string; extension: string }>;
   executionHistory: ExecutionHistoryEntry[];
 }
+
+const DEFAULT_PAGE_LOCK: PageLockSettings = {
+  enabled: true,
+  salt: '',
+  passwordHashCipher: '',
+  lockedPages: ['/emuladores'],
+  unlocked: false,
+};
 
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
@@ -26,6 +34,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     enablePathValidation: true,
     enablePsSanitize: true,
   },
+  pageLock: DEFAULT_PAGE_LOCK,
   soundEnabled: true,
   toastDuration: 'medium',
 };
@@ -122,6 +131,30 @@ export function loadSettings(): AppSettings {
                   : DEFAULT_SETTINGS.security.enablePsSanitize,
             }
           : DEFAULT_SETTINGS.security,
+      pageLock:
+        parsed.pageLock && typeof parsed.pageLock === 'object'
+          ? {
+              enabled:
+                typeof parsed.pageLock.enabled === 'boolean'
+                  ? parsed.pageLock.enabled
+                  : DEFAULT_PAGE_LOCK.enabled,
+              salt:
+                typeof parsed.pageLock.salt === 'string'
+                  ? parsed.pageLock.salt
+                  : DEFAULT_PAGE_LOCK.salt,
+              passwordHashCipher:
+                typeof parsed.pageLock.passwordHashCipher === 'string'
+                  ? decryptSecret(parsed.pageLock.passwordHashCipher)
+                  : '',
+              lockedPages: Array.isArray(parsed.pageLock.lockedPages)
+                ? parsed.pageLock.lockedPages.filter((p: unknown) => typeof p === 'string')
+                : DEFAULT_PAGE_LOCK.lockedPages,
+              unlocked:
+                typeof parsed.pageLock.unlocked === 'boolean'
+                  ? parsed.pageLock.unlocked
+                  : DEFAULT_PAGE_LOCK.unlocked,
+            }
+          : { ...DEFAULT_PAGE_LOCK },
       soundEnabled:
         typeof parsed.soundEnabled === 'boolean'
           ? parsed.soundEnabled
@@ -135,9 +168,32 @@ export function loadSettings(): AppSettings {
   }
 }
 
+function encryptSecret(plain: string): string {
+  if (!plain || !safeStorage.isEncryptionAvailable()) return plain;
+  return safeStorage.encryptString(plain).toString('base64');
+}
+
+function decryptSecret(cipher: string): string {
+  if (!cipher || !safeStorage.isEncryptionAvailable()) return cipher;
+  try {
+    return safeStorage.decryptString(Buffer.from(cipher, 'base64'));
+  } catch {
+    return '';
+  }
+}
+
 export function saveSettings(settings: AppSettings): void {
+  const toSave: AppSettings = {
+    ...settings,
+    pageLock: {
+      ...settings.pageLock,
+      passwordHashCipher: safeStorage.isEncryptionAvailable()
+        ? encryptSecret(settings.pageLock.passwordHashCipher)
+        : settings.pageLock.passwordHashCipher,
+    },
+  };
   const filePath = getSettingsFilePath();
   const tmpPath = `${filePath}.tmp`;
-  writeFileSync(tmpPath, JSON.stringify(settings, null, 2), 'utf-8');
+  writeFileSync(tmpPath, JSON.stringify(toSave, null, 2), 'utf-8');
   renameSync(tmpPath, filePath);
 }
