@@ -1,8 +1,39 @@
-import { KeyRound, Lock, Unlock } from 'lucide-react';
+import { Eye, EyeOff, KeyRound, Lock, Unlock } from 'lucide-react';
 import { useState } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { ALWAYS_VISIBLE_ROUTES } from '../../lib/page-lock';
 import { Input, Toggle } from '../ui';
+
+function PasswordField({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <Input
+        type={visible ? 'text' : 'password'}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="pr-10"
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+      </button>
+    </div>
+  );
+}
 
 const PAGES = [
   { to: '/emuladores', label: 'Emuladores' },
@@ -108,17 +139,15 @@ export function PageLockSection() {
                 <p className="text-sm text-muted-foreground">
                   Cadastre uma senha para poder adicionar/remover paginas e revela-las.
                 </p>
-                <Input
-                  type="password"
+                <PasswordField
                   placeholder="Nova senha"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={setNewPassword}
                 />
-                <Input
-                  type="password"
+                <PasswordField
                   placeholder="Confirmar senha"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={setConfirmPassword}
                 />
                 <button
                   type="button"
@@ -134,12 +163,13 @@ export function PageLockSection() {
             {hasPassword && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="password"
-                    placeholder="Digite sua senha para gerenciar/revelar"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <div className="flex-1">
+                    <PasswordField
+                      placeholder="Digite sua senha para gerenciar/revelar"
+                      value={password}
+                      onChange={setPassword}
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={async () => {
