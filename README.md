@@ -21,6 +21,7 @@
 - **Notificações** — toast de confirmação ao finalizar a execução de um tweak (com som opcional)
 - **Mini-guia** — explicação simples do que cada tweak faz e quando usar
 - **Atualização integrada** — botão nas Configurações que baixa e instala novas versões do GitHub
+- **Bloqueio de Páginas** — nas Configurações, oculte páginas da barra lateral (Emuladores bloqueado por padrão) e proteja-as com senha mestra criptografada (DPAPI)
 - **Janela customizada** — controles de minimizar/fechar customizados, sem barra de título nativa do Windows
 - **Tema** — dark azul neon com fundo de circuito animado
 
