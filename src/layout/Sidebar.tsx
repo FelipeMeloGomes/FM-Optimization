@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import logoUrl from '../assets/logo.svg';
 import { useSettingsContext } from '../contexts/SettingsContext';
+import { isPageLocked } from '../lib/page-lock';
 import { getThemeById } from '../lib/theme-config';
 import { cn } from '../lib/utils';
 
@@ -50,6 +51,9 @@ export function Sidebar({ openCommandPalette }: SidebarProps) {
   const { settings } = useSettingsContext();
   const theme = getThemeById(settings.theme);
   const glowColor = theme.signature?.glowColor;
+
+  const visibleNavItems = navItems.filter((item) => !isPageLocked(item.to, settings));
+  const visibleSystemItems = systemItems.filter((item) => !isPageLocked(item.to, settings));
 
   return (
     <aside
@@ -95,7 +99,7 @@ export function Sidebar({ openCommandPalette }: SidebarProps) {
         )}
       </button>
       <nav className="flex flex-col gap-1">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -137,7 +141,7 @@ export function Sidebar({ openCommandPalette }: SidebarProps) {
           </NavLink>
         ))}
         <div className="my-2 border-t border-border" />
-        {systemItems.map((item) => (
+        {visibleSystemItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
