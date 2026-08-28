@@ -1,6 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import type { AppSettings, BenchmarkResult, IpcResult } from '../shared/ipc-types';
+import type {
+  AppSettings,
+  BenchmarkResult,
+  IpcResult,
+  SetPageLockPasswordResult,
+} from '../shared/ipc-types';
 import { auditIpcValidation } from './audit-logger';
 import {
   backupApp,
@@ -18,7 +23,7 @@ import {
 import { isAdmin } from './services/admin-check';
 import { getCleanerStats } from './services/cleaner-stats';
 import { loadSettings, loadUserData, saveSettings, saveUserData } from './services/data-service';
-import { verifyPassword } from './services/page-lock';
+import { generateSalt, hashPassword, verifyPassword } from './services/page-lock';
 import { execPowerShell, execPowerShellSafe } from './services/powershell';
 import { checkRateLimit } from './services/rate-limit';
 import {
@@ -145,6 +150,18 @@ export function registerIpcHandlers(): void {
         return false;
       }
       return verifyPassword(password, salt, passwordHashCipher);
+    });
+  });
+
+  ipcMain.handle('set-page-lock-password', (_e, payload: unknown) => {
+    return handleIpc('set-page-lock-password', payload, (validated) => {
+      const { password } = validated as { password: string };
+      const salt = generateSalt();
+      const result: SetPageLockPasswordResult = {
+        salt,
+        passwordHashCipher: hashPassword(password, salt),
+      };
+      return result;
     });
   });
 

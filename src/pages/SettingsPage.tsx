@@ -2,6 +2,7 @@ import { Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DataSection } from '../components/settings/DataSection';
 import { NotificationsSection } from '../components/settings/NotificationsSection';
+import { PageLockSection } from '../components/settings/PageLockSection';
 import { PreferencesSection } from '../components/settings/PreferencesSection';
 import { ThemeSection } from '../components/settings/ThemeSection';
 import { UpdatesSection } from '../components/settings/UpdatesSection';
@@ -48,6 +49,7 @@ export default function SettingsPage() {
 
       <ThemeSection />
       <PreferencesSection />
+      <PageLockSection />
       <DataSection />
       <NotificationsSection />
       <UpdatesSection appVersion={appVersion} packaged={packaged} />

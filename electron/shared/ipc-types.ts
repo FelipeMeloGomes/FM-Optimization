@@ -102,6 +102,15 @@ export interface VerifyPageLockPasswordPayload {
   password: string;
 }
 
+export interface SetPageLockPasswordPayload {
+  password: string;
+}
+
+export interface SetPageLockPasswordResult {
+  salt: string;
+  passwordHashCipher: string;
+}
+
 export interface ScriptEnded {
   id: string;
   code: number | null;
@@ -232,6 +241,7 @@ export interface ElectronAPI {
   getSettings(): Promise<AppSettings>;
   saveSettings(settings: AppSettings): Promise<void>;
   verifyPageLockPassword(payload: VerifyPageLockPasswordPayload): Promise<boolean>;
+  setPageLockPassword(payload: SetPageLockPasswordPayload): Promise<SetPageLockPasswordResult>;
   onScriptEnded(cb: (data: ScriptEnded) => void): () => void;
   restoreSystem(seq: number): Promise<void>;
   getAppVersion(): Promise<string>;

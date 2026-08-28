@@ -52,6 +52,10 @@ export const VerifyPageLockPasswordSchema = z.object({
   password: z.string().min(1, 'Password required'),
 });
 
+export const SetPageLockPasswordSchema = z.object({
+  password: z.string().min(4, 'Password must be at least 4 chars'),
+});
+
 export const elevateAppSchema = z.object({
   scriptId: ScriptIdSchema.optional(),
   dnsInterfaceIndex: InterfaceIndexSchema.optional(),
@@ -158,6 +162,7 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'get-settings': z.undefined(),
   'save-settings': SettingsSchema,
   'verify-page-lock-password': VerifyPageLockPasswordSchema,
+  'set-page-lock-password': SetPageLockPasswordSchema,
   'get-app-version': z.undefined(),
   'is-packaged': z.undefined(),
   'get-execution-history': z.undefined(),

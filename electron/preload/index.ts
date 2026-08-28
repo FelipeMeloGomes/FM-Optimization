@@ -17,6 +17,7 @@ import type {
   RestorePointEntry,
   ScriptEnded,
   ScriptEntry,
+  SetPageLockPasswordResult,
   UpdateInfo,
   UpdateStatus,
 } from '../shared/ipc-types';
@@ -106,6 +107,8 @@ const electronAPI: ElectronAPI = {
   getSettings: () => ipc<AppSettings>('get-settings'),
   saveSettings: (settings) => ipcVoid('save-settings', settings),
   verifyPageLockPassword: (payload) => ipc<boolean>('verify-page-lock-password', payload),
+  setPageLockPassword: (payload) =>
+    ipc<SetPageLockPasswordResult>('set-page-lock-password', payload),
   onScriptEnded: (cb: (data: ScriptEnded) => void) => {
     scriptEndedCallbacks.add(cb);
     return () => scriptEndedCallbacks.delete(cb);
