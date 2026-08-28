@@ -26,6 +26,14 @@ export const SecuritySettingsSchema = z.object({
   enablePsSanitize: z.boolean().default(true),
 });
 
+export const PageLockSchema = z.object({
+  enabled: z.boolean().default(true),
+  salt: z.string().default(''),
+  passwordHashCipher: z.string().default(''),
+  lockedPages: z.array(z.string()).default(['/emuladores']),
+  unlocked: z.boolean().default(false),
+});
+
 export const SettingsSchema = z.object({
   theme: z.enum(['light', 'dark', 'midnight', 'amber', 'emerald', 'batman']).default('dark'),
   accentColor: z
@@ -34,9 +42,14 @@ export const SettingsSchema = z.object({
     .default('#3b82f6'),
   confirmOnExecute: z.boolean().default(true),
   autoRestorePoint: z.boolean().default(true),
-  security: SecuritySettingsSchema,
+  security: SecuritySettingsSchema.default(() => SecuritySettingsSchema.parse({})),
+  pageLock: PageLockSchema.default(() => PageLockSchema.parse({})),
   soundEnabled: z.boolean().default(true),
   toastDuration: z.enum(['short', 'medium', 'long']).default('medium'),
+});
+
+export const VerifyPageLockPasswordSchema = z.object({
+  password: z.string().min(1, 'Password required'),
 });
 
 export const elevateAppSchema = z.object({
@@ -144,6 +157,7 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'is-admin': z.undefined(),
   'get-settings': z.undefined(),
   'save-settings': SettingsSchema,
+  'verify-page-lock-password': VerifyPageLockPasswordSchema,
   'get-app-version': z.undefined(),
   'is-packaged': z.undefined(),
   'get-execution-history': z.undefined(),

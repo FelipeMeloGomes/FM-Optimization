@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { IpcSchemas, validateIpcInput } from '../validation';
+import { IpcSchemas, SettingsSchema, validateIpcInput } from '../validation';
 
 describe('IpcSchemas', () => {
   it('validates execute-script with valid id', () => {
@@ -52,5 +52,36 @@ describe('validateIpcInput', () => {
   it('passes through unknown channel', () => {
     const result = validateIpcInput('unknown-channel', { foo: 'bar' });
     expect(result.success).toBe(true);
+  });
+});
+
+describe('SettingsSchema pageLock', () => {
+  it('defaults lockedPages to emuladores', () => {
+    const r = SettingsSchema.parse({
+      theme: 'dark',
+      accentColor: '#22d3ee',
+      confirmOnExecute: true,
+      autoRestorePoint: true,
+      soundEnabled: true,
+      toastDuration: 'medium',
+    });
+    expect(r.pageLock.lockedPages).toEqual(['/emuladores']);
+    expect(r.pageLock.enabled).toBe(true);
+  });
+
+  it('accepts custom lockedPages', () => {
+    const r = SettingsSchema.parse({
+      pageLock: { lockedPages: ['/emuladores', '/apps'] },
+    });
+    expect(r.pageLock.lockedPages).toEqual(['/emuladores', '/apps']);
+  });
+});
+
+describe('verify-page-lock-password schema', () => {
+  it('rejects empty password', () => {
+    expect(IpcSchemas['verify-page-lock-password'].safeParse({ password: '' }).success).toBe(false);
+  });
+  it('accepts non-empty password', () => {
+    expect(IpcSchemas['verify-page-lock-password'].safeParse({ password: 'x' }).success).toBe(true);
   });
 });

@@ -18,6 +18,7 @@ import {
 import { isAdmin } from './services/admin-check';
 import { getCleanerStats } from './services/cleaner-stats';
 import { loadSettings, loadUserData, saveSettings, saveUserData } from './services/data-service';
+import { verifyPassword } from './services/page-lock';
 import { execPowerShell, execPowerShellSafe } from './services/powershell';
 import { checkRateLimit } from './services/rate-limit';
 import {
@@ -132,6 +133,18 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('save-settings', (_e, settings) => {
     return handleIpc('save-settings', settings, (validated) => {
       saveSettings(validated as AppSettings);
+    });
+  });
+
+  ipcMain.handle('verify-page-lock-password', (_e, payload: unknown) => {
+    return handleIpc('verify-page-lock-password', payload, (validated) => {
+      const { password } = validated as { password: string };
+      const settings = loadSettings();
+      const { salt, passwordHashCipher, enabled } = settings.pageLock;
+      if (!enabled || !passwordHashCipher) {
+        return false;
+      }
+      return verifyPassword(password, salt, passwordHashCipher);
     });
   });
 

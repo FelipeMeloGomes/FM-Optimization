@@ -105,6 +105,7 @@ const electronAPI: ElectronAPI = {
   isAdmin: () => ipc<boolean>('is-admin'),
   getSettings: () => ipc<AppSettings>('get-settings'),
   saveSettings: (settings) => ipcVoid('save-settings', settings),
+  verifyPageLockPassword: (payload) => ipc<boolean>('verify-page-lock-password', payload),
   onScriptEnded: (cb: (data: ScriptEnded) => void) => {
     scriptEndedCallbacks.add(cb);
     return () => scriptEndedCallbacks.delete(cb);
