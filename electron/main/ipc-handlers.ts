@@ -140,8 +140,8 @@ export function registerIpcHandlers(): void {
     return handleIpc('verify-page-lock-password', payload, (validated) => {
       const { password } = validated as { password: string };
       const settings = loadSettings();
-      const { salt, passwordHashCipher, enabled } = settings.pageLock;
-      if (!enabled || !passwordHashCipher) {
+      const { salt, passwordHashCipher } = settings.pageLock;
+      if (!passwordHashCipher) {
         return false;
       }
       return verifyPassword(password, salt, passwordHashCipher);
