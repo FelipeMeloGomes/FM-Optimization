@@ -1,15 +1,16 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { lazy, type ReactNode, Suspense } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Skeleton } from './components/ui';
 import { HistoryProvider } from './contexts/HistoryContext';
 import { RestorePointProvider } from './contexts/RestorePointContext';
 import { ScriptProvider } from './contexts/ScriptContext';
 import { ScriptExecutionProvider } from './contexts/ScriptExecutionContext';
-import { SettingsProvider } from './contexts/SettingsContext';
+import { SettingsProvider, useSettingsContext } from './contexts/SettingsContext';
 import { CpuProvider, MemoryProvider, SystemProvider } from './contexts/SystemContext';
 import { AppLayout } from './layout/AppLayout';
 import { composeProviders } from './lib/compose-providers';
+import { isPageLocked } from './lib/page-lock';
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const RestorePointsPage = lazy(() => import('./pages/RestorePointsPage'));
@@ -30,6 +31,15 @@ function PageLoader() {
       <Skeleton className="size-6 rounded-full" />
     </div>
   );
+}
+
+function ProtectedRoute({ path, children }: { path: string; children: ReactNode }) {
+  const { settings } = useSettingsContext();
+  const location = useLocation();
+  if (isPageLocked(path, settings)) {
+    return <Navigate to="/settings" replace state={{ from: location }} />;
+  }
+  return <>{children}</>;
 }
 
 const AllProviders = composeProviders(
@@ -58,7 +68,14 @@ export default function App() {
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/rede" element={<NetworkPage />} />
               <Route path="/apps" element={<AppsPage />} />
-              <Route path="/emuladores" element={<EmuladoresPage />} />
+              <Route
+                path="/emuladores"
+                element={
+                  <ProtectedRoute path="/emuladores">
+                    <EmuladoresPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/input-lag" element={<InputLagPage />} />
               <Route path="/cpu" element={<CpuPage />} />
               <Route path="/settings" element={<SettingsPage />} />
