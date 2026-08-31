@@ -45,6 +45,17 @@ describe('spicetify scripts', () => {
   });
 
   it.each(SPICETIFY_IDS)(
+    '%s guards before the banner and falls back to explorer when the Task Scheduler is unavailable',
+    (id) => {
+      const content = decodeScript(id);
+      const banner = "Write-Host '===============";
+      expect(content.indexOf('if (Test-Admin)')).toBeLessThan(content.indexOf(banner));
+      expect(content).toContain("Start-Process 'explorer.exe'");
+      expect(content).toContain('Register-ScheduledTask');
+    }
+  );
+
+  it.each(SPICETIFY_IDS)(
     "%s does not rely on Spicetify's --bypass-admin (causes blank Spotify window)",
     (id) => {
       expect(decodeScript(id)).not.toContain('--bypass-admin');
