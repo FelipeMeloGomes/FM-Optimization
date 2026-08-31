@@ -10,7 +10,7 @@
 
 - **Dashboard** — CPU, GPU, memória, armazenamento com barra de uso e tempo de atividade
 - **Tweaks de otimização** — Utilitários, Limpeza, Rede, Apps, Input Lag, Processador (Intel/AMD)
-- **Debloat de apps** — Discord (Equicord + plugin FakeNitro) e Spotify (Spicetify com Marketplace e bloqueador de anúncios), ambos com opção de reverter
+- **Debloat de apps** — Discord (Equicord + plugin FakeNitro) e Spotify (Spicetify com Marketplace e bloqueador de anúncios), ambos com opção de reverter. O debloat do Spotify funciona mesmo com o FM Optimize aberto como administrador: ele reabre sozinho em uma janela sem privilégios
 - **Armazenamento** — Limpeza de Disco do Windows e otimizações de SSD que só aparecem quando há um SSD detectado no sistema
 - **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + tweaks de otimização de internet
 - **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows, com contagem de arquivos, tamanho por categoria e atualização em tempo real
