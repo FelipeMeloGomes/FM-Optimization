@@ -15,7 +15,7 @@
 - **Rede** — benchmark de DNS com ordenação por latência e aplicação automática + tweaks de otimização de internet
 - **Limpeza** — limpeza de arquivos temporários, cache de navegadores e atualizações do Windows, com contagem de arquivos, tamanho por categoria e atualização em tempo real
 - **Processador** — detecção automática de fabricante (Intel/AMD) com tweaks específicos
-- **Emuladores** — debloat de emuladores Android (BlueStacks 4/5) com seleção de instância, lista de apps com ícones e nomes, presets de bloatware, backup, restauração e remoção via ADB
+- **Emuladores** — debloat de emuladores Android (BlueStacks 4/5) com seleção de instância, lista de apps com ícones e nomes, presets de bloatware, backup e remoção via ADB. Permite desinstalar **qualquer** app, inclusive de sistema/críticos, com backup automático desses antes da remoção e histórico de apps removidos com restauração por instância (dados preservados via `pm uninstall -k` + `install -r`; backups em `%APPDATA%\fm-optimize\backups\<instância>\`). Apps protegidos que não podem ser desinstalados são desabilitados via `pm disable-user` e reativados com `pm enable`
 - **Restore Points** — crie, liste, gerencie e restaure backups do Windows (criação automática opcional antes de executar tweaks)
 - **Histórico de Execução** — registro de todos os tweaks executados com duração e status
 - **Notificações** — toast de confirmação ao finalizar a execução de um tweak (com som opcional)

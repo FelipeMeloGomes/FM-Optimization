@@ -14,6 +14,8 @@ import type {
   IpcResult,
   MemoryInfo,
   NetworkInfo,
+  RemoveAppResult,
+  RemovedApp,
   RestorePointEntry,
   ScriptEnded,
   ScriptEntry,
@@ -159,14 +161,24 @@ const electronAPI: ElectronAPI = {
       emulatorId,
     }),
   adbListApps: (serial: string) => ipc<AdbApp[]>('adb:list-apps', { serial }),
-  adbRemoveApp: (serial: string, packageName: string) =>
-    ipcVoid('adb:remove-app', { serial, packageName }),
-  adbBackupApp: (serial: string, packageName: string) =>
-    ipc<string>('adb:backup-app', { serial, packageName }),
+  adbRemoveApp: (payload: {
+    serial: string;
+    instanceId: string;
+    instanceName?: string;
+    arch?: string;
+    packageName: string;
+  }) => ipc<RemoveAppResult>('adb:remove-app', payload),
+  adbBackupApp: (payload: { serial: string; instanceId: string; packageName: string }) =>
+    ipc<string>('adb:backup-app', payload),
   adbRestoreApp: (serial: string, apkPath: string) =>
     ipcVoid('adb:restore-app', { serial, apkPath }),
-  adbRestoreAppByName: (serial: string, packageName: string) =>
-    ipcVoid('adb:restore-app-by-name', { serial, packageName }),
+  adbRestoreAppByName: (payload: { serial: string; instanceId: string; packageName: string }) =>
+    ipcVoid('adb:restore-app-by-name', payload),
+  adbListRemovedApps: () => ipc<RemovedApp[]>('adb:list-removed'),
+  adbRestoreRemovedApp: (payload: { serial: string; instanceId: string; packageName: string }) =>
+    ipcVoid('adb:restore-removed', payload),
+  adbClearRemoved: (packageName: string) => ipcVoid('adb:clear-removed', { packageName }),
+  adbClearRemovedHistory: () => ipcVoid('adb:clear-removed-history'),
   adbListInstances: (emulatorId: string) =>
     ipc<{ id: string; name: string; arch: string; displayName?: string }[]>('adb:list-instances', {
       emulatorId,

@@ -123,11 +123,15 @@ export const adbListAppsSchema = z.object({
 
 export const adbRemoveAppSchema = z.object({
   serial: z.string().min(1, 'Device serial is required'),
+  instanceId: z.string().min(1, 'Instance ID is required'),
+  instanceName: z.string().optional(),
+  arch: z.string().optional(),
   packageName: z.string().min(1, 'Package name is required'),
 });
 
 export const adbBackupAppSchema = z.object({
   serial: z.string().min(1, 'Device serial is required'),
+  instanceId: z.string().min(1, 'Instance ID is required'),
   packageName: z.string().min(1, 'Package name is required'),
 });
 
@@ -138,6 +142,17 @@ export const adbRestoreAppSchema = z.object({
 
 export const adbRestoreAppByNameSchema = z.object({
   serial: z.string().min(1, 'Device serial is required'),
+  instanceId: z.string().min(1, 'Instance ID is required'),
+  packageName: z.string().min(1, 'Package name is required'),
+});
+
+export const adbRestoreRemovedSchema = z.object({
+  serial: z.string().min(1, 'Device serial is required'),
+  instanceId: z.string().min(1, 'Instance ID is required'),
+  packageName: z.string().min(1, 'Package name is required'),
+});
+
+export const adbClearRemovedSchema = z.object({
   packageName: z.string().min(1, 'Package name is required'),
 });
 
@@ -187,6 +202,10 @@ export const IpcSchemas: Record<string, z.ZodSchema> = {
   'adb:backup-app': adbBackupAppSchema,
   'adb:restore-app': adbRestoreAppSchema,
   'adb:restore-app-by-name': adbRestoreAppByNameSchema,
+  'adb:list-removed': z.undefined(),
+  'adb:restore-removed': adbRestoreRemovedSchema,
+  'adb:clear-removed': adbClearRemovedSchema,
+  'adb:clear-removed-history': z.undefined(),
   'adb:list-instances': adbListInstancesSchema,
   'get-cleaner-stats': getCleanerStatsSchema,
 };

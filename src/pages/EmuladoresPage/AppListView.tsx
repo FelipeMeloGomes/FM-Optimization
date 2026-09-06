@@ -3,6 +3,7 @@ import {
   Bookmark,
   ChevronDown,
   Download,
+  History,
   Loader2,
   RefreshCw,
   RotateCcw,
@@ -10,8 +11,10 @@ import {
   ShieldCheck,
   Sparkles,
   Trash2,
+  X,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RemovedApp } from '../../../electron/shared/ipc-types';
 import { showEnhancedToast } from '../../components/EnhancedToast';
 import {
   Badge,
@@ -30,37 +33,20 @@ import {
 import { useEmulatorContext } from '../../contexts/EmulatorContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { APP_ICON_MAP } from '../../lib/app-icons';
-import {
-  BLOATWARE_PACKAGES,
-  CRITICAL_PACKAGES,
-  PRESETS,
-  type PresetKey,
-} from '../../lib/bloatware';
+import { BLOATWARE_PACKAGES, PRESETS, type PresetKey } from '../../lib/bloatware';
 import { cn } from '../../lib/utils';
+import type { EmulatorInstance } from '../../types/emulator';
 
 type FilterType = 'all' | 'system' | 'user' | 'disabled';
 
 interface AppListViewProps {
   emulatorName: string;
-  instanceName: string;
+  instance: EmulatorInstance;
   deviceSerial: string;
   onBack: () => void;
 }
 
-function formatSize(bytes: number): string {
-  if (bytes === 0) return '—';
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${Math.round(kb)} KB`;
-  const mb = kb / 1024;
-  return `${mb.toFixed(1)} MB`;
-}
-
-export function AppListView({
-  emulatorName,
-  instanceName,
-  deviceSerial,
-  onBack,
-}: AppListViewProps) {
+export function AppListView({ emulatorName, instance, deviceSerial, onBack }: AppListViewProps) {
   const {
     listaApps,
     appsSelecionados,
@@ -84,6 +70,10 @@ export function AppListView({
   } | null>(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
   const presetsRef = useRef<HTMLDivElement>(null);
+  const [restoreOpen, setRestoreOpen] = useState(false);
+  const [removedApps, setRemovedApps] = useState<RemovedApp[]>([]);
+  const [restoreBusy, setRestoreBusy] = useState(false);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -121,14 +111,16 @@ export function AppListView({
     [listaApps]
   );
 
-  const totalSize = useMemo(() => {
-    return listaApps
-      .filter((a) => appsSelecionados.has(a.packageName))
-      .reduce((sum, a) => sum + (a.size > 0 ? a.size : 0), 0);
-  }, [listaApps, appsSelecionados]);
-
   const allSelected =
     filteredApps.length > 0 && filteredApps.every((a) => appsSelecionados.has(a.packageName));
+
+  const selHasSystem = useMemo(
+    () =>
+      Array.from(appsSelecionados).some(
+        (pkg) => listaApps.find((a) => a.packageName === pkg)?.isSystem
+      ),
+    [appsSelecionados, listaApps]
+  );
 
   const handleRefresh = useCallback(async () => {
     setCarregando(true);
@@ -144,7 +136,7 @@ export function AppListView({
 
   const handleSelectBloatware = useCallback(() => {
     const selected = listaApps
-      .filter((a) => BLOATWARE_PACKAGES.has(a.packageName) && !CRITICAL_PACKAGES.has(a.packageName))
+      .filter((a) => BLOATWARE_PACKAGES.has(a.packageName))
       .map((a) => a.packageName);
     setAppsSelecionados(new Set(selected));
     setPresetsOpen(false);
@@ -163,45 +155,106 @@ export function AppListView({
     [listaApps, setAppsSelecionados]
   );
 
+  const loadRemovedApps = useCallback(async () => {
+    try {
+      setRemovedApps(await window.electronAPI.adbListRemovedApps());
+      setRestoreError(null);
+    } catch {
+      setRemovedApps([]);
+    }
+  }, []);
+
   const handleRemove = useCallback(async () => {
     const pkgs = Array.from(appsSelecionados);
     setRemoving(true);
     setRemovalProgress({ current: 0, total: pkgs.length });
-    let removedCount = 0;
-    try {
-      for (let i = 0; i < pkgs.length; i++) {
-        setRemovalProgress({ current: i + 1, total: pkgs.length });
-        await window.electronAPI.adbRemoveApp(deviceSerial, pkgs[i]);
-        removedCount++;
+    const failures: string[] = [];
+    let uninstalledCount = 0;
+    let disabledCount = 0;
+    for (let i = 0; i < pkgs.length; i++) {
+      setRemovalProgress({ current: i + 1, total: pkgs.length });
+      try {
+        const result = await window.electronAPI.adbRemoveApp({
+          serial: deviceSerial,
+          instanceId: instance.id,
+          instanceName: instance.displayName || instance.name,
+          arch: instance.arch,
+          packageName: pkgs[i],
+        });
+        if (result.mode === 'disabled') disabledCount++;
+        else uninstalledCount++;
+      } catch (e) {
+        const errMsg = e instanceof Error ? e.message : String(e);
+        const label = listaApps.find((a) => a.packageName === pkgs[i])?.label ?? pkgs[i];
+        failures.push(`${label} (${errMsg})`);
       }
-      showEnhancedToast({
-        type: 'success',
-        title: `${removedCount} ${removedCount === 1 ? 'app removido' : 'apps removidos'}`,
-        duration: 'medium',
-        sound: settings.soundEnabled,
-      });
-      clearSelection();
-      setConfirmOpen(false);
-    } catch {
+    }
+    clearSelection();
+    setConfirmOpen(false);
+    setRemoving(false);
+    setRemovalProgress(null);
+    await loadRemovedApps();
+    await handleRefresh();
+
+    if (failures.length > 0) {
       showEnhancedToast({
         type: 'error',
-        title: 'Falha ao remover apps',
-        description: removedCount > 0 ? `${removedCount} removidos antes do erro` : undefined,
+        title: `${failures.length} ${failures.length === 1 ? 'app falhou' : 'apps falharam'}`,
+        description: [
+          uninstalledCount > 0
+            ? `${uninstalledCount} removido${uninstalledCount !== 1 ? 's' : ''}`
+            : null,
+          disabledCount > 0
+            ? `${disabledCount} desabilitado${disabledCount !== 1 ? 's' : ''}`
+            : null,
+          failures.join(' · '),
+        ]
+          .filter(Boolean)
+          .join(' — '),
         duration: 'medium',
         sound: settings.soundEnabled,
       });
-    } finally {
-      setRemoving(false);
-      setRemovalProgress(null);
+      return;
     }
-  }, [appsSelecionados, deviceSerial, clearSelection, settings.soundEnabled]);
+
+    if (disabledCount > 0) {
+      showEnhancedToast({
+        type: 'success',
+        title: 'Remoção concluída',
+        description: `${uninstalledCount} removido${uninstalledCount !== 1 ? 's' : ''} · ${disabledCount} desabilitado${disabledCount !== 1 ? 's' : ''} (protegidos)`,
+        duration: 'medium',
+        sound: settings.soundEnabled,
+      });
+      return;
+    }
+
+    showEnhancedToast({
+      type: 'success',
+      title: `${uninstalledCount} ${uninstalledCount === 1 ? 'app removido' : 'apps removidos'}`,
+      duration: 'medium',
+      sound: settings.soundEnabled,
+    });
+  }, [
+    appsSelecionados,
+    deviceSerial,
+    instance,
+    clearSelection,
+    loadRemovedApps,
+    handleRefresh,
+    listaApps,
+    settings.soundEnabled,
+  ]);
 
   const handleBackup = useCallback(async () => {
     const pkgs = Array.from(appsSelecionados);
     let backedUpCount = 0;
     try {
       for (const pkg of pkgs) {
-        await window.electronAPI.adbBackupApp(deviceSerial, pkg);
+        await window.electronAPI.adbBackupApp({
+          serial: deviceSerial,
+          instanceId: instance.id,
+          packageName: pkg,
+        });
         backedUpCount++;
       }
       showEnhancedToast({
@@ -219,7 +272,7 @@ export function AppListView({
         sound: settings.soundEnabled,
       });
     }
-  }, [appsSelecionados, deviceSerial, settings.soundEnabled]);
+  }, [appsSelecionados, deviceSerial, instance, settings.soundEnabled]);
 
   const handleRestore = useCallback(async () => {
     const pkgs = Array.from(appsSelecionados);
@@ -227,7 +280,11 @@ export function AppListView({
     let restoredCount = 0;
     try {
       for (const pkg of pkgs) {
-        await window.electronAPI.adbRestoreAppByName(deviceSerial, pkg);
+        await window.electronAPI.adbRestoreAppByName({
+          serial: deviceSerial,
+          instanceId: instance.id,
+          packageName: pkg,
+        });
         restoredCount++;
       }
       showEnhancedToast({
@@ -248,7 +305,69 @@ export function AppListView({
     } finally {
       setRestoring(false);
     }
-  }, [appsSelecionados, deviceSerial, clearSelection, settings.soundEnabled]);
+  }, [appsSelecionados, deviceSerial, instance, clearSelection, settings.soundEnabled]);
+
+  const handleRestoreRemoved = useCallback(
+    async (app: RemovedApp) => {
+      setRestoreBusy(true);
+      setRestoreError(null);
+      try {
+        await window.electronAPI.adbRestoreRemovedApp({
+          serial: deviceSerial,
+          instanceId: app.instanceId,
+          packageName: app.packageName,
+        });
+        showEnhancedToast({
+          type: 'success',
+          title: `${app.label} restaurado`,
+          duration: 'medium',
+          sound: settings.soundEnabled,
+        });
+        await loadRemovedApps();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setRestoreError(msg);
+        showEnhancedToast({
+          type: 'error',
+          title: 'Falha ao restaurar',
+          description: msg,
+          duration: 'medium',
+          sound: settings.soundEnabled,
+        });
+      } finally {
+        setRestoreBusy(false);
+      }
+    },
+    [deviceSerial, loadRemovedApps, settings.soundEnabled]
+  );
+
+  const handleClearRemoved = useCallback(
+    async (app: RemovedApp) => {
+      setRestoreBusy(true);
+      try {
+        await window.electronAPI.adbClearRemoved(app.packageName);
+        await loadRemovedApps();
+      } finally {
+        setRestoreBusy(false);
+      }
+    },
+    [loadRemovedApps]
+  );
+
+  const handleClearHistory = useCallback(async () => {
+    setRestoreBusy(true);
+    try {
+      await window.electronAPI.adbClearRemovedHistory();
+      await loadRemovedApps();
+    } finally {
+      setRestoreBusy(false);
+    }
+  }, [loadRemovedApps]);
+
+  const openRestoreDialog = useCallback(() => {
+    void loadRemovedApps();
+    setRestoreOpen(true);
+  }, [loadRemovedApps]);
 
   return (
     <div className="space-y-4">
@@ -260,7 +379,7 @@ export function AppListView({
         </Button>
         <div className="flex-1">
           <h2 className="text-sm font-semibold text-foreground">{emulatorName}</h2>
-          <p className="text-xs text-muted-foreground">{instanceName}</p>
+          <p className="text-xs text-muted-foreground">{instance.displayName || instance.name}</p>
         </div>
         <Button
           variant="ghost"
@@ -360,6 +479,15 @@ export function AppListView({
               </div>
             )}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={openRestoreDialog}
+            className="gap-1.5 text-xs"
+          >
+            <History className="size-3.5" />
+            Restaurar
+          </Button>
           <Button variant="ghost" size="sm" onClick={selectAllApps} className="text-xs">
             {allSelected ? 'Desmarcar Todos' : 'Selecionar Todos'}
           </Button>
@@ -382,87 +510,67 @@ export function AppListView({
             </p>
           </div>
         ) : (
-          filteredApps.map((app) => {
-            const isCritical = CRITICAL_PACKAGES.has(app.packageName);
-            return (
-              <Card
-                key={app.packageName}
-                className={cn(
-                  'transition-all duration-150',
-                  isCritical ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
-                  appsSelecionados.has(app.packageName) && 'border-primary/50 bg-primary/5'
-                )}
-                onClick={isCritical ? undefined : () => toggleAppSelection(app.packageName)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2.5">
-                    <input
-                      type="checkbox"
-                      checked={appsSelecionados.has(app.packageName)}
-                      onChange={() => toggleAppSelection(app.packageName)}
-                      onClick={(e) => e.stopPropagation()}
-                      disabled={isCritical}
-                      className="size-4 rounded border-muted-foreground accent-primary mt-0.5 shrink-0"
-                    />
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="size-8 shrink-0 rounded-md bg-muted flex items-center justify-center overflow-hidden">
-                        {(() => {
-                          const IconComp = APP_ICON_MAP[app.packageName];
-                          if (IconComp) return <IconComp size={20} />;
-                          return (
-                            <span className="text-xs font-bold text-muted-foreground">
-                              {app.label.charAt(0).toUpperCase()}
-                            </span>
-                          );
-                        })()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-xs font-semibold truncate" title={app.label}>
-                            {app.label}
-                          </p>
-                          {isCritical && (
-                            <Badge
-                              variant="secondary"
-                              className="text-[9px] px-1 py-0 shrink-0 bg-red-500/15 text-red-400 border-red-500/30"
-                            >
-                              CRITICO
-                            </Badge>
-                          )}
-                          {app.isSystem && (
-                            <Badge variant="secondary" className="text-[9px] px-1 py-0 shrink-0">
-                              SIST
-                            </Badge>
-                          )}
-                          {app.isDisabled && (
-                            <Badge
-                              variant="secondary"
-                              className="text-[9px] px-1 py-0 shrink-0 bg-orange-500/15 text-orange-400 border-orange-500/30"
-                            >
-                              DESAB
-                            </Badge>
-                          )}
-                        </div>
-                        <p
-                          className="text-[10px] text-muted-foreground truncate mt-0.5"
-                          title={app.packageName}
-                        >
-                          {app.packageName}
+          filteredApps.map((app) => (
+            <Card
+              key={app.packageName}
+              className={cn(
+                'transition-all duration-150 cursor-pointer',
+                appsSelecionados.has(app.packageName) && 'border-primary/50 bg-primary/5'
+              )}
+              onClick={() => toggleAppSelection(app.packageName)}
+            >
+              <CardContent className="p-3">
+                <div className="flex items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={appsSelecionados.has(app.packageName)}
+                    onChange={() => toggleAppSelection(app.packageName)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="size-4 rounded border-muted-foreground accent-primary mt-0.5 shrink-0"
+                  />
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="size-8 shrink-0 rounded-md bg-muted flex items-center justify-center overflow-hidden">
+                      {(() => {
+                        const IconComp = APP_ICON_MAP[app.packageName];
+                        if (IconComp) return <IconComp size={20} />;
+                        return (
+                          <span className="text-xs font-bold text-muted-foreground">
+                            {app.label.charAt(0).toUpperCase()}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-xs font-semibold truncate" title={app.label}>
+                          {app.label}
                         </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          {app.size > 0 && (
-                            <span className="text-[10px] text-muted-foreground">
-                              {formatSize(app.size)}
-                            </span>
-                          )}
-                        </div>
+                        {app.isSystem && (
+                          <Badge variant="secondary" className="text-[9px] px-1 py-0 shrink-0">
+                            SIST
+                          </Badge>
+                        )}
+                        {app.isDisabled && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[9px] px-1 py-0 shrink-0 bg-orange-500/15 text-orange-400 border-orange-500/30"
+                          >
+                            DESAB
+                          </Badge>
+                        )}
                       </div>
+                      <p
+                        className="text-[10px] text-muted-foreground truncate mt-0.5"
+                        title={app.packageName}
+                      >
+                        {app.packageName}
+                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })
+                </div>
+              </CardContent>
+            </Card>
+          ))
         )}
       </div>
 
@@ -471,7 +579,7 @@ export function AppListView({
         <div className="space-y-2 pt-2 border-t border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
-              Removendo {removalProgress.current} de {removalProgress.total}...
+              Processando {removalProgress.current} de {removalProgress.total}...
             </span>
             <span className="text-xs text-muted-foreground">
               {Math.round((removalProgress.current / removalProgress.total) * 100)}%
@@ -491,9 +599,6 @@ export function AppListView({
             <span className="text-sm font-medium text-primary">
               {appsSelecionados.size} selecionado{appsSelecionados.size !== 1 ? 's' : ''}
             </span>
-            {totalSize > 0 && (
-              <span className="text-xs text-muted-foreground">({formatSize(totalSize)})</span>
-            )}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={clearSelection}>
@@ -542,6 +647,13 @@ export function AppListView({
                   {appsSelecionados.size > 5 && ` e mais ${appsSelecionados.size - 5}...`}
                 </span>
               )}
+              {selHasSystem && (
+                <span className="block mt-2 text-xs text-amber-400">
+                  A seleção inclui apps de sistema/críticos — eles receberão backup automático antes
+                  da remoção. Apps protegidos que não puderem ser desinstalados serão desabilitados.
+                  Removê-los pode deixar o emulador instável.
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -554,6 +666,124 @@ export function AppListView({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Restore Dialog */}
+      <Dialog open={restoreOpen} onOpenChange={setRestoreOpen}>
+        <DialogContent className="max-h-[70vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Restaurar apps removidos</DialogTitle>
+            <DialogDescription>
+              Apps removidos podem ser reinstalados na instância atual. Apps desabilitados
+              (protegidos) são reativados via ADB.
+            </DialogDescription>
+          </DialogHeader>
+          {restoreBusy && <p className="text-xs text-muted-foreground">Processando...</p>}
+          {restoreError && (
+            <div
+              role="alert"
+              className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive"
+            >
+              {restoreError}
+            </div>
+          )}
+          {removedApps.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-6 text-center">Nenhum app removido.</p>
+          ) : (
+            <div className="space-y-4">
+              {renderRemovedSection(
+                'Instância atual',
+                removedApps.filter((r) => r.instanceId === instance.id)
+              )}
+              {renderRemovedSection(
+                'Outras instâncias',
+                removedApps.filter((r) => r.instanceId !== instance.id)
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void handleClearHistory()}
+              disabled={restoreBusy || removedApps.length === 0}
+            >
+              Limpar histórico
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setRestoreOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
+  function renderRemovedSection(title: string, items: RemovedApp[]) {
+    if (items.length === 0) return null;
+    const isCurrent = items[0].instanceId === instance.id;
+    return (
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground mb-2">
+          {title} ({items.length})
+        </p>
+        <div className={cn('space-y-1.5', !isCurrent && 'opacity-55')}>
+          {items.map((app) => (
+            <div
+              key={app.packageName}
+              className="flex items-center gap-2 rounded-lg border border-border p-2.5"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">{app.label}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{app.packageName}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {new Date(app.removedAt).toLocaleString('pt-BR')} · {app.instanceName}
+                </p>
+              </div>
+              {app.mode === 'disabled' ? (
+                <Badge
+                  variant="secondary"
+                  className="text-[9px] px-1 py-0 shrink-0 bg-orange-500/15 text-orange-400 border-orange-500/30"
+                >
+                  Desabilitado
+                </Badge>
+              ) : app.hasBackup ? (
+                <Badge variant="secondary" className="text-[9px] px-1 py-0 shrink-0">
+                  Com backup
+                </Badge>
+              ) : (
+                <Badge
+                  variant="secondary"
+                  className="text-[9px] px-1 py-0 shrink-0 bg-orange-500/15 text-orange-400 border-orange-500/30"
+                >
+                  Sem backup
+                </Badge>
+              )}
+              {isCurrent && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 shrink-0"
+                  disabled={restoreBusy || (!app.hasBackup && app.mode !== 'disabled')}
+                  onClick={() => handleRestoreRemoved(app)}
+                >
+                  <RotateCcw className="size-3.5" />
+                  Restaurar
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="shrink-0 text-muted-foreground"
+                disabled={restoreBusy}
+                title="Remover do histórico"
+                onClick={() => handleClearRemoved(app)}
+              >
+                <X className="size-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 }

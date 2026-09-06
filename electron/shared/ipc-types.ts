@@ -174,7 +174,23 @@ export interface AdbApp {
   isSystem: boolean;
   isDisabled: boolean;
   isUpdated: boolean;
-  size: number;
+}
+
+export type RemoveMode = 'uninstalled' | 'disabled';
+
+export interface RemoveAppResult {
+  mode: RemoveMode;
+}
+
+export interface RemovedApp {
+  packageName: string;
+  label: string;
+  instanceId: string;
+  instanceName: string;
+  arch: string;
+  removedAt: string;
+  mode: RemoveMode;
+  hasBackup: boolean;
 }
 
 export interface AdbConfig {
@@ -268,10 +284,32 @@ export interface ElectronAPI {
   adbListDevices(): Promise<AdbDevice[]>;
   adbDetectEmulator(emulatorId: string): Promise<AdbEmulatorResult>;
   adbListApps(serial: string): Promise<AdbApp[]>;
-  adbRemoveApp(serial: string, packageName: string): Promise<void>;
-  adbBackupApp(serial: string, packageName: string): Promise<string>;
+  adbRemoveApp(payload: {
+    serial: string;
+    instanceId: string;
+    instanceName?: string;
+    arch?: string;
+    packageName: string;
+  }): Promise<RemoveAppResult>;
+  adbBackupApp(payload: {
+    serial: string;
+    instanceId: string;
+    packageName: string;
+  }): Promise<string>;
   adbRestoreApp(serial: string, apkPath: string): Promise<void>;
-  adbRestoreAppByName(serial: string, packageName: string): Promise<void>;
+  adbRestoreAppByName(payload: {
+    serial: string;
+    instanceId: string;
+    packageName: string;
+  }): Promise<void>;
+  adbListRemovedApps(): Promise<RemovedApp[]>;
+  adbRestoreRemovedApp(payload: {
+    serial: string;
+    instanceId: string;
+    packageName: string;
+  }): Promise<void>;
+  adbClearRemoved(packageName: string): Promise<void>;
+  adbClearRemovedHistory(): Promise<void>;
   adbListInstances(emulatorId: string): Promise<AdbInstance[]>;
   getCleanerStats(cleanerId: string): Promise<CleanerStats>;
 }

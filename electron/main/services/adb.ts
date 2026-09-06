@@ -1,11 +1,38 @@
 import { execFile, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { app } from 'electron';
-import type { AdbApp, AdbDevice, AdbInstance } from '../../shared/ipc-types';
+import type {
+  AdbApp,
+  AdbDevice,
+  AdbInstance,
+  RemovedApp,
+  RemoveMode,
+} from '../../shared/ipc-types';
 import { formatError, logger } from '../utils/logger';
+import {
+  createRemovedAppsStore,
+  type RemovedAppRecord,
+  type RemovedAppsStore,
+} from './removed-apps';
 
 let adbPath = '';
+
+const CRITICAL_PACKAGES = new Set([
+  'com.android.vending',
+  'com.android.settings',
+  'com.android.systemui',
+  'com.android.providers.storage',
+  'com.android.phone',
+  'com.android.server.telecom',
+  'com.google.android.gms',
+  'com.google.android.gmsquick',
+  'com.android.launcher',
+  'com.android.launcher3',
+  'com.android.dialer',
+  'com.android.contacts',
+  'com.android.mms',
+]);
 
 const APP_LABELS: Record<string, string> = {
   // Facebook
@@ -384,8 +411,14 @@ export function getAdbPath(): string {
   return adbPath;
 }
 
-export function execAdb(args: string[]): Promise<string> {
-  return new Promise((resolvePromise, reject) => {
+export interface AdbExecResult {
+  code: number | null;
+  stdout: string;
+  stderr: string;
+}
+
+export function execAdbResult(args: string[]): Promise<AdbExecResult> {
+  return new Promise((resolvePromise) => {
     const child = spawn(adbPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 30_000,
@@ -403,17 +436,49 @@ export function execAdb(args: string[]): Promise<string> {
     });
 
     child.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(stderr.trim() || `adb exited with code ${code}`));
-        return;
-      }
-      resolvePromise(stdout);
+      resolvePromise({ code, stdout, stderr });
     });
 
     child.on('error', (err) => {
-      reject(new Error(`Failed to spawn adb: ${err.message}`));
+      resolvePromise({ code: null, stdout: '', stderr: `Failed to spawn adb: ${err.message}` });
     });
   });
+}
+
+export function execAdb(args: string[]): Promise<string> {
+  return execAdbResult(args).then(({ code, stdout, stderr }) => {
+    if (code !== 0) {
+      throw new Error(stderr.trim() || stdout.trim() || `adb exited with code ${code}`);
+    }
+    return stdout;
+  });
+}
+
+export interface PmResult {
+  ok: boolean;
+  reason?: string;
+}
+
+export function parsePmResult(output: string): PmResult {
+  const text = output.trim();
+  if (!text) return { ok: true };
+  const failureMatch = text.match(/^Failure\s+\[?(.*?)\]?\s*$/i);
+  if (failureMatch) {
+    return { ok: false, reason: failureMatch[1]?.trim() || 'erro desconhecido' };
+  }
+  return { ok: true };
+}
+
+export function pmCommandSucceeded(result: AdbExecResult): PmResult {
+  const parsed = parsePmResult(result.stdout);
+  if (!parsed.ok) return parsed;
+  if (result.code !== 0) {
+    return {
+      ok: false,
+      reason: result.stderr.trim() || `adb exited with code ${result.code}`,
+    };
+  }
+  return { ok: true };
 }
 
 export async function listDevices(): Promise<AdbDevice[]> {
@@ -446,21 +511,48 @@ export async function listDevices(): Promise<AdbDevice[]> {
   return devices;
 }
 
-async function batchMap<T, R>(
-  items: T[],
-  fn: (item: T) => Promise<R>,
-  concurrency: number
-): Promise<R[]> {
-  const results: R[] = [];
-  for (let i = 0; i < items.length; i += concurrency) {
-    const batch = items.slice(i, i + concurrency);
-    const batchResults = await Promise.all(batch.map(fn));
-    results.push(...batchResults);
-  }
-  return results;
+function sanitizeInstanceId(id: string): string {
+  return id.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
-function cleanLabel(raw: string): string {
+function getAppDataDir(): string {
+  return app.isPackaged
+    ? resolve(app.getPath('appData'), 'fm-optimize')
+    : resolve(__dirname, '../../data');
+}
+
+function getBackupDir(instanceId?: string): string {
+  const base = resolve(getAppDataDir(), 'backups');
+  const dir = instanceId ? resolve(base, sanitizeInstanceId(instanceId)) : base;
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+let removedAppsStore: RemovedAppsStore | null = null;
+
+function getRemovedAppsStore(): RemovedAppsStore {
+  removedAppsStore ??= createRemovedAppsStore(getAppDataDir());
+  return removedAppsStore;
+}
+
+function listBackupFiles(dir: string, packageName: string): string[] {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((f) => f === `${packageName}.apk` || f.startsWith(`${packageName}.`))
+    .map((f) => resolve(dir, f));
+}
+
+function deleteBackupFiles(dir: string, packageName: string): void {
+  for (const f of listBackupFiles(dir, packageName)) {
+    try {
+      unlinkSync(f);
+    } catch {
+      /* best effort */
+    }
+  }
+}
+
+function cleanSegment(raw: string): string {
   let label = raw
     .replace(/versionCode:\S+/g, '')
     .replace(/versionName:\S+/g, '')
@@ -470,12 +562,31 @@ function cleanLabel(raw: string): string {
   return label;
 }
 
-function getBackupDir(): string {
-  const dir = app.isPackaged
-    ? resolve(app.getPath('appData'), 'fm-optimize', 'backups')
-    : resolve(__dirname, '../../data/backups');
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  return dir;
+export function resolveLabel(packageName: string): string {
+  if (APP_LABELS[packageName]) return APP_LABELS[packageName];
+  const segments = packageName.split('.');
+  const last = segments[segments.length - 1];
+  return cleanSegment(last.charAt(0).toUpperCase() + last.slice(1));
+}
+
+export function parsePackagePaths(output: string): string[] {
+  return output
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith('package:'))
+    .map((l) => l.replace('package:', ''));
+}
+
+export function shouldBackupOnRemoval(remotePath: string, packageName: string): boolean {
+  return (
+    remotePath.includes('/system/') ||
+    remotePath.includes('/vendor/') ||
+    CRITICAL_PACKAGES.has(packageName)
+  );
+}
+
+export function buildInstallArgs(files: string[]): string[] {
+  return files.length > 1 ? ['install-multiple', '-r', ...files] : ['install', '-r', ...files];
 }
 
 export async function listApps(serial: string): Promise<AdbApp[]> {
@@ -514,63 +625,206 @@ export async function listApps(serial: string): Promise<AdbApp[]> {
     })
     .filter((p) => p.packageName);
 
-  const userPackages = parsed.filter((p) => !p.isSystem);
-
-  const sizes = await batchMap(
-    userPackages,
-    async (pkg) => {
-      const output = await execAdb(['-s', serial, 'shell', 'stat', '-c', '%s', pkg.apkPath]).catch(
-        () => ''
-      );
-      return output.trim() === '' ? -1 : Number.parseInt(output.trim(), 10) || 0;
-    },
-    5
-  );
-
-  const sizeMap = new Map<string, number>();
-  userPackages.forEach((pkg, i) => {
-    sizeMap.set(pkg.packageName, sizes[i]);
-  });
-
-  function resolveLabel(packageName: string): string {
-    if (APP_LABELS[packageName]) return APP_LABELS[packageName];
-    const segments = packageName.split('.');
-    const last = segments[segments.length - 1];
-    return cleanLabel(last.charAt(0).toUpperCase() + last.slice(1));
-  }
-
   return parsed.map((pkg) => ({
     packageName: pkg.packageName,
     label: resolveLabel(pkg.packageName),
     isSystem: pkg.isSystem,
     isDisabled: pkg.isDisabled,
     isUpdated: pkg.isUpdated,
-    size: sizeMap.get(pkg.packageName) ?? (pkg.isSystem ? 0 : -1),
   }));
 }
 
-export async function removeApp(serial: string, packageName: string): Promise<void> {
-  await execAdb(['-s', serial, 'shell', 'pm', 'uninstall', '-k', '--user', '0', packageName]);
+export async function removeApp(
+  serial: string,
+  instanceId: string,
+  instanceName: string,
+  arch: string,
+  packageName: string
+): Promise<{ mode: RemoveMode }> {
+  const pathResult = await execAdbResult(['-s', serial, 'shell', 'pm', 'path', packageName]);
+  const primary = parsePackagePaths(pathResult.stdout)[0] ?? '';
+  const shouldBackup = shouldBackupOnRemoval(primary, packageName);
+
+  let backupPath: string | null = null;
+  if (shouldBackup) {
+    try {
+      backupPath = await backupApp(serial, instanceId, packageName);
+    } catch (e: unknown) {
+      logger.warn('[removeApp] backup falhou', { packageName, error: formatError(e) });
+      backupPath = null;
+    }
+  }
+
+  const uninstallResult = await execAdbResult([
+    '-s',
+    serial,
+    'shell',
+    'pm',
+    'uninstall',
+    '-k',
+    '--user',
+    '0',
+    packageName,
+  ]);
+
+  const record = (mode: RemoveMode): void => {
+    getRemovedAppsStore().recordRemovedApp({
+      packageName,
+      label: resolveLabel(packageName),
+      instanceId,
+      instanceName: instanceName || instanceId,
+      arch,
+      removedAt: new Date().toISOString(),
+      mode,
+      hasBackup: Boolean(backupPath),
+      backupPath: backupPath ?? undefined,
+    });
+  };
+
+  if (pmCommandSucceeded(uninstallResult).ok) {
+    record('uninstalled');
+    return { mode: 'uninstalled' };
+  }
+
+  const disableResult = await execAdbResult([
+    '-s',
+    serial,
+    'shell',
+    'pm',
+    'disable-user',
+    '--user',
+    '0',
+    packageName,
+  ]);
+  if (pmCommandSucceeded(disableResult).ok) {
+    record('disabled');
+    return { mode: 'disabled' };
+  }
+
+  if (shouldBackup && backupPath) deleteBackupFiles(getBackupDir(instanceId), packageName);
+
+  const uninstallReason = parsePmResult(uninstallResult.stdout).reason;
+  const disableReason = parsePmResult(disableResult.stdout).reason;
+  const detail = uninstallReason || disableReason || 'app protegido pelo sistema';
+  throw new Error(
+    `Não foi possível remover "${packageName}" (${trimReason(detail)}). O app parece ser protegido.`
+  );
 }
 
-export async function backupApp(serial: string, packageName: string): Promise<string> {
-  const backupDir = getBackupDir();
-  const apkPath = await execAdb(['-s', serial, 'shell', 'pm', 'path', packageName]);
-  const remotePath = apkPath.trim().replace('package:', '');
-  const localPath = resolve(backupDir, `${packageName}.apk`);
-  await execAdb(['-s', serial, 'pull', remotePath, localPath]);
-  return localPath;
+function trimReason(reason: string): string {
+  return reason.length > 80 ? `${reason.slice(0, 80)}…` : reason;
+}
+
+export async function backupApp(
+  serial: string,
+  instanceId: string,
+  packageName: string
+): Promise<string | null> {
+  const output = await execAdb(['-s', serial, 'shell', 'pm', 'path', packageName]);
+  const paths = parsePackagePaths(output);
+  if (paths.length === 0) return null;
+  const dir = getBackupDir(instanceId);
+  for (let i = 0; i < paths.length; i++) {
+    const local = resolve(dir, i === 0 ? `${packageName}.apk` : `${packageName}.part-${i + 1}.apk`);
+    await execAdb(['-s', serial, 'pull', paths[i], local]);
+  }
+  return resolve(dir, `${packageName}.apk`);
 }
 
 export async function restoreApp(serial: string, apkPath: string): Promise<void> {
   await execAdb(['-s', serial, 'install', '-r', apkPath]);
 }
 
-export async function restoreAppByName(serial: string, packageName: string): Promise<void> {
-  const backupDir = getBackupDir();
-  const localPath = resolve(backupDir, `${packageName}.apk`);
-  if (!existsSync(localPath)) {
-    throw new Error(`Backup não encontrado para ${packageName}`);
+export async function restoreAppByName(
+  serial: string,
+  instanceId: string,
+  packageName: string
+): Promise<void> {
+  const rec = getRemovedAppsStore()
+    .listRemovedApps()
+    .find((r) => r.packageName === packageName);
+  if (!rec) throw new Error(`Nenhum registro de remoção para ${packageName}`);
+  assertRestoreAllowed(rec, instanceId);
+  await restoreRemovedApp(serial, instanceId, packageName);
+}
+
+function toRemovedAppInfo(rec: RemovedAppRecord): RemovedApp {
+  return {
+    packageName: rec.packageName,
+    label: rec.label,
+    instanceId: rec.instanceId,
+    instanceName: rec.instanceName,
+    arch: rec.arch,
+    removedAt: rec.removedAt,
+    mode: rec.mode ?? 'uninstalled',
+    hasBackup: rec.hasBackup,
+  };
+}
+
+export function listRemovedApps(): RemovedApp[] {
+  return getRemovedAppsStore().listRemovedApps().map(toRemovedAppInfo);
+}
+
+export function assertRestoreAllowed(rec: RemovedAppRecord | undefined, instanceId: string): void {
+  if (!rec) throw new Error('Nenhum registro de remoção encontrado para este app');
+  if (rec.instanceId !== instanceId) {
+    throw new Error(
+      `O backup pertence à instância "${rec.instanceName || rec.instanceId}". Conecte-se a ela para restaurar.`
+    );
   }
-  await execAdb(['-s', serial, 'install', '-r', localPath]);
+  if (!rec.hasBackup && rec.mode === 'uninstalled') {
+    throw new Error('Nenhum backup disponível para este app');
+  }
+}
+
+export async function restoreRemovedApp(
+  serial: string,
+  instanceId: string,
+  packageName: string
+): Promise<void> {
+  const store = getRemovedAppsStore();
+  const rec = store.listRemovedApps().find((r) => r.packageName === packageName);
+  assertRestoreAllowed(rec, instanceId);
+
+  if (rec?.mode === 'disabled') {
+    const enableResult = await execAdbResult([
+      '-s',
+      serial,
+      'shell',
+      'pm',
+      'enable',
+      '--user',
+      '0',
+      packageName,
+    ]);
+    if (!pmCommandSucceeded(enableResult).ok) {
+      const reason = parsePmResult(enableResult.stdout).reason;
+      throw new Error(
+        `Não foi possível reativar "${packageName}": ${trimReason(reason || 'erro desconhecido')}`
+      );
+    }
+    store.removeRemovedAppEntry(packageName);
+    return;
+  }
+
+  const dir = rec?.backupPath ? dirname(rec.backupPath) : getBackupDir(instanceId);
+  const files = listBackupFiles(dir, packageName);
+  if (files.length === 0) throw new Error(`Arquivos de backup de ${packageName} não encontrados`);
+  await execAdb(['-s', serial, ...buildInstallArgs(files)]);
+  files.forEach((f) => {
+    try {
+      unlinkSync(f);
+    } catch {
+      /* best effort */
+    }
+  });
+  store.removeRemovedAppEntry(packageName);
+}
+
+export function clearRemovedApp(packageName: string): void {
+  getRemovedAppsStore().removeRemovedAppEntry(packageName);
+}
+
+export function clearRemovedHistory(): void {
+  getRemovedAppsStore().clearRemovedHistory();
 }

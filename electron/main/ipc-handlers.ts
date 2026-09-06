@@ -9,15 +9,19 @@ import type {
 import { auditIpcValidation } from './audit-logger';
 import {
   backupApp,
+  clearRemovedApp,
+  clearRemovedHistory,
   detectEmulatorAdbPath,
   detectEmulatorVersion,
   getAdbPath,
   listApps,
   listDevices,
   listEmulatorInstances,
+  listRemovedApps,
   removeApp,
   restoreApp,
   restoreAppByName,
+  restoreRemovedApp,
   setAdbPath,
 } from './services/adb';
 import { isAdmin } from './services/admin-check';
@@ -364,15 +368,25 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('adb:remove-app', (_e, payload: unknown) => {
     return handleIpc('adb:remove-app', payload, (validated) => {
-      const { serial, packageName } = validated as { serial: string; packageName: string };
-      return removeApp(serial, packageName);
+      const { serial, instanceId, instanceName, arch, packageName } = validated as {
+        serial: string;
+        instanceId: string;
+        instanceName?: string;
+        arch?: string;
+        packageName: string;
+      };
+      return removeApp(serial, instanceId, instanceName ?? '', arch ?? '', packageName);
     });
   });
 
   ipcMain.handle('adb:backup-app', (_e, payload: unknown) => {
     return handleIpc('adb:backup-app', payload, (validated) => {
-      const { serial, packageName } = validated as { serial: string; packageName: string };
-      return backupApp(serial, packageName);
+      const { serial, instanceId, packageName } = validated as {
+        serial: string;
+        instanceId: string;
+        packageName: string;
+      };
+      return backupApp(serial, instanceId, packageName);
     });
   });
 
@@ -385,10 +399,39 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('adb:restore-app-by-name', (_e, payload: unknown) => {
     return handleIpc('adb:restore-app-by-name', payload, (validated) => {
-      const { serial, packageName } = validated as { serial: string; packageName: string };
-      return restoreAppByName(serial, packageName);
+      const { serial, instanceId, packageName } = validated as {
+        serial: string;
+        instanceId: string;
+        packageName: string;
+      };
+      return restoreAppByName(serial, instanceId, packageName);
     });
   });
+
+  ipcMain.handle('adb:list-removed', () =>
+    handleIpcNoInput('adb:list-removed', () => listRemovedApps())
+  );
+
+  ipcMain.handle('adb:restore-removed', (_e, payload: unknown) => {
+    return handleIpc('adb:restore-removed', payload, (validated) => {
+      const { serial, instanceId, packageName } = validated as {
+        serial: string;
+        instanceId: string;
+        packageName: string;
+      };
+      return restoreRemovedApp(serial, instanceId, packageName);
+    });
+  });
+
+  ipcMain.handle('adb:clear-removed', (_e, payload: unknown) => {
+    return handleIpc('adb:clear-removed', payload, (validated) => {
+      return clearRemovedApp((validated as { packageName: string }).packageName);
+    });
+  });
+
+  ipcMain.handle('adb:clear-removed-history', () =>
+    handleIpcNoInput('adb:clear-removed-history', () => clearRemovedHistory())
+  );
 
   ipcMain.handle('adb:list-instances', (_e, payload: unknown) => {
     return handleIpc('adb:list-instances', payload, (validated) => {

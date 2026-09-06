@@ -61,6 +61,7 @@ function EmuladoresPageContent() {
   } = useEmulatorContext();
 
   const [currentView, setCurrentView] = useState<'select-emulator' | 'app-list'>('select-emulator');
+  const [selectedInstance, setSelectedInstance] = useState<EmulatorInstance | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEmulator, setSelectedEmulator] = useState<EmulatorCard | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -168,6 +169,7 @@ function EmuladoresPageContent() {
     async (instance: { id: string; name: string; arch: string }) => {
       if (!selectedEmulator || !deviceSerial) return;
       setInstanciaSelecionada(instance.id);
+      setSelectedInstance(instance);
       setCarregando(true);
       setCurrentView('app-list');
       try {
@@ -184,14 +186,20 @@ function EmuladoresPageContent() {
 
   if (currentView === 'app-list' && emulatorAtivo) {
     const emulator = EMULATORS.find((e) => e.id === emulatorAtivo);
+    const fallbackInstance: EmulatorInstance = {
+      id: instanciaSelecionada || '',
+      name: instanciaSelecionada || '',
+      arch: '',
+    };
     return (
       <AppListView
         emulatorName={emulator?.name || ''}
-        instanceName={instanciaSelecionada || ''}
+        instance={selectedInstance ?? fallbackInstance}
         deviceSerial={deviceSerial || ''}
         onBack={() => {
           setCurrentView('select-emulator');
           setInstanciaSelecionada(null);
+          setSelectedInstance(null);
         }}
       />
     );

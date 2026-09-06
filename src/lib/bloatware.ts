@@ -1,19 +1,3 @@
-export const CRITICAL_PACKAGES = new Set([
-  'com.android.vending',
-  'com.android.settings',
-  'com.android.systemui',
-  'com.android.providers.storage',
-  'com.android.phone',
-  'com.android.server.telecom',
-  'com.google.android.gms',
-  'com.google.android.gmsquick',
-  'com.android.launcher',
-  'com.android.launcher3',
-  'com.android.dialer',
-  'com.android.contacts',
-  'com.android.mms',
-]);
-
 export const BLOATWARE_PACKAGES = new Set([
   'com.facebook.katana',
   'com.facebook.appmanager',
